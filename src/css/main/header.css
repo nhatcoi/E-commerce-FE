@@ -1,0 +1,134 @@
+/* Sidebar Menu */
+.sidebar-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    transform: translateX(100%); /* Sidebar ẩn (trượt ra ngoài màn hình) */
+    width: 300px;
+    height: 100%;
+    background: #fff;
+    transition: transform 0.5s ease-in-out; /* Hiệu ứng mượt */
+    z-index: 1050;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.sidebar-menu.active {
+    transform: translateX(0); /* Sidebar hiện ra */
+}
+
+.sidebar-menu .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.sidebar-content {
+    margin-top: 20px;
+}
+
+.sidebar-content .nav-link {
+    padding: 10px 0;
+    color: #333;
+}
+
+.language-currency select {
+    margin: 10px 0;
+    width: 100%;
+}
+
+.contact-info p {
+    margin: 5px 0;
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    opacity: 0; /* Bắt đầu với opacity 0 */
+    visibility: hidden; /* Ẩn overlay */
+    transition: opacity 0.3s ease-in-out; /* Hiệu ứng mượt */
+}
+
+.overlay.active {
+    opacity: 1; /* Hiển thị overlay */
+    visibility: visible;
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.header-top-bar {
+    height: 3.2em;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-main {
+    height: 5.5em;
+    background: #fff;
+    padding: 0;
+}
+
+
+
+/* Mobile - Hiển menu */
+@media screen and (max-width: 768px) {
+    .sidebar-menu {
+        display: block; /* Hiển thị menu sidebar */
+    }
+
+    .menu-toggle {
+        display: block; /* Hiển thị nút menu */
+    }
+
+    /* Ẩn các menu desktop */
+    .navbar-nav {
+        display: none;
+    }
+
+    /* Ẩn header-wap   */
+    .header-top-bar {
+        display: none !important;
+    }
+}
+
+
+/*desktop - ẩn menu*/
+/* Desktop - Hiển thị menu ngang, ẩn sidebar */
+@media screen and (min-width: 769px) {
+    .sidebar-menu {
+        display: none; /* Ẩn sidebar menu */
+    }
+
+    .menu-toggle {
+        display: none; /* Ẩn nút mở menu */
+    }
+
+    .navbar-nav {
+        display: flex; /* Hiển thị menu kiểu ngang */
+    }
+
+    .header-wap {
+        padding: 0 70px 0 70px;
+    }
+
+    .header-wap .call-us {
+        display: flex;
+        align-items: center;
+    }
+}

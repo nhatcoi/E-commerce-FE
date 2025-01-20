@@ -1,0 +1,153 @@
+
+
+
+
+
+/* Support Area */
+.support-area {
+    padding: 6rem 0 !important;
+}
+
+.support-item {
+    max-width: 400px;
+    padding: 0 3em;
+}
+
+.support-item h4 {
+    font-size: 18px;
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.support-item p {
+    font-size: 16px;
+    margin: 0;
+}
+
+.divider {
+    position: absolute; /* Định vị chính xác */
+    top: 50%; /* Đưa divider vào giữa chiều cao của cột */
+    transform: translateY(-50%); /* Căn chỉnh giữa */
+    width: 1px; /* Độ rộng của divider */
+    height: 40%; /* Chiều cao của divider */
+    background-color: #ccc; /* Màu divider */
+    z-index: 1; /* Đảm bảo divider nằm phía trên */
+    opacity: 0.7;
+}
+
+.support-item {
+    position: relative; /* Đảm bảo cột có vị trí tương đối để divider căn theo */
+}
+
+.support-item .divider {
+    right: -0.1px; /* Đặt divider cách lề phải của cột */
+}
+
+/* Hiệu ứng rung chuông với tâm ở giữa */
+@keyframes bell-shake-center {
+    0% { transform: scale(1) rotate(0); }
+    5% { transform: scale(1.2) rotate(10deg); }
+    10% { transform: scale(1.2) rotate(-10deg); }
+    15% { transform: scale(1.2) rotate(7deg); }
+    20% { transform: scale(1.2) rotate(-7deg); }
+    25% { transform: scale(1.2) rotate(5deg); }
+    30% { transform: scale(1.2) rotate(-5deg); }
+    35% { transform: scale(1.2) rotate(3deg); }
+    40% { transform: scale(1.2) rotate(-3deg); }
+    50% { transform: scale(1.2) rotate(0); }
+    60% { transform: scale(1.2) rotate(10deg); }
+    70% { transform: scale(1.2) rotate(-10deg); }
+    80% { transform: scale(1.2) rotate(7deg); }
+    90% { transform: scale(1.2) rotate(-7deg); }
+    100% { transform: scale(1.1) rotate(0); }
+}
+
+/* Áp dụng hiệu ứng khi hover */
+.support-icon-img:hover {
+    animation: bell-shake-center 0.5s ease-in-out; /* Thời gian kéo dài hơn */
+    transform-origin: center; /* Điểm xoay nằm chính giữa */
+}
+
+/*Products*/
+.product-wrap-2 {
+    height: 100%; /* Đảm bảo thẻ bao sản phẩm chiếm toàn bộ chiều cao */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-content-2 {
+    height: 20%; /* Chiều cao phần nội dung là 40% */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+}
+
+.product-content-2 a {
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.product-img {
+    height: 80%; /* Chiều cao của khung chứa hình ảnh */
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    overflow: hidden;
+    position: relative;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%; /* Đảm bảo hình ảnh chiếm đầy đủ khung chứa */
+    object-fit: cover; /* Giữ tỉ lệ ảnh và cắt bớt phần thừa nếu cần */
+    transition: all 0.3s ease-in-out;
+}
+
+.product-img .hover-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.product-img:hover .hover-img {
+    opacity: 1;
+}
+
+.product-img:hover .default-img {
+    opacity: 0;
+}
+
+.product-img-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+.product-action-2 {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+    .support-item {
+        margin-bottom: 30px;
+    }
+    .support-item .divider {
+        display: none;
+    }
+}
