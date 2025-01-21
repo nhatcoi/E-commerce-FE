@@ -23,7 +23,7 @@ const Product = ({ products }) => {
                                     />
                                     <img
                                         className="hover-img"
-                                        src={img2Template}
+                                        src={products[products.indexOf(product) + 1]?.thumbnail}
                                         alt={product.name}
                                     />
                                 </a>

@@ -43,7 +43,7 @@
     right: -0.1px; /* Đặt divider cách lề phải của cột */
 }
 
-/* Hiệu ứng rung chuông với tâm ở giữa */
+    /* Hiệu ứng rung chuông với tâm ở giữa */
 @keyframes bell-shake-center {
     0% { transform: scale(1) rotate(0); }
     5% { transform: scale(1.2) rotate(10deg); }
@@ -62,13 +62,13 @@
     100% { transform: scale(1.1) rotate(0); }
 }
 
-/* Áp dụng hiệu ứng khi hover */
+    /* Áp dụng hiệu ứng khi hover */
 .support-icon-img:hover {
     animation: bell-shake-center 0.5s ease-in-out; /* Thời gian kéo dài hơn */
     transform-origin: center; /* Điểm xoay nằm chính giữa */
 }
 
-/*Products*/
+/*New Products*/
 .product-wrap-2 {
     height: 100%; /* Đảm bảo thẻ bao sản phẩm chiếm toàn bộ chiều cao */
     display: flex;
@@ -90,6 +90,11 @@
     font-size: 16px;
     font-weight: 500;
     text-decoration: none;
+    transition: color 0.3s ease; /* Thêm hiệu ứng chuyển đổi màu */
+}
+
+.product-content-2 a:hover {
+    color: #a749ff;
 }
 
 .product-img {
@@ -99,13 +104,18 @@
     align-items: center; /* Căn giữa theo chiều dọc */
     overflow: hidden;
     position: relative;
+    object-fit: cover; /* Giữ tỉ lệ ảnh và cắt bớt phần thừa nếu cần */
+    top: 0;
+    left: 0;
+    transition: transform 0.5s ease;
+    border: 1px solid #f1f1f1;
 }
 
 .product-img img {
     width: 100%;
     height: 100%; /* Đảm bảo hình ảnh chiếm đầy đủ khung chứa */
     object-fit: cover; /* Giữ tỉ lệ ảnh và cắt bớt phần thừa nếu cần */
-    transition: all 0.3s ease-in-out;
+    transition: all 0.5s ease-in-out;
 }
 
 .product-img .hover-img {
@@ -115,12 +125,21 @@
     opacity: 0;
 }
 
-.product-img:hover .hover-img {
-    opacity: 1;
+.product-img .default-img {
+    transform: translateX(0); /* Vị trí ban đầu của ảnh mặc định */
+}
+
+.product-img .hover-img {
+    transform: translateX(100%); /* Ẩn ảnh hover bên phải khung */
+    opacity: 1; /* Đảm bảo ảnh hover hiển thị đầy đủ khi di chuyển */
 }
 
 .product-img:hover .default-img {
-    opacity: 0;
+    transform: translateX(-100%); /* Trượt ảnh mặc định ra bên trái */
+}
+
+.product-img:hover .hover-img {
+    transform: translateX(0); /* Trượt ảnh hover vào giữa khung */
 }
 
 .product-img-badges {
@@ -137,6 +156,7 @@
     gap: 10px;
 }
 
+/* Blog List */
 
 
 

@@ -11,6 +11,7 @@ import SearchBar from "src/components/SearchBar.jsx";
 import Banner from "../components/Banner.jsx"
 import Support from "../components/Support.jsx"
 import Product from "../components/Product.jsx"
+import BlogList from "../components/BlogList.jsx"
 
 import banner2 from 'src/assets/img/banner/banner-template.png';
 import banner3 from 'src/assets/img/banner/banner-template.png';
@@ -23,8 +24,8 @@ const bannerTemplates = [
 const Home = () => {
     // State:
     const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    // const [blogs, setBlogs] = useState([]);
+    // const [categories, setCategories] = useState([]);
+    const [blogs, setBlogs] = useState([]);
     const [pagination, setPagination] = useState({ totalPages: 0, currentPage: 0 });
 
     const loadProducts = async (page = 0) => {
@@ -51,38 +52,38 @@ const Home = () => {
     };
 
 
-    const loadCategories = async () => {
-        try {
-            const response = await api.get(`/categories`);
-
-            console.log(response);
-
-            const data = response.data;
-            console.log(data.data);
-
-            setCategories(data.data);
-            setCategories(data.data);
-        } catch (error) {
-            console.error(error);
-            Alerts.handleError('Error loading categories.');
-        }
-    };
-
-    // const loadBlogs = async () => {
+    // const loadCategories = async () => {
     //     try {
-    //         const response = await fetch(API.urls.recentBlogs);
-    //         const data = await response.json();
-    //         setBlogs(data.data);
+    //         const response = await api.get(`/categories`);
+    //
+    //         console.log(response);
+    //
+    //         const data = response.data;
+    //         console.log(data.data);
+    //
+    //         setCategories(data.data);
     //     } catch (error) {
     //         console.error(error);
-    //         Alerts.handleError('Error loading blogs.');
+    //         Alerts.handleError('Error loading categories.');
     //     }
     // };
 
+    const loadBlogs = async () => {
+        try {
+            const response = await api.get(`/blog/recent-news`);
+            const data = response.data;
+            console.log(data.data);
+            setBlogs(data.data);
+        } catch (error) {
+            console.error(error);
+            Alerts.handleError('Error loading blogs.');
+        }
+    };
+
     useEffect(() => {
         loadProducts().then(r => console.log(r));
-        loadCategories().then(r => console.log(r));
-        // loadBlogs();
+/*        loadCategories().then(r => console.log(r));*/
+        loadBlogs().then(r => console.log(r));
     }, []);
 
 
@@ -117,7 +118,7 @@ const Home = () => {
                 onPageChange={handlePageChange}
             />
 
-            {/* <BlogList blogs={blogs} /> */}
+            <BlogList blogs={blogs} />
         </div>
     );
 };
