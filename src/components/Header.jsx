@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav } from "react-bootstrap";
 import { FaSearch, FaUser, FaHeart, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { NavLink } from "react-router-dom"; // Import NavLink từ react-router-dom
 import "src/css/main/main.css";
 import "src/css/main/header.css";
 
@@ -36,26 +37,38 @@ const Header = () => {
                 <div className="sidebar-content">
                     <Nav className="flex-column">
                         <div className="d-flex gap-3">
-
-                            <FaUser className="fs-5"/>
-                            <FaHeart className="fs-5"/>
+                            <FaUser className="fs-5" />
+                            <FaHeart className="fs-5" />
                             <div className="position-relative">
-                                <FaShoppingCart className="fs-5"/>
+                                <FaShoppingCart className="fs-5" />
                                 <span
                                     className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark text-white"
-                                    style={{fontSize: "0.75rem"}}
+                                    style={{ fontSize: "0.75rem" }}
                                 >
-                                          0
-                                        </span>
+                                    0
+                                </span>
                             </div>
                         </div>
 
-                        <Nav.Link href="/">Home</Nav.Link>
-                        <Nav.Link href="/shop">Shop</Nav.Link>
-                        <Nav.Link href="/collection">Collection</Nav.Link>
-                        <Nav.Link href="/pages">Pages</Nav.Link>
-                        <Nav.Link href="/blog">Blog</Nav.Link>
-                        <Nav.Link href="/contact">Contact Us</Nav.Link>
+                        {/* Sử dụng NavLink thay vì Nav.Link */}
+                        <NavLink to="/" className="nav-link" onClick={toggleSidebar}>
+                            Home
+                        </NavLink>
+                        <NavLink to="/shop" className="nav-link" onClick={toggleSidebar}>
+                            Shop
+                        </NavLink>
+                        <NavLink to="/collection" className="nav-link" onClick={toggleSidebar}>
+                            Collection
+                        </NavLink>
+                        <NavLink to="/pages" className="nav-link" onClick={toggleSidebar}>
+                            Pages
+                        </NavLink>
+                        <NavLink to="/blog" className="nav-link" onClick={toggleSidebar}>
+                            Blog
+                        </NavLink>
+                        <NavLink to="/contact" className="nav-link" onClick={toggleSidebar}>
+                            Contact Us
+                        </NavLink>
                         <div className="language-currency">
                             <select className="form-select">
                                 <option>English</option>
@@ -71,7 +84,6 @@ const Header = () => {
                             <p>jackie06@gmail.com</p>
                         </div>
                     </Nav>
-
                 </div>
             </div>
 
@@ -87,61 +99,82 @@ const Header = () => {
                 <div className="header-wap container-fluid">
                     {!isScrolling && (
                         <>
-                            <Navbar.Brand href="/" className="fw-bold fs-3">
+                            <Navbar.Brand as={NavLink} to="/" className="fw-bold fs-3">
                                 JackieShop
                             </Navbar.Brand>
 
-
                             <div className="d-flex align-items-center gap-2">
-                                <FaSearch className="fs-5"/>
+                                <FaSearch className="fs-5" />
                                 <button className="menu-toggle" onClick={toggleSidebar}>
-                                    <FaBars/>
+                                    <FaBars />
                                 </button>
                             </div>
 
                             <Navbar.Collapse id="navbar-nav">
                                 <Nav className="mx-auto">
-                                    <Nav.Link href="/">Home</Nav.Link>
-                                    <Nav.Link href="/shop">Shop</Nav.Link>
-                                    <Nav.Link href="/collection">Collection</Nav.Link>
-                                    <Nav.Link href="/pages">Pages</Nav.Link>
-                                    <Nav.Link href="/blog">Blog</Nav.Link>
-                                    <Nav.Link href="/contact">Contact Us</Nav.Link>
+                                    <NavLink to="/" className="nav-link">
+                                        Home
+                                    </NavLink>
+                                    <NavLink to="/shop" className="nav-link">
+                                        Shop
+                                    </NavLink>
+                                    <NavLink to="/collection" className="nav-link">
+                                        Collection
+                                    </NavLink>
+                                    <NavLink to="/pages" className="nav-link">
+                                        Pages
+                                    </NavLink>
+                                    <NavLink to="/blog" className="nav-link">
+                                        Blog
+                                    </NavLink>
+                                    <NavLink to="/contact" className="nav-link">
+                                        Contact Us
+                                    </NavLink>
                                 </Nav>
                                 <div className="d-flex gap-3">
-                                    <FaSearch className="fs-5"/>
-                                    <FaUser className="fs-5"/>
-                                    <FaHeart className="fs-5"/>
+                                    <FaSearch className="fs-5" />
+                                    <FaUser className="fs-5" />
+                                    <FaHeart className="fs-5" />
                                     <div className="position-relative">
-                                        <FaShoppingCart className="fs-5"/>
+                                        <FaShoppingCart className="fs-5" />
                                         <span
                                             className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark text-white"
-                                            style={{fontSize: "0.75rem"}}
+                                            style={{ fontSize: "0.75rem" }}
                                         >
-                                          0
+                                            0
                                         </span>
                                     </div>
                                 </div>
                             </Navbar.Collapse>
-
                         </>
                     )}
 
                     {isScrolling && (
                         <Navbar.Collapse id="navbar-nav">
                             <Nav className="mx-auto">
-                                <Nav.Link href="/">Home</Nav.Link>
-                                <Nav.Link href="/shop">Shop</Nav.Link>
-                                <Nav.Link href="/collection">Collection</Nav.Link>
-                                <Nav.Link href="/pages">Pages</Nav.Link>
-                                <Nav.Link href="/blog">Blog</Nav.Link>
-                                <Nav.Link href="/contact">Contact Us</Nav.Link>
+                                <NavLink to="/" className="nav-link">
+                                    Home
+                                </NavLink>
+                                <NavLink to="/shop" className="nav-link">
+                                    Shop
+                                </NavLink>
+                                <NavLink to="/collection" className="nav-link">
+                                    Collection
+                                </NavLink>
+                                <NavLink to="/pages" className="nav-link">
+                                    Pages
+                                </NavLink>
+                                <NavLink to="/blog" className="nav-link">
+                                    Blog
+                                </NavLink>
+                                <NavLink to="/contact" className="nav-link">
+                                    Contact Us
+                                </NavLink>
                             </Nav>
                         </Navbar.Collapse>
                     )}
                 </div>
             </Navbar>
-
         </header>
     );
 };

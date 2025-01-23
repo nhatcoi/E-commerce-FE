@@ -1,0 +1,76 @@
+import React, {useEffect, useState} from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import Sidebar from "../components/Sidebar/SideBar";
+import ProductGrid from "../components/ProductGrid/ProductGrid";
+import Pagination from "../components/Pagination";
+import api from "src/util/api.js";
+import {Alerts} from "src/util/utils.js";
+
+const Shop = () => {
+    const [productGrid, setProducts] = useState([]);
+    const [pagination, setPagination] = useState({ totalPages: 0, currentPage: 0 });
+
+    const loadProducts = async (page = 0) => {
+        try {
+            const response = await api.get(`/products`, {
+                params: {
+                    page: page,
+                    size: 8,
+                },
+            });
+
+            const data = response.data; // Axios trả về dữ liệu trong `response.data`
+            console.log(data.data);
+
+            setProducts(data.data); // data
+            console.log(productGrid);
+            setPagination({
+                totalPages: data.pagination.totalPages,
+                currentPage: page,
+            });
+        } catch (error) {
+            console.error(error);
+            Alerts.handleError('Error loading products.');
+        }
+    };
+
+    useEffect(() => {
+        loadProducts().then(r => console.log(r));
+        /*        loadCategories().then(r => console.log(r));*/
+
+    }, []);
+
+    const handlePageChange = (page) => {
+        loadProducts(page).then(r => console.log(r));
+    };
+
+    return (
+        <Container className="shop-page">
+            {/* Row chính: Sidebar và Content */}
+            <Row>
+                {/* Sidebar */}
+                <Col lg={3} md={4} sm={12} className="mb-4">
+                    <Sidebar />
+                </Col>
+
+                {/* Product Grid */}
+                <Col lg={9} md={8} sm={12}>
+                    <ProductGrid products={productGrid} />
+                </Col>
+            </Row>
+
+            {/* Pagination */}
+            <Row>
+                <Col className="d-flex justify-content-center mt-4">
+                    <Pagination
+                        totalPages={pagination.totalPages}
+                        currentPage={pagination.currentPage}
+                        onPageChange={handlePageChange}
+                    />
+                </Col>
+            </Row>
+        </Container>
+    );
+};
+
+export default Shop;
