@@ -24,7 +24,7 @@ const bannerTemplates = [
 const Home = () => {
     // State:
     const [products, setProducts] = useState([]);
-    // const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [blogs, setBlogs] = useState([]);
     const [pagination, setPagination] = useState({ totalPages: 0, currentPage: 0 });
 
@@ -52,21 +52,21 @@ const Home = () => {
     };
 
 
-    // const loadCategories = async () => {
-    //     try {
-    //         const response = await api.get(`/categories`);
-    //
-    //         console.log(response);
-    //
-    //         const data = response.data;
-    //         console.log(data.data);
-    //
-    //         setCategories(data.data);
-    //     } catch (error) {
-    //         console.error(error);
-    //         Alerts.handleError('Error loading categories.');
-    //     }
-    // };
+    const loadCategories = async () => {
+        try {
+            const response = await api.get(`/categories`);
+
+            console.log(response);
+
+            const data = response.data;
+            console.log(data.data);
+
+            setCategories(data.data);
+        } catch (error) {
+            console.error(error);
+            Alerts.handleError('Error loading categories.');
+        }
+    };
 
     const loadBlogs = async () => {
         try {
@@ -82,7 +82,7 @@ const Home = () => {
 
     useEffect(() => {
         loadProducts().then(r => console.log(r));
-/*        loadCategories().then(r => console.log(r));*/
+        loadCategories().then(r => console.log(r));
         loadBlogs().then(r => console.log(r));
     }, []);
 
@@ -108,7 +108,7 @@ const Home = () => {
             <Support/>
             <Product products={products} />
             {/*<SearchBar categories={categories} />*/}
-            {/*<CategoryList categories={categories} />*/}
+            <CategoryList categories={categories} />
             <ProductList products={products} onAddToCart={handleAddToCart} />
 
             {/* Pagination */}
