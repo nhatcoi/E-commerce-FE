@@ -1,3 +1,4 @@
+// Shop.jsx
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "../components/Sidebar/SideBar";
@@ -5,6 +6,7 @@ import ProductGrid from "../components/ProductGrid/ProductGrid";
 import Pagination from "../components/Pagination";
 import api from "src/util/api.js";
 import { Alerts } from "src/util/utils.js";
+import "src/css/main/Shop.css";
 
 const Shop = () => {
     const [productsGrid, setProducts] = useState([]);
@@ -20,10 +22,8 @@ const Shop = () => {
                 },
             });
 
-            const data = response.data; // Axios trả về dữ liệu trong `response.data`
-            console.log(data.data);
-
-            setProducts(data.data); // data
+            const data = response.data;
+            setProducts(data.data);
             setPagination({
                 totalPages: data.pagination.totalPages,
                 currentPage: page,
@@ -34,16 +34,10 @@ const Shop = () => {
         }
     };
 
-
     const loadCategories = async () => {
         try {
             const response = await api.get(`/categories`);
-
-            console.log(response);
-
             const data = response.data;
-            console.log(data.data);
-
             setCategories(data.data);
         } catch (error) {
             console.error(error);
@@ -52,21 +46,23 @@ const Shop = () => {
     };
 
     useEffect(() => {
-        loadProducts().then(r => console.log(r));
-        loadCategories().then(r => console.log(r));
+        loadProducts();
+        loadCategories();
     }, []);
 
     const handlePageChange = (page) => {
-        loadProducts(page).then(r => console.log(r));
+        loadProducts(page);
     };
 
     return (
         <Container className="shop-page">
             <Row>
-                <Col lg={3} md={4} sm={12} className="mb-4">
+                {/* Sidebar */}
+                <Col lg={3} className="sidebar order-2 order-lg-1 mb-4">
                     <Sidebar categories={categoriesGrid} />
                 </Col>
-                <Col lg={9} md={8} sm={12}>
+                {/* Product Grid */}
+                <Col lg={9} className="product_grid order-1 order-lg-2">
                     <ProductGrid products={productsGrid} />
                 </Col>
             </Row>
