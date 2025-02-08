@@ -37,8 +37,8 @@ const Home = () => {
                 },
             });
 
-            const data = response.data; // Axios trả về dữ liệu trong `response.data`
-            console.log(data.data);
+            const data = response.data;
+
 
             setProducts(data.data); // data
             setPagination({
