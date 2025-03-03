@@ -1,13 +1,15 @@
 // App.jsx
-// eslint-disable-next-line no-unused-vars
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './pages/Home.jsx';
-import Shop from './pages/Shop.jsx';
-import Layout from "./pages/Layout.jsx"; // Import Home component
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store"; // Đổi thành default export
 
-function App() {
-    return (
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import Layout from "./pages/Layout";
+
+const App = () => (
+    <Provider store={store}>
         <Router>
             <Layout>
                 <Routes>
@@ -16,7 +18,7 @@ function App() {
                 </Routes>
             </Layout>
         </Router>
-    );
-}
+    </Provider>
+);
 
 export default App;
