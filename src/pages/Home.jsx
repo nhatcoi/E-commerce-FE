@@ -1,15 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
-// import BlogList from '../components/BlogList';
-// import CategoryList from '../components/CategoryList';
-import ProductList from '../components/home/ProductList.jsx';
-import Pagination from '../components/ui/Pagination.jsx';
+// import ProductList from '../components/home/ProductList.jsx';
+// import Pagination from '../components/ui/Pagination.jsx';
 import { API, Utils, Alerts } from '../utils/utils.js';
 import api from "../config/api.js";
 import CategoryList from "../components/home/CategoryList.jsx";
 import Banner from "../components/home/Banner.jsx"
 import Support from "../components/home/Support.jsx"
-import Product from "../components/home/Product.jsx"
+import NewProduct from "../components/home/NewProduct.jsx"
 import BlogList from "../components/home/BlogList.jsx"
 
 import banner2 from 'src/assets/img/banner/banner-template.png';
@@ -86,36 +84,36 @@ const Home = () => {
     }, []);
 
 
-    // Hàm thêm sản phẩm vào giỏ hàng
-    const handleAddToCart = async (productId) => {
-        try {
-            await Utils.addToCartHandler(productId);
-            Alerts.handleSuccess('Product added to cart successfully.');
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            Alerts.handleError('Error adding to cart.');
-        }
-    };
-
-    const handlePageChange = (page) => {
-        loadProducts(page).then(r => console.log(r));
-    };
+    // // Hàm thêm sản phẩm vào giỏ hàng
+    // const handleAddToCart = async (productId) => {
+    //     try {
+    //         await Utils.addToCartHandler(productId);
+    //         Alerts.handleSuccess('NewProduct added to cart successfully.');
+    //     } catch (error) {
+    //         console.error('Error adding to cart:', error);
+    //         Alerts.handleError('Error adding to cart.');
+    //     }
+    // };
+    //
+    // const handlePageChange = (page) => {
+    //     loadProducts(page).then(r => console.log(r));
+    // };
 
     return (
         <div className="home">
             <Banner images={bannerTemplates} />
             <Support/>
-            <Product products={products} />
+            <NewProduct products={products} />
             {/*<SearchBar.jsx categories={categories} />*/}
             <CategoryList categories={categories} />
-            <ProductList products={products} onAddToCart={handleAddToCart} />
+            {/*<ProductList products={products} onAddToCart={handleAddToCart} />*/}
 
             {/* Pagination */}
-            <Pagination
-                totalPages={pagination.totalPages}
-                currentPage={pagination.currentPage}
-                onPageChange={handlePageChange}
-            />
+            {/*<Pagination*/}
+            {/*    totalPages={pagination.totalPages}*/}
+            {/*    currentPage={pagination.currentPage}*/}
+            {/*    onPageChange={handlePageChange}*/}
+            {/*/>*/}
 
             <BlogList blogs={blogs} />
         </div>
