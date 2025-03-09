@@ -8,6 +8,15 @@ const api = axios.create({
     },
 });
 
+// Add interceptors for auth tokens, error handling, etc.
+api.interceptors.request.use(config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 api.interceptors.response.use(
     (response) => response,
     (error) => {
