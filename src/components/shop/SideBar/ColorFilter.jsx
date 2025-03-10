@@ -1,58 +1,62 @@
 import React, { useState } from "react";
-import { FormControl, FormLabel, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+import { Checkbox } from "src/components/ui/checkbox";
+import { Label } from "src/components/ui/label";
 
 const ColorFilter = ({ colors }) => {
     const [selectedColors, setSelectedColors] = useState([]);
 
-    const handleColorChange = (colorName) => {
+    const handleColorChange = (checked, colorName) => {
         if (colorName === "All Colors") {
-            if (selectedColors.includes("All Colors")) {
-                setSelectedColors([]);
-            } else {
+            if (checked) {
                 setSelectedColors(["All Colors", ...colors.map((color) => color.name)]);
+            } else {
+                setSelectedColors([]);
             }
         } else {
             let updatedColors;
-            if (selectedColors.includes(colorName)) {
-                updatedColors = selectedColors.filter((color) => color !== colorName);
-            } else {
+            if (checked) {
                 updatedColors = [...selectedColors.filter((color) => color !== "All Colors"), colorName];
+            } else {
+                updatedColors = selectedColors.filter((color) => color !== colorName);
             }
             setSelectedColors(updatedColors);
         }
     };
 
     return (
-        <FormControl component="fieldset">
+        <div className="space-y-4">
             <h5 className="pro-sidebar-title">Color</h5>
-            <FormGroup>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={selectedColors.includes("All Colors")}
-                            onChange={() => handleColorChange("All Colors")}
-                            className="cursor-pointer"
-                        />
-                    }
-                    label="All Colors"
-                    className="flex items-center cursor-pointer"
-                />
-                {colors.map((color, index) => (
-                    <FormControlLabel
-                        key={index}
-                        control={
-                            <Checkbox
-                                checked={selectedColors.includes(color.name)}
-                                onChange={() => handleColorChange(color.name)}
-                                className="cursor-pointer"
-                            />
-                        }
-                        label={color.name}
-                        className="flex items-center cursor-pointer"
+            <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                    <Checkbox
+                        id="all-colors"
+                        checked={selectedColors.includes("All Colors")}
+                        onCheckedChange={(checked) => handleColorChange(checked, "All Colors")}
                     />
+                    <Label
+                        htmlFor="all-colors"
+                        className="text-sm leading-none cursor-pointer"
+                    >
+                        All Colors
+                    </Label>
+                </div>
+                {colors.map((color, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                        <Checkbox
+                            id={`color-${index}`}
+                            checked={selectedColors.includes(color.name)}
+                            onCheckedChange={(checked) => handleColorChange(checked, color.name)}
+                        />
+                        <Label
+                            htmlFor={`color-${index}`}
+                            className="text-sm leading-none cursor-pointer"
+                        >
+                            {color.name}
+                        </Label>
+                    </div>
                 ))}
-            </FormGroup>
-        </FormControl>
+            </div>
+        </div>
     );
 };
 

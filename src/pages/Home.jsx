@@ -1,17 +1,20 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
-// import ProductList from '../components/home/ProductList.jsx';
-// import Pagination from '../components/ui/Pagination.jsx';
 import { API, Utils, Alerts } from '../utils/utils.js';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from '../store/slices/categoriesSlice';
+import { fetchProducts } from '../store/slices/product/productsSlice';
+import { fetchRecentNews } from '../store/slices/blogsSlice';
 import api from "../config/api.js";
-import CategoryList from "../components/home/CategoryList.jsx";
+import CategorySection from "../components/home/CategorySection.jsx";
 import Banner from "../components/home/Banner.jsx"
 import Support from "../components/home/Support.jsx"
-import NewProduct from "../components/home/NewProduct.jsx"
-import BlogList from "../components/home/BlogList.jsx"
+import StandOutSection from "../components/home/StandOutSection.jsx"
+import BlogSection from "../components/home/BlogSection.jsx"
 
 import banner2 from 'src/assets/img/banner/banner-template.png';
 import banner3 from 'src/assets/img/banner/banner-template.png';
+import {CircularProgress, Typography} from "@mui/material";
+import {fetchAverageRatings} from "src/store/slices/product/ratingSlice.js";
 
 const bannerTemplates = [
     banner2,
@@ -20,75 +23,37 @@ const bannerTemplates = [
 
 const Home = () => {
     // State:
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [blogs, setBlogs] = useState([]);
-    const [pagination, setPagination] = useState({ totalPages: 0, currentPage: 0 });
+    const dispatch = useDispatch();
+    const { items: products, pagination, loading, error } = useSelector((state) => state.products);
+    const { items: ratings,  } = useSelector((state) => state.ratings);
+    const { items: categories,  } = useSelector((state) => state.categories);
+    const { items: recentNews,  } = useSelector((state) => state.blogs);
 
-    const loadProducts = async (page = 0) => {
-        try {
-            const response = await api.get(`/products`, {
-                params: {
-                    page: page,
-                    size: 8,
-                },
-            });
-
-            const data = response.data;
-
-
-            setProducts(data.data); // data
-            setPagination({
-                totalPages: data.pagination.totalPages,
-                currentPage: page,
-            });
-        } catch (error) {
-            console.error(error);
-            Alerts.handleError('Error loading products.');
-        }
-    };
-
-
-    const loadCategories = async () => {
-        try {
-            const response = await api.get(`/categories`);
-
-            console.log(response);
-
-            const data = response.data;
-            console.log(data.data);
-
-            setCategories(data.data);
-        } catch (error) {
-            console.error(error);
-            Alerts.handleError('Error loading categories.');
-        }
-    };
-
-    const loadBlogs = async () => {
-        try {
-            const response = await api.get(`/blog/recent-news`);
-            const data = response.data;
-            console.log(data.data);
-            setBlogs(data.data);
-        } catch (error) {
-            console.error(error);
-            Alerts.handleError('Error loading blogs.');
-        }
-    };
 
     useEffect(() => {
-        loadProducts().then(r => console.log(r));
-        loadCategories().then(r => console.log(r));
-        loadBlogs().then(r => console.log(r));
-    }, []);
+        dispatch(fetchProducts({ page: 0, size: 8, sortByNew: true }));
+        dispatch(fetchCategories());
+        dispatch(fetchRecentNews());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (products.length > 0) {
+            dispatch(fetchAverageRatings(products));
+        }
+    }, [dispatch, products]);
+
+    console.log("Home", ratings);
+
+    if (loading) return <div className="flex justify-center py-6"><CircularProgress /></div>;
+    if (error) return <Typography variant="body1" className="text-red-500">Lỗi: {error}</Typography>;
+
 
 
     // // Hàm thêm sản phẩm vào giỏ hàng
     // const handleAddToCart = async (productId) => {
     //     try {
     //         await Utils.addToCartHandler(productId);
-    //         Alerts.handleSuccess('NewProduct added to cart successfully.');
+    //         Alerts.handleSuccess('StandOutSection added to cart successfully.');
     //     } catch (error) {
     //         console.error('Error adding to cart:', error);
     //         Alerts.handleError('Error adding to cart.');
@@ -103,10 +68,8 @@ const Home = () => {
         <div className="home">
             <Banner images={bannerTemplates} />
             <Support/>
-            <NewProduct products={products} />
-            {/*<SearchBar.jsx categories={categories} />*/}
-            <CategoryList categories={categories} />
-            {/*<ProductList products={products} onAddToCart={handleAddToCart} />*/}
+            <StandOutSection/>
+            <CategorySection/>
 
             {/* Pagination */}
             {/*<Pagination*/}
@@ -115,7 +78,7 @@ const Home = () => {
             {/*    onPageChange={handlePageChange}*/}
             {/*/>*/}
 
-            <BlogList blogs={blogs} />
+            <BlogSection/>
         </div>
     );
 };
