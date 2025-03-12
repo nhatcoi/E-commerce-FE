@@ -2,24 +2,15 @@ import React, { useState } from "react";
 import { Checkbox } from "src/components/ui/checkbox";
 import { Label } from "src/components/ui/label";
 
-const ColorFilter = ({ colors }) => {
-    const [selectedColors, setSelectedColors] = useState([]);
+// eslint-disable-next-line react/prop-types
+const ColorFilter = ({ colors, onColorChange }) => {
+    const [selectedColor, setSelectedColor] = useState("");
 
-    const handleColorChange = (checked, colorName) => {
-        if (colorName === "All Colors") {
-            if (checked) {
-                setSelectedColors(["All Colors", ...colors.map((color) => color.name)]);
-            } else {
-                setSelectedColors([]);
-            }
-        } else {
-            let updatedColors;
-            if (checked) {
-                updatedColors = [...selectedColors.filter((color) => color !== "All Colors"), colorName];
-            } else {
-                updatedColors = selectedColors.filter((color) => color !== colorName);
-            }
-            setSelectedColors(updatedColors);
+    const handleColorChange = (colorName) => {
+        const newSelectedColor = colorName === selectedColor ? "" : colorName;
+        setSelectedColor(newSelectedColor);
+        if (onColorChange) {
+            onColorChange(newSelectedColor);
         }
     };
 
@@ -30,13 +21,10 @@ const ColorFilter = ({ colors }) => {
                 <div className="flex items-center space-x-2">
                     <Checkbox
                         id="all-colors"
-                        checked={selectedColors.includes("All Colors")}
-                        onCheckedChange={(checked) => handleColorChange(checked, "All Colors")}
+                        checked={selectedColor === ""}
+                        onCheckedChange={() => handleColorChange("")}
                     />
-                    <Label
-                        htmlFor="all-colors"
-                        className="text-sm leading-none cursor-pointer"
-                    >
+                    <Label htmlFor="all-colors" className="text-sm leading-none cursor-pointer">
                         All Colors
                     </Label>
                 </div>
@@ -44,13 +32,10 @@ const ColorFilter = ({ colors }) => {
                     <div key={index} className="flex items-center space-x-2">
                         <Checkbox
                             id={`color-${index}`}
-                            checked={selectedColors.includes(color.name)}
-                            onCheckedChange={(checked) => handleColorChange(checked, color.name)}
+                            checked={selectedColor === color.name}
+                            onCheckedChange={() => handleColorChange(color.name)}
                         />
-                        <Label
-                            htmlFor={`color-${index}`}
-                            className="text-sm leading-none cursor-pointer"
-                        >
+                        <Label htmlFor={`color-${index}`} className="text-sm leading-none cursor-pointer">
                             {color.name}
                         </Label>
                     </div>

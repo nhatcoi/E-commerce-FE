@@ -1,34 +1,44 @@
-import React from "react";
-import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from "@mui/material";
+import React, { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "src/components/ui/radio-group";
+import { Label } from "src/components/ui/label";
+import { useSelector } from "react-redux";
+import { CircularProgress, Typography } from "@mui/material";
 
-const Categories = ({ categories }) => {
-    const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
+// eslint-disable-next-line react/prop-types
+const Categories = ({ onCategoryChange }) => {
+    const { items: categories, loading, error } = useSelector((state) => state.categories);
+    const [selectedCategory, setSelectedCategory] = useState("");
 
-    const handleCategoryChange = (event) => {
-        setSelectedCategory(event.target.value);
+    if (loading) return <div className="flex justify-center py-6"><CircularProgress /></div>;
+    if (error) return <Typography variant="body1" className="text-red-500">Lỗi: {error}</Typography>;
+
+    const handleCategoryChange = (categoryId) => {
+        setSelectedCategory(categoryId);
+        if (onCategoryChange) {
+            onCategoryChange(categoryId);
+        }
     };
 
     return (
-        <FormControl component="fieldset">
+        <div className="space-y-4">
             <h5 className="pro-sidebar-title">Categories</h5>
-            <RadioGroup value={selectedCategory} onChange={handleCategoryChange} className="space-y-2">
-                <FormControlLabel
-                    value="All Categories"
-                    control={<Radio className="mr-2 cursor-pointer" />}
-                    label="All Categories"
-                    className="flex items-center cursor-pointer"
-                />
-                {categories.map((category, index) => (
-                    <FormControlLabel
-                        key={index}
-                        value={category.name}
-                        control={<Radio className="mr-2 cursor-pointer" />}
-                        label={category.name}
-                        className="flex items-center cursor-pointer"
-                    />
+            <RadioGroup value={selectedCategory} onValueChange={handleCategoryChange} className="space-y-3">
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="" id="all-categories" />
+                    <Label htmlFor="all-categories" className="cursor-pointer">
+                        All Categories
+                    </Label>
+                </div>
+                {categories.map((category) => (
+                    <div key={category.id} className="flex items-center space-x-2">
+                        <RadioGroupItem value={category.id} id={`category-${category.id}`} />
+                        <Label htmlFor={`category-${category.id}`} className="cursor-pointer">
+                            {category.name}
+                        </Label>
+                    </div>
                 ))}
             </RadioGroup>
-        </FormControl>
+        </div>
     );
 };
 
