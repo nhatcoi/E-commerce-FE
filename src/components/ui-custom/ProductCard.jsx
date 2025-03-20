@@ -2,7 +2,7 @@ import QuickView from "src/components/ui-custom/QuickView";
 import {useDispatch, useSelector} from "react-redux";
 import { addToCart } from "src/store/slices/cart/cartSlice";
 import "./ProductCard.css";
-import {showNotification} from "src/lib/notifications.js";
+import {showNotification} from "src/components/ui-custom/notifications.js";
 import {useState} from "react";
 
 // eslint-disable-next-line react/prop-types

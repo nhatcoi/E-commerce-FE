@@ -1,4 +1,4 @@
-import {showNotification, showNotificationWithOptions} from "src/lib/notifications.js";
+import {showNotification, showNotificationWithOptions} from "src/components/ui-custom/notifications.js";
 
 class CartManager {
     static getCart() {

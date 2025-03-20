@@ -57,7 +57,7 @@ export const REGEX_VALIDATORS = {
 export const Utils = {
     async addToCartHandler(productId) {
         if (!productId) {
-            console.error('Product ID is missing!');
+            console.error('StandOutSection ID is missing!');
             return;
         }
 

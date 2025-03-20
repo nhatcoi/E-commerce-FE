@@ -1,36 +1,28 @@
-import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchCartItems, removeFromCart, removeItemLocal } from "src/store/slices/cart/cartSlice.js";
+import { fetchCartItems, removeFromCart } from "src/store/slices/cart/cartSlice.js";
 
 // Shadcn components
 import { Button } from "src/components/ui/button";
-import { Card } from "src/components/ui/card";
 import { ScrollArea } from "src/components/ui/scroll-area";
-import { Separator } from "src/components/ui/separator";
 import { Badge } from "src/components/ui/badge";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
   SheetClose,
 } from "src/components/ui/sheet";
 
 // Icons
 import {
   ShoppingCart,
-  Leaf,
   Trash2,
-  X,
   ChevronRight,
   ShoppingBag,
-  Plus,
 } from "lucide-react";
-
 
 const CartPopover = () => {
   const dispatch = useDispatch();
