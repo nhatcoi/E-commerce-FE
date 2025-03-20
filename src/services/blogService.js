@@ -1,6 +1,7 @@
 import apiRequest from "../config/apiRequest";
 
 const blogService = {
+
     getBlogs: (params) =>
         apiRequest("get", "/blog", null, params),
 
