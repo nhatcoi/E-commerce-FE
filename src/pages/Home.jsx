@@ -5,11 +5,11 @@ import { fetchCategories } from '../store/slices/categoriesSlice';
 import { fetchProducts } from '../store/slices/product/productsSlice';
 import { fetchRecentNews } from '../store/slices/blogsSlice';
 import api from "../config/api.js";
-import CategorySection from "../components/home/CategorySection.jsx";
-import Banner from "../components/home/Banner.jsx"
-import Support from "../components/home/Support.jsx"
-import StandOutSection from "../components/home/StandOutSection.jsx"
-import BlogSection from "../components/home/BlogSection.jsx"
+import CategorySection from "src/features/home/CategorySection.jsx";
+import Banner from "src/features/home/Banner.jsx"
+import Support from "src/features/home/Support.jsx"
+import StandOutSection from "src/features/home/StandOutSection.jsx"
+import BlogSection from "src/features/home/BlogSection.jsx"
 
 import banner2 from 'src/assets/img/banner/banner-template.png';
 import banner3 from 'src/assets/img/banner/banner-template.png';
@@ -49,35 +49,12 @@ const Home = () => {
 
 
 
-    // // Hàm thêm sản phẩm vào giỏ hàng
-    // const handleAddToCart = async (productId) => {
-    //     try {
-    //         await Utils.addToCartHandler(productId);
-    //         Alerts.handleSuccess('StandOutSection added to cart successfully.');
-    //     } catch (error) {
-    //         console.error('Error adding to cart:', error);
-    //         Alerts.handleError('Error adding to cart.');
-    //     }
-    // };
-    //
-    // const handlePageChange = (page) => {
-    //     loadProducts(page).then(r => console.log(r));
-    // };
-
     return (
         <div className="home">
             <Banner images={bannerTemplates} />
             <Support/>
             <StandOutSection/>
             <CategorySection/>
-
-            {/* Pagination */}
-            {/*<Pagination*/}
-            {/*    totalPages={pagination.totalPages}*/}
-            {/*    currentPage={pagination.currentPage}*/}
-            {/*    onPageChange={handlePageChange}*/}
-            {/*/>*/}
-
             <BlogSection/>
         </div>
     );

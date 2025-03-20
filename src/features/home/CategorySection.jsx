@@ -35,7 +35,7 @@ const CategorySection = () => {
                         }}
                     >
                         {categoriesResponse.map(category => {
-                            const href = `/shop-grid?category=${encodeURIComponent(category.id)}`;
+                            const href = `/shop?category=${encodeURIComponent(category.id)}`;
                             return (
                                 <SwiperSlide key={category.id}>
                                     <div
