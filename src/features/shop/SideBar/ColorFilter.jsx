@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Checkbox } from "src/components/ui/checkbox";
-import { Label } from "src/components/ui/label";
+import { Checkbox } from "src/components/ui/checkbox.jsx";
+import { Label } from "src/components/ui/label.jsx";
 
 // eslint-disable-next-line react/prop-types
 const ColorFilter = ({ colors, onColorChange }) => {

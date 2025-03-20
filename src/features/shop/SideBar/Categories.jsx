@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { RadioGroup, RadioGroupItem } from "src/components/ui/radio-group";
-import { Label } from "src/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "src/components/ui/radio-group.jsx";
+import { Label } from "src/components/ui/label.jsx";
 import { useSelector } from "react-redux";
 import { CircularProgress, Typography } from "@mui/material";
 
