@@ -6,16 +6,17 @@ import "src/css/main/main.css";
 import "src/css/main/header.css";
 import throttle from "lodash/throttle";
 import { DropdownMenuCheckboxes } from "src/components/ui-custom/DropdownMenuCheckboxes";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
+import CartPopover from "src/components/ui-custom/CartPopover.jsx";
 
 const Header = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    const { items: collectionOptions, loading, error } = useSelector((state) => state.categories);
-
-
+    const { items: collectionOptions, loading: categoriesLoading } = useSelector((state) => state.categories || { items: [], loading: false });
+    const cartState = useSelector((state) => state.cart);
+    const cartItemsCount = cartState?.totalItems || cartState?.items?.reduce((count, item) => count + item.quantity, 0) || 0;
 
     // for mobile
     const toggleSidebar = () => {
@@ -42,8 +43,6 @@ const Header = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
 
-
-
     const navItems = [
         { to: "/", label: "Home" },
         { to: "/shop", label: "Shop" },
@@ -62,7 +61,6 @@ const Header = () => {
         { to: "/contact", label: "Contact Us" }
     ].filter(Boolean);
 
-
     const renderNavLinks = () => (
         <>
             {navItems.map((item, index) =>
@@ -77,6 +75,22 @@ const Header = () => {
         </>
     );
 
+    const renderIconBar = () => (
+        <div className="d-flex gap-3">
+            <NavLink to="/search" className="nav-icon">
+                <FaSearch className="fs-5" />
+            </NavLink>
+            <NavLink to="/account" className="nav-icon">
+                <FaUser className="fs-5" />
+            </NavLink>
+            <NavLink to="/wishlist" className="nav-icon">
+                <FaHeart className="fs-5" />
+            </NavLink>
+            <CartPopover />
+
+        </div>
+    );
+
     return (
         <header className={`header-area ${isScrolling ? "scrolling" : ""}`}>
             <div className={`sidebar-menu ${isSidebarOpen ? "active" : ""}`}>
@@ -85,16 +99,7 @@ const Header = () => {
                 </button>
                 <div className="sidebar-content">
                     <Nav className="flex-column">
-                        <div className="d-flex gap-3">
-                            <FaUser className="fs-5" />
-                            <FaHeart className="fs-5" />
-                            <div className="position-relative">
-                                <FaShoppingCart className="fs-5" />
-                                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark text-white" style={{ fontSize: "0.75rem" }}>
-                                    0
-                                </span>
-                            </div>
-                        </div>
+                        {renderIconBar()}
                         {renderNavLinks()}
                     </Nav>
                 </div>
@@ -110,7 +115,9 @@ const Header = () => {
                                 JackieShop
                             </Navbar.Brand>
                             <div className="d-flex align-items-center gap-2">
-                                <FaSearch className="fs-5" />
+                                <NavLink to="/search" className="nav-icon">
+                                    <FaSearch className="fs-5" />
+                                </NavLink>
                                 <button className="menu-toggle" onClick={toggleSidebar}>
                                     <FaBars />
                                 </button>
@@ -119,19 +126,7 @@ const Header = () => {
                     )}
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="mx-auto">{renderNavLinks()}</Nav>
-                        {!isScrolling && (
-                            <div className="d-flex gap-3">
-                                <FaSearch className="fs-5" />
-                                <FaUser className="fs-5" />
-                                <FaHeart className="fs-5" />
-                                <div className="position-relative">
-                                    <FaShoppingCart className="fs-5" />
-                                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark text-white" style={{ fontSize: "0.75rem" }}>
-                                        0
-                                    </span>
-                                </div>
-                            </div>
-                        )}
+                        {!isScrolling && renderIconBar()}
                     </Navbar.Collapse>
                 </div>
             </Navbar>
