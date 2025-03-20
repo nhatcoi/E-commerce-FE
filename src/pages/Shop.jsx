@@ -1,78 +1,69 @@
-// Shop.jsx
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import Sidebar from "../components/Sidebar/SideBar";
-import ProductGrid from "../components/ProductGrid/ProductGrid";
-import Pagination from "../components/Pagination";
-import api from "src/util/api.js";
-import { Alerts } from "src/util/utils.js";
-import "src/css/main/Shop.css";
+import { CircularProgress, Typography } from "@mui/material";
+import Sidebar from "src/features/shop/SideBar.jsx";
+import ProductGrid from "src/features/shop/ProductGrid.jsx";
+import { fetchProducts } from "../store/slices/product/productsSlice.js";
+import { fetchCategories } from "src/store/slices/categoriesSlice.js";
+import { fetchAverageRatings } from "src/store/slices/product/ratingSlice.js";
 
 const Shop = () => {
-    const [productsGrid, setProducts] = useState([]);
-    const [categoriesGrid, setCategories] = useState([]);
-    const [pagination, setPagination] = useState({ totalPages: 0, currentPage: 0 });
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const loadProducts = async (page = 0) => {
-        try {
-            const response = await api.get(`/products`, {
-                params: {
-                    page: page,
-                    size: 8,
-                },
-            });
+    const { items: products, loading, error } = useSelector((state) => state.products);
 
-            const data = response.data;
-            setProducts(data.data);
-            setPagination({
-                totalPages: data.pagination.totalPages,
-                currentPage: page,
-            });
-        } catch (error) {
-            console.error(error);
-            Alerts.handleError('Error loading products.');
-        }
+    const getFiltersFromURL = () => {
+        return Object.fromEntries(searchParams.entries());
     };
 
-    const loadCategories = async () => {
-        try {
-            const response = await api.get(`/categories`);
-            const data = response.data;
-            setCategories(data.data);
-        } catch (error) {
-            console.error(error);
-            Alerts.handleError('Error loading categories.');
-        }
-    };
 
+    const [filters, setFilters] = useState(getFiltersFromURL());
+
+    // Fetch dữ liệu khi filters thay đổi
     useEffect(() => {
-        loadProducts();
-        loadCategories();
-    }, []);
+        dispatch(fetchProducts({ page: 0, size: 6, ...filters }));
+    }, [dispatch, filters]);
 
-    const handlePageChange = (page) => {
-        loadProducts(page);
+    // Fetch danh mục
+    useEffect(() => {
+        dispatch(fetchCategories());
+    }, [dispatch]);
+
+    // Fetch rating
+    useEffect(() => {
+        if (products.length > 0) {
+            dispatch(fetchAverageRatings(products));
+        }
+    }, [dispatch, products]);
+
+    // Cập nhật filters khi URL thay đổi
+    useEffect(() => {
+        setFilters(getFiltersFromURL());
+    }, [searchParams]);
+
+    // Cập nhật URL khi filters thay đổi
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
+        setSearchParams(newFilters); // Cập nhật URL
     };
+
+    console.log("Filters:", filters);
+
+    if (loading && products.length === 0) return <div className="flex justify-center py-6"><CircularProgress /></div>;
+    if (error) return <Typography variant="body1" className="text-red-500">Lỗi: {error}</Typography>;
 
     return (
         <Container className="shop-page">
             <Row>
-                {/* Sidebar */}
                 <Col lg={3} className="sidebar order-2 order-lg-1 mb-4">
-                    <Sidebar categories={categoriesGrid} />
+                    <Sidebar onFilterChange={handleFilterChange} />
                 </Col>
-                {/* Product Grid */}
                 <Col lg={9} className="product_grid order-1 order-lg-2">
-                    <ProductGrid products={productsGrid} />
-                </Col>
-            </Row>
-            <Row>
-                <Col className="d-flex justify-content-center mt-4">
-                    <Pagination
-                        totalPages={pagination.totalPages}
-                        currentPage={pagination.currentPage}
-                        onPageChange={handlePageChange}
-                    />
+                    <ProductGrid />
                 </Col>
             </Row>
         </Container>
