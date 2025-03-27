@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchCartItems, removeFromCart } from "src/store/slices/cart/cartSlice.js";
 
 // Shadcn components
-import { Button } from "src/components/ui/button";
-import { ScrollArea } from "src/components/ui/scroll-area";
-import { Badge } from "src/components/ui/badge";
+import { Button } from "src/components/ui/button.jsx";
+import { ScrollArea } from "src/components/ui/scroll-area.jsx";
+import { Badge } from "src/components/ui/badge.jsx";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetClose,
-} from "src/components/ui/sheet";
+} from "src/components/ui/sheet.jsx";
 
 // Icons
 import {
@@ -28,24 +28,26 @@ const CartPopover = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { items: cartItems = [], totalItems = 0 } = useSelector((state) => state.cart || {});
+  const { items: cartItems = [], loading } = useSelector((state) => state.cart || {});
 
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-     dispatch(fetchCartItems());
-  }, [open, dispatch]);
+  // Calculate total items using useMemo for better performance
+  const totalItems = useMemo(() => {
+    return cartItems.reduce((count, item) => count + (item.quantity || 0), 0);
+  }, [cartItems]);
 
+  // Fetch cart items on mount and when cart is opened
+  useEffect(() => {
+    dispatch(fetchCartItems());
+  }, [dispatch]);
+
+  // Fetch cart items when cart is opened
   useEffect(() => {
     if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
+      dispatch(fetchCartItems());
     }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [open]);
+  }, [open, dispatch]);
 
   const handleRemoveItem = (id) => {
     dispatch(removeFromCart(id));
@@ -83,7 +85,7 @@ const CartPopover = () => {
             variant="destructive"
             className="cart-badge absolute -top-1 -right-2 min-w-[1.25rem] h-5 flex items-center justify-center px-1 text-[0.65rem] font-medium"
           >
-            {cartItems.length}
+            {totalItems}
           </Badge>
         )}
       </Button>
