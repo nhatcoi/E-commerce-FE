@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import Grid from "@mui/material/Grid";
-import ProductCard from "../../components/ui-custom/ProductCard.jsx";
+import ProductCard from "../product/ProductCard.jsx";
 import { CircularProgress, Typography } from "@mui/material";
 
 const StandOutSection = () => {
