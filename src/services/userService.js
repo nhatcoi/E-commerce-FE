@@ -5,6 +5,7 @@ import store from "src/store/index.js";
 export const userService = {
     async getMyInfo() {
         const response = await userApi.getMyInfo();
+        console.log("user", response.data);
         return response.data;
     },
     
