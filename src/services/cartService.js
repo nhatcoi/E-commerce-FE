@@ -10,6 +10,7 @@ const cartService = {
         }
 
         const { auth } = store.getState();
+        console.log(auth, "auth", auth.isAuthenticated);
         if (!auth.isAuthenticated) {
             CartManager.addItemToLocalCart(productData);
         } else {

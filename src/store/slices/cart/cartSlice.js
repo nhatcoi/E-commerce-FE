@@ -107,20 +107,24 @@ const cartSlice = createSlice({
         })
         .addCase(fetchCartItems.fulfilled, (state, action) => {
             state.items = action.payload || [];
-            state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
+            state.totalItems = state.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
             state.loading = false;
         })
         .addCase(fetchCartItems.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload || "Failed to fetch cart items";
         })
-
+        .addCase(addToCart.pending, (state) => {
+            state.loading = true;
+        })
         .addCase(addToCart.fulfilled, (state, action) => {
             state.items = action.payload || [];
-            state.totalItems = (action.payload || [])
-                .filter(item => item && typeof item.quantity === 'number')
-                .reduce((sum, item) => sum + item.quantity, 0);
+            state.totalItems = state.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
             state.loading = false;
+        })
+        .addCase(addToCart.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload || "Failed to add item to cart";
         })
         .addCase(updateCartQuantity.fulfilled, (state, action) => {
           const { id, quantity } = action.payload;
@@ -128,12 +132,12 @@ const cartSlice = createSlice({
           if (item) {
             item.quantity = quantity;
           }
-          state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
+          state.totalItems = state.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
           state.loading = false;
         })
         .addCase(removeFromCart.fulfilled, (state, action) => {
           state.items = state.items.filter((item) => item.id !== action.payload);
-          state.totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
+          state.totalItems = state.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
           state.loading = false;
         })
         .addCase(clearCart.fulfilled, (state) => {
