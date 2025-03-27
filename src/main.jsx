@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
-import store from "./store/index.js";
+import { PersistGate } from "redux-persist/integration/react";
+import store, { persistor } from "./store/index.js";
 import "./index.css";
 import App from "./App";
-import { CartProvider } from "./context/CartContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx"; // Import AuthProvider
 
 const rootElement = document.getElementById("root");
@@ -16,11 +16,11 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
-    <Provider store={store}>
-        <AuthProvider>
-            <CartProvider>
-                <App />
-            </CartProvider>
-        </AuthProvider>
-    </Provider>
+    <React.StrictMode>
+        <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+                        <App />
+            </PersistGate>
+        </Provider>
+    </React.StrictMode>
 );
