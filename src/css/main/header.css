@@ -78,39 +78,31 @@
     align-items: center;
 }
 
-
-
 /* Mặc định - Hiển thị navbar */
 .header-main {
-    position: relative; /* Navbar không bị ẩn */
-    transform: translateY(0); /* Hiển thị ngay */
-    opacity: 1; /* Hiển thị rõ ràng */
-    transition: transform 0.3s ease, opacity 0.3s ease; /* Hiệu ứng mượt */
+    position: relative;
+    width: 100%;
+    transition: all 0.3s ease;
 }
 
 /* Khi cuộn xuống */
 .header-main.fixed {
-    position: fixed; /* Navbar cố định */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     background-color: white;
-    transform: translateY(0); /* Navbar hiển thị */
-    opacity: 1; /* Navbar rõ ràng */
     z-index: 1050;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Khi không cuộn (ẩn dần nếu cần) */
-/* Định nghĩa animation */
 @keyframes slideDown {
     from {
         transform: translateY(-100%);
-        opacity: 0;
     }
     to {
         transform: translateY(0);
-        opacity: 1;
     }
 }
 
@@ -123,9 +115,8 @@
     width: 45%;
     border-radius: 100px;
     margin-top: 0.5%;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important; /* Bóng rất đậm và lan rộng cực mạnh */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
-.
 
 /* Mobile - Hiển menu */
 @media screen and (max-width: 768px) {

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Navbar, Nav } from "react-bootstrap";
-import { FaSearch, FaUser, FaHeart, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { FaSearch, FaHeart, FaBars, FaTimes } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "src/css/main/main.css";
 import "src/css/main/header.css";
 import throttle from "lodash/throttle";
 import { DropdownMenuCheckboxes } from "src/components/ui-custom/DropdownMenuCheckboxes";
 import { useSelector } from "react-redux";
-import CartPopover from "src/components/ui-custom/CartPopover.jsx";
+import CartPopover from "src/features/cart/CartPopover.jsx";
+import UserPopover from "src/features/UserPopover.jsx";
 
 const Header = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -80,14 +81,13 @@ const Header = () => {
             <NavLink to="/search" className="nav-icon">
                 <FaSearch className="fs-5" />
             </NavLink>
-            <NavLink to="/account" className="nav-icon">
-                <FaUser className="fs-5" />
-            </NavLink>
+
             <NavLink to="/wishlist" className="nav-icon">
                 <FaHeart className="fs-5" />
             </NavLink>
-            <CartPopover />
 
+            <UserPopover />
+            <CartPopover />
         </div>
     );
 

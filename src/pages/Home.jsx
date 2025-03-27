@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { API, Utils, Alerts } from '../utils/utils.js';
+import {useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories } from '../store/slices/categoriesSlice';
 import { fetchProducts } from '../store/slices/product/productsSlice';
 import { fetchRecentNews } from '../store/slices/blogsSlice';
-import api from "../config/api.js";
 import CategorySection from "src/features/home/CategorySection.jsx";
 import Banner from "src/features/home/Banner.jsx"
 import Support from "src/features/home/Support.jsx"
@@ -22,12 +20,8 @@ const bannerTemplates = [
 ];
 
 const Home = () => {
-    // State:
     const dispatch = useDispatch();
-    const { items: products, pagination, loading, error } = useSelector((state) => state.products);
-    const { items: ratings,  } = useSelector((state) => state.ratings);
-    const { items: categories,  } = useSelector((state) => state.categories);
-    const { items: recentNews,  } = useSelector((state) => state.blogs);
+    const { items: products, loading, error } = useSelector((state) => state.products);
 
 
     useEffect(() => {
@@ -41,8 +35,6 @@ const Home = () => {
             dispatch(fetchAverageRatings(products));
         }
     }, [dispatch, products]);
-
-    console.log("Home", ratings);
 
     if (loading) return <div className="flex justify-center py-6"><CircularProgress /></div>;
     if (error) return <Typography variant="body1" className="text-red-500">Lỗi: {error}</Typography>;
