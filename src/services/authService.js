@@ -1,6 +1,7 @@
 import { authApi } from "src/api/authApi";
-import {logout, refreshTokenAsync, setAccessToken, fetchUserInfoAsync} from "src/store/slices/authSlice";
+import { logout, refreshTokenAsync, setAccessToken, fetchUserInfoAsync } from "src/store/slices/authSlice";
 import store from "src/store/index.js";
+import { tokenRefreshQueue } from "./tokenRefreshQueue";
 
 export const authService = {
     async login(userIdentifier, password) {
@@ -8,11 +9,11 @@ export const authService = {
             const response = await authApi.login(userIdentifier, password);
             const accessToken = response.data.data.accessToken;
             
-            // Save token to store
+            // Save token to Redux store only
             store.dispatch(setAccessToken(accessToken));
             
-            // Save token to localStorage for persistence
-            localStorage.setItem("accessToken", accessToken);
+            // Fetch user info after successful login
+            await store.dispatch(fetchUserInfoAsync()).unwrap();
             
             return response;
         } catch (error) {
@@ -22,18 +23,26 @@ export const authService = {
     },
 
     async refreshToken() {
+        // If already refreshing, add to queue
+        if (tokenRefreshQueue.isRefreshing()) {
+            return tokenRefreshQueue.addToQueue();
+        }
+
         try {
+            tokenRefreshQueue.setRefreshing(true);
             const response = await authApi.refreshToken();
-            const accessToken = response.data.accessToken;
+            const accessToken = response.data.data.accessToken;
             
+            // Update token in Redux store only
             store.dispatch(setAccessToken(accessToken));
-            localStorage.setItem("accessToken", accessToken);
             
+            tokenRefreshQueue.setRefreshing(false);
             return response;
         } catch (error) {
+            tokenRefreshQueue.setRefreshing(false);
             if (error.response?.status === 401) {
-                store.dispatch(logout());
-                localStorage.removeItem("accessToken");
+                this.clearSession();
+                tokenRefreshQueue.processQueue(error);
             }
             throw error;
         }
@@ -42,65 +51,36 @@ export const authService = {
     async logout() {
         try {
             await authApi.logout();
-            store.dispatch(logout());
-            localStorage.removeItem("accessToken");
+            this.clearSession();
         } catch (error) {
             console.error("Logout error:", error);
             // Even if the API fails, clear the local state
-            store.dispatch(logout());
-            localStorage.removeItem("accessToken");
+            this.clearSession();
             throw error;
         }
     },
     
     // Check if user is authenticated on app startup
     checkAuth() {
-        const accessToken = localStorage.getItem("accessToken");
-        if (accessToken) {
-            store.dispatch(setAccessToken(accessToken));
-            return true;
-        }
-        return false;
+        const { accessToken } = store.getState().auth;
+        return !!accessToken;
     },
 
-    // New restoreSession function
+    // Enhanced restoreSession function
     async restoreSession(dispatch) {
         try {
-            // 1. Check for access token in localStorage
-            const accessToken = localStorage.getItem("accessToken");
-            
-            if (accessToken) {
-                // 2. Set the token in Redux store
-                dispatch(setAccessToken(accessToken));
+            // Try to refresh token on app init
+            try {
+                // Attempt to refresh the token
+                await dispatch(refreshTokenAsync()).unwrap();
                 
-                try {
-                    // 3. Try to fetch user info with existing token
-                    await dispatch(fetchUserInfoAsync()).unwrap();
-                    return true;
-                } catch (error) {
-                    // If fetching user info fails, try to refresh the token
-                    try {
-                        // 4. Attempt to refresh the token
-                        await dispatch(refreshTokenAsync()).unwrap();
-                        
-                        // 5. After successful refresh, fetch user info again
-                        await dispatch(fetchUserInfoAsync()).unwrap();
-                        return true;
-                    } catch (refreshError) {
-                        // If refresh fails, clear the session
-                        this.clearSession();
-                        return false;
-                    }
-                }
-            } else {
-                // No access token found, try to refresh
-                try {
-                    await dispatch(refreshTokenAsync()).unwrap();
-                    await dispatch(fetchUserInfoAsync()).unwrap();
-                    return true;
-                } catch (error) {
-                    return false;
-                }
+                // After successful refresh, fetch user info
+                await dispatch(fetchUserInfoAsync()).unwrap();
+                return true;
+            } catch (refreshError) {
+                // If refresh fails, clear the session
+                this.clearSession();
+                return false;
             }
         } catch (error) {
             console.error("Session restoration failed:", error);
@@ -112,6 +92,6 @@ export const authService = {
     // Helper function to clear session
     clearSession() {
         store.dispatch(logout());
-        localStorage.removeItem("accessToken");
+        tokenRefreshQueue.processQueue(new Error("Session cleared"));
     }
 };
