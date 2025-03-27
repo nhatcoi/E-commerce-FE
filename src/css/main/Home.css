@@ -1,0 +1,110 @@
+:root {
+    --primary-color: #a749ff;
+    --secondary-color: #333;
+    --background-light: #f1f1f1;
+    --text-color: #333;
+    --text-hover-color: var(--primary-color);
+    --btn-bg: rgba(0, 0, 0, 0.7);
+    --btn-hover-bg: var(--primary-color);
+    --border-radius: 50%;
+    --transition-speed: 0.45s;
+}
+
+/** Support Area **/
+.support-area {
+    padding: 6rem 0 !important;
+}
+
+.support-item {
+    max-width: 400px;
+    padding: 0 3em;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.support-item h4 {
+    font-size: 18px;
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.support-item p {
+    font-size: 16px;
+    margin: 0;
+}
+
+.divider {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 40%;
+    background-color: #ccc;
+    z-index: 1;
+    opacity: 0.7;
+    right: -0.1px;
+}
+
+/* Hiệu ứng rung chuông */
+@keyframes bell-shake {
+    0%, 100% { transform: scale(1) rotate(0); }
+    5%, 60% { transform: scale(1.2) rotate(10deg); }
+    10%, 70% { transform: scale(1.2) rotate(-10deg); }
+    15%, 80% { transform: scale(1.2) rotate(7deg); }
+    20%, 90% { transform: scale(1.2) rotate(-7deg); }
+    25%, 50% { transform: scale(1.2) rotate(5deg); }
+    30%, 40% { transform: scale(1.2) rotate(-5deg); }
+    35% { transform: scale(1.2) rotate(3deg); }
+}
+
+.support-icon-img:hover {
+    animation: bell-shake 0.5s ease-in-out;
+    transform-origin: center;
+}
+
+/** New Products **/
+
+
+
+/* Style for button */
+.btn-action {
+    background-color: var(--btn-bg);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transform: rotateY(90deg);
+    transition: transform 0.1s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.btn-action:hover {
+    background-color: var(--btn-hover-bg);
+}
+
+.product-img:hover .product-action-2 {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.product-img:hover .btn-action:nth-child(1) {
+    transform: rotateY(0deg);
+    transition-delay: 0.1s;
+}
+
+.product-img:hover .btn-action:nth-child(2) {
+    transform: rotateY(0deg);
+    transition-delay: 0.2s;
+}
+
+.product-img:hover .btn-action:nth-child(3) {
+    transform: rotateY(0deg);
+    transition-delay: 0.3s;
+}
+
+/* Blog List */
+@media (max-width: 768px) {
+    .support-item .divider {
+        display: none;
+    }
+}

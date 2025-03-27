@@ -1,0 +1,147 @@
+/* Additional styles for Auth component */
+
+input {
+    text-indent: 20px;
+}
+
+/* Card hover effect */
+.account-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.account-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Form input animations */
+.form-input-animated {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input-animated:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+}
+
+/* Button hover animations */
+.button-animated {
+    position: relative;
+    overflow: hidden;
+}
+
+.button-animated::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s ease, height 0.5s ease;
+}
+
+.button-animated:hover::after {
+    width: 200%;
+    height: 200%;
+}
+
+/* User avatar hover effect */
+.user-avatar-container {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.user-avatar-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.2);
+}
+
+/* Page background gradient */
+.account-page-bg {
+    background: linear-gradient(135deg, rgba(var(--background-rgb), 0.8) 0%, rgba(var(--background-rgb), 0.9) 100%);
+    background-size: cover;
+    backdrop-filter: blur(10px);
+}
+
+/* Input focus effect */
+.input-focus-ring {
+    transition: all 0.2s ease;
+}
+
+.input-focus-ring:focus-within {
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3);
+}
+
+/* Success animation */
+@keyframes successPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+.success-animation {
+    animation: successPulse 1.5s ease-out;
+}
+
+/* Error animation */
+@keyframes errorShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.error-animation {
+    animation: errorShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Tab transition */
+.tab-transition {
+    transition: all 0.2s ease;
+}
+
+.tab-transition:hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+.tab-transition.active {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: hsl(var(--primary));
+}
+
+/* Button loading animation */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(2px);
+}
+
+/* Card backdrop blur effect */
+.backdrop-blur-card {
+    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.7);
+} 

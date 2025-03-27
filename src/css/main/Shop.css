@@ -1,0 +1,122 @@
+
+.shop-page {
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+}
+
+.pro-sidebar-title {
+    margin-top: 2rem;
+    border: none;
+}
+
+.pro-sidebar-title ul {
+    list-style: none !important;
+}
+
+.shop-top-bar {
+    padding-bottom: 2rem;
+}
+
+.shop-top-bar i {
+    color: #555252;
+}
+
+.btn-primary {
+    background-color: #4daa00; /* Màu xanh lam cho nút được chọn */
+    color: #fff;
+    border: none;
+}
+
+.btn-outline-primary {
+    background-color: transparent;
+    color: #555252;
+    border: 1px solid #555252;
+}
+
+.btn-primary:hover {
+    background-color: #4daa00; /* Màu tối hơn khi hover */
+}
+
+.btn-outline-primary:hover {
+    background-color: #4daa00;
+    color: #fff;
+}
+
+.sidebox {
+    border: none !important;
+    box-shadow: none;
+}
+
+
+/*StandOutSection Card*/
+.product-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card-img-wrapper {
+    flex: 0 0 80%;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-card-img {
+    width: 60vh;
+    height: 60vh;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card-img-wrapper:hover .product-card-img {
+    transform: scale(1.1);
+}
+
+.product-card-actions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.product-action {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+}
+
+.product-action:hover {
+    background: #f8f9fa;
+}
+
+.product-card-body {
+    flex: 0 0 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+/*Category Filter*/
+.sidebar h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.list-group {
+    border: none;
+}
+
+.list-group-item {
+    border: none;
+}
+
+
