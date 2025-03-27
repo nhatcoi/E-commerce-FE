@@ -35,6 +35,7 @@ import {
     ShoppingBag,
     Package,
     ChevronRight,
+    Lock,
 } from "lucide-react";
 
 const UserPopover = () => {
@@ -78,7 +79,8 @@ const UserPopover = () => {
                         )}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 p-2 dropdown-user-content">
+                
+                <DropdownMenuContent className="mt-2 min-w-[240px] p-2 bg-background/95 backdrop-blur-md border border-border/60 rounded-xl shadow-lg dropdown-user-content">
                     {isAuthenticated ? (
                         <>
                             <div className="flex items-center gap-3 px-2 py-2.5 mb-1 avatar-container">
@@ -95,19 +97,19 @@ const UserPopover = () => {
                             <DropdownMenuSeparator/>
 
                             <DropdownMenuItem className="flex items-center gap-2 cursor-pointer user-menu-item"
-                                              onClick={() => handleNavigate("/account")}>
+                                              onClick={() => handleNavigate("/user/profile")}>
                                 <User className="w-4 h-4 text-muted-foreground item-icon"/>
                                 <span>My Profile</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem className="flex items-center gap-2 cursor-pointer user-menu-item"
-                                              onClick={() => handleNavigate("/orders")}>
+                                              onClick={() => handleNavigate("/user/my-orders")}>
                                 <Package className="w-4 h-4 text-muted-foreground item-icon"/>
                                 <span>My Orders</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem className="flex items-center gap-2 cursor-pointer user-menu-item"
-                                              onClick={() => handleNavigate("/wishlist")}>
+                                              onClick={() => handleNavigate("/user/wishlist")}>
                                 <Heart className="w-4 h-4 text-muted-foreground item-icon"/>
                                 <span>Wishlist</span>
                             </DropdownMenuItem>
@@ -156,22 +158,12 @@ const UserPopover = () => {
                             </DropdownMenuItem>
 
                             <DropdownMenuItem className="flex items-center gap-2 cursor-pointer user-menu-item"
-                                              onClick={() => {
-                                                  navigate("/login");
-                                                  // Set login state to false in Auth component to show register form
-                                                  // This requires passing state via navigation, which might need state management or URL params
-                                              }}>
+                                              onClick={() => handleNavigate("/login")}>
                                 <UserPlus className="w-4 h-4 text-muted-foreground item-icon"/>
                                 <span>Create Account</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator/>
-
-                            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer user-menu-item"
-                                              onClick={() => handleNavigate("/shop")}>
-                                <ShoppingBag className="w-4 h-4 text-muted-foreground item-icon"/>
-                                <span>Browse Shop</span>
-                            </DropdownMenuItem>
 
                             <DropdownMenuItem className="flex items-center gap-2 cursor-pointer user-menu-item"
                                               onClick={() => handleNavigate("/support")}>
@@ -183,7 +175,7 @@ const UserPopover = () => {
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Auth Settings Sheet */}
+            {/* Settings Sheet */}
             <Sheet open={open} onOpenChange={setOpen}>
                 <SheetContent side="right"
                               className="w-full sm:w-[380px] p-0 border-l border-border/60 backdrop-blur-md bg-background/95">
@@ -219,7 +211,7 @@ const UserPopover = () => {
                                                 <Button
                                                     variant="ghost"
                                                     className="w-full justify-start gap-3 pl-2.5 settings-button"
-                                                    onClick={() => handleNavigate("/account/profile")}
+                                                    onClick={() => handleNavigate("/user/profile")}
                                                 >
                                                     <User className="w-4 h-4 item-icon"/>
                                                     <span>Edit Profile</span>
@@ -227,45 +219,45 @@ const UserPopover = () => {
                                                 <Button
                                                     variant="ghost"
                                                     className="w-full justify-start gap-3 pl-2.5 settings-button"
-                                                    onClick={() => handleNavigate("/account/password")}
+                                                    onClick={() => handleNavigate("/user/settings/password")}
                                                 >
-                                                    <Settings className="w-4 h-4 item-icon"/>
+                                                    <Lock className="w-4 h-4 item-icon"/>
                                                     <span>Change Password</span>
                                                 </Button>
                                             </div>
                                         </div>
 
-                                        {/* Orders Section */}
+                                        {/* Shopping Section */}
                                         <div className="space-y-3 settings-section">
-                                            <h3 className="text-sm font-medium text-muted-foreground">Orders</h3>
+                                            <h3 className="text-sm font-medium text-muted-foreground">Shopping</h3>
                                             <div className="space-y-1.5">
                                                 <Button
                                                     variant="ghost"
                                                     className="w-full justify-start gap-3 pl-2.5 settings-button"
-                                                    onClick={() => handleNavigate("/account/orders")}
+                                                    onClick={() => handleNavigate("/user/my-orders")}
                                                 >
-                                                    <Package className="w-4 h-4 item-icon"/>
-                                                    <span>Order History</span>
+                                                    <ShoppingBag className="w-4 h-4 item-icon"/>
+                                                    <span>My Orders</span>
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     className="w-full justify-start gap-3 pl-2.5 settings-button"
-                                                    onClick={() => handleNavigate("/account/addresses")}
+                                                    onClick={() => handleNavigate("/user/wishlist")}
                                                 >
-                                                    <Package className="w-4 h-4 item-icon"/>
-                                                    <span>Shipping Addresses</span>
+                                                    <Heart className="w-4 h-4 item-icon"/>
+                                                    <span>Wishlist</span>
                                                 </Button>
                                             </div>
                                         </div>
 
-                                        {/* Auth Section */}
+                                        {/* Account Section */}
                                         <div className="space-y-3 settings-section">
                                             <h3 className="text-sm font-medium text-muted-foreground">Account</h3>
                                             <div className="space-y-1.5">
                                                 <Button
                                                     variant="ghost"
                                                     className="w-full justify-start gap-3 pl-2.5 settings-button"
-                                                    onClick={() => handleNavigate("/account/notifications")}
+                                                    onClick={() => handleNavigate("/user/settings/notifications")}
                                                 >
                                                     <Settings className="w-4 h-4 item-icon"/>
                                                     <span>Notification Preferences</span>
