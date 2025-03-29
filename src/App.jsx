@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import RouteIndex from "./router/RouteIndex.jsx";
 import { authService } from "src/services/authService.js";
 import { setLoading } from "src/store/slices/authSlice.js";
+import { Toaster } from "src/components/ui/toaster";
 
 const App = () => {
     const dispatch = useDispatch();
@@ -54,6 +55,7 @@ const App = () => {
     return (
         <React.Fragment>
             <RouteIndex />
+            <Toaster />
         </React.Fragment>
     );
 };
