@@ -8,6 +8,7 @@ import blogReducer from "./slices/blogsSlice.js";
 import filtersReducer from "./slices/product/filtersSlice.js";
 import cartsReducer from "./slices/cart/cartSlice.js";
 import authReducer from "./slices/authSlice.js";
+import wishlistReducer from "./slices/wishlistSlice.js";
 
 // Configure Redux Persist
 const persistConfig = {
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
     filters: filtersReducer,
     cart: cartsReducer,
     auth: authReducer,
+    wishlist: wishlistReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

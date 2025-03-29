@@ -13,6 +13,7 @@ import banner2 from 'src/assets/img/banner/banner-template.png';
 import banner3 from 'src/assets/img/banner/banner-template.png';
 import {CircularProgress, Typography} from "@mui/material";
 import {fetchAverageRatings} from "src/store/slices/product/ratingSlice.js";
+import ServerError from 'src/components/error/ServerError';
 
 const bannerTemplates = [
     banner2,
@@ -37,7 +38,7 @@ const Home = () => {
     }, [dispatch, products]);
 
     if (loading) return <div className="flex justify-center py-6"><CircularProgress /></div>;
-    if (error) return <Typography variant="body1" className="text-red-500">Lỗi: {error}</Typography>;
+    if (error) return <ServerError message={error} />;
 
 
 
