@@ -1,18 +1,59 @@
 import QuickView from "src/features/product/QuickView.jsx";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import { addToCart } from "src/store/slices/cart/cartSlice.js";
+import { addToWishlist, removeFromWishlist } from "src/store/slices/wishlistSlice.js";
 import "./ProductCard.css";
 import {useState} from "react";
 import {Link, useNavigate} from 'react-router-dom';
+import { toast } from "src/components/ui/use-toast";
 
 // eslint-disable-next-line react/prop-types
 const ProductCard = ({ product, rating }) => {
     const dispatch = useDispatch();
-    const navigate = useNavigate(); // Add this hook
+    const navigate = useNavigate();
     const [quantity, setQuantity] = useState(1);
+    const { isAuthenticated } = useSelector(state => state.auth);
+    const { items: wishlistItems } = useSelector(state => state.wishlist);
+    
+    // Check if product is in wishlist by matching productId
+    const isInWishlist = wishlistItems?.some(item => item.productId === product.id);
 
-    const handleAddToCart = () => {
-        dispatch(addToCart({ product: product, quantity: quantity}));
+    const handleAddToWishlist = async (e) => {
+        e.stopPropagation();
+        
+        if (!isAuthenticated) {
+            navigate("/login", { 
+                state: { 
+                    from: window.location.pathname, 
+                    message: "Please login to add items to your wishlist" 
+                } 
+            });
+            return;
+        }
+        
+        try {
+            if (isInWishlist) {
+                await dispatch(removeFromWishlist(product.id)).unwrap();
+                toast({
+                    title: "Removed from Wishlist",
+                    description: "Item has been removed from your wishlist",
+                    variant: "default"
+                });
+            } else {
+                await dispatch(addToWishlist(product.id)).unwrap();
+                toast({
+                    title: "Added to Wishlist",
+                    description: "Item has been added to your wishlist",
+                    variant: "success"
+                });
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error || "Failed to update wishlist",
+                variant: "destructive"
+            });
+        }
     };
 
     const handleProductClick = (e) => {
@@ -47,8 +88,11 @@ const ProductCard = ({ product, rating }) => {
                     />
                 </div>
                 <div className="product-action-2 flex gap-2 mt-2">
-                    <button className="btn-action cart" onClick={handleAddToCart}>
-                        <i className="fas fa-shopping-cart"></i>
+                    <button 
+                        className={`btn-action wishlist ${isInWishlist ? 'active' : ''}`} 
+                        onClick={handleAddToWishlist}
+                    >
+                        <i className={`fas fa-heart ${isInWishlist ? 'text-red-500' : ''}`}></i>
                     </button>
 
                     <QuickView

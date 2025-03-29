@@ -60,4 +60,40 @@
   /* Add rounded buttons */
   .btn-action {
     border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: #333;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  /* Add wishlist button styles */
+  .btn-action.wishlist {
+    background: white;
+    border: none;
+    color: #333;
+  }
+  
+  .btn-action.wishlist:hover {
+    background: #f8f8f8;
+    color: #ff4d4d;
+  }
+  
+  .btn-action.wishlist.active {
+    background: #fff0f0;
+    color: #ff4d4d;
+  }
+  
+  .btn-action.wishlist.active i.fa-heart {
+    color: #ff4d4d;
+  }
+
+  /* Hover effects for buttons */
+  .btn-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
