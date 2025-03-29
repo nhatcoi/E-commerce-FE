@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {motion, AnimatePresence} from "framer-motion";
 import {loginAsync, logout} from "src/store/slices/authSlice.js";
 import {authService} from "src/services/authService.js";
@@ -31,6 +31,7 @@ import {
 const Auth = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const {user, isAuthenticated, loading, error} = useSelector((state) => state.auth);
 
     const [activeTab, setActiveTab] = useState("login");
@@ -44,13 +45,23 @@ const Auth = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [redirectMessage, setRedirectMessage] = useState("");
+
+    // Set redirect message if it exists in location state
+    useEffect(() => {
+        if (location.state?.message) {
+            setRedirectMessage(location.state.message);
+        }
+    }, [location.state]);
 
     // Redirect to home if user is already authenticated
     useEffect(() => {
         if (isAuthenticated && user) {
-            navigate("/");
+            // Redirect to the 'from' path if it exists, otherwise go to home
+            const redirectTo = location.state?.from || "/";
+            navigate(redirectTo, { replace: true });
         }
-    }, [isAuthenticated, user, navigate]);
+    }, [isAuthenticated, user, navigate, location.state]);
 
     useEffect(() => {
         // Reset form when changing tabs
@@ -123,8 +134,9 @@ const Auth = () => {
 
             setSuccessMessage("Login successful!");
             
-            // Navigate to home page after successful login
-            navigate("/");
+            // Navigate based on 'from' in location state or default to home
+            const redirectTo = location.state?.from || "/";
+            navigate(redirectTo, { replace: true });
 
             // Reset form
             setFormData({
@@ -217,6 +229,14 @@ const Auth = () => {
                             </CardHeader>
 
                             <CardContent className="space-y-4 pt-0">
+                                {/* Display redirect message if it exists */}
+                                {redirectMessage && (
+                                    <Alert className="mb-4 border-amber-500 bg-amber-50 text-amber-900">
+                                        <AlertCircle className="h-4 w-4 text-amber-500" />
+                                        <AlertDescription>{redirectMessage}</AlertDescription>
+                                    </Alert>
+                                )}
+
                                 {/* Error and success alerts */}
                                 <AnimatePresence>
                                     {(error || formErrors.general) && (
