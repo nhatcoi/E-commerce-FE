@@ -9,6 +9,8 @@ import { DropdownMenuCheckboxes } from "src/components/ui-custom/DropdownMenuChe
 import { useSelector } from "react-redux";
 import CartPopover from "src/features/cart/CartPopover.jsx";
 import UserPopover from "src/features/UserPopover.jsx";
+import Wishlist from "src/components/Wishlist.jsx";
+import Search from "src/components/Search.jsx";
 
 const Header = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -77,15 +79,9 @@ const Header = () => {
     );
 
     const renderIconBar = () => (
-        <div className="d-flex gap-3">
-            <NavLink to="/search" className="nav-icon">
-                <FaSearch className="fs-5" />
-            </NavLink>
-
-            <NavLink to="/wishlist" className="nav-icon">
-                <FaHeart className="fs-5" />
-            </NavLink>
-
+        <div className="d-flex gap-3 align-items-center">
+            <Search />
+            <Wishlist />
             <UserPopover />
             <CartPopover />
         </div>
@@ -115,9 +111,7 @@ const Header = () => {
                                 JackieShop
                             </Navbar.Brand>
                             <div className="d-flex align-items-center gap-2">
-                                <NavLink to="/search" className="nav-icon">
-                                    <FaSearch className="fs-5" />
-                                </NavLink>
+                                <Search />
                                 <button className="menu-toggle" onClick={toggleSidebar}>
                                     <FaBars />
                                 </button>
