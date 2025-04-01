@@ -13,9 +13,9 @@ export const authService = {
             store.dispatch(setAccessToken(accessToken));
             
             // Fetch user info after successful login
-            await store.dispatch(fetchUserInfoAsync()).unwrap();
+
             
-            return response;
+            return response.data.data;
         } catch (error) {
             console.error("Login error:", error);
             throw error;
