@@ -5,7 +5,7 @@ import { fetchCartItems } from "../store/slices/cart/cartSlice.js";
 
 // Component imports
 import CartInfo from "../features/cart/CartInfo.jsx";
-import CartProceedCheckout from "../features/cart/CartProceedCheckout.jsx";
+import ProceedCheckout from "../features/cart/ProceedCheckout.jsx";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -54,7 +54,7 @@ const Cart = () => {
                   </div>
 
                   <div className="lg:col-span-1">
-                    <CartProceedCheckout />
+                    <ProceedCheckout />
                   </div>
                 </div>
             )}

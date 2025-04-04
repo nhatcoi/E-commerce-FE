@@ -1,18 +1,17 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     updateCartQuantity,
     removeFromCart,
-    clearCart
+    clearCart, toggleSelectItem, fetchCartItems
 } from "../../store/slices/cart/cartSlice.js";
 
 // Shadcn components
-import { Card, CardContent, CardFooter } from "src/components/ui/card.jsx";
+import { Card, CardFooter } from "src/components/ui/card.jsx";
 import { Button } from "src/components/ui/button.jsx";
 import { Input } from "src/components/ui/input.jsx";
-import { Badge } from "src/components/ui/badge.jsx";
 import {
     Tooltip,
     TooltipContent,
@@ -32,6 +31,7 @@ import {
 
 // Loading animation
 import { Loader } from "src/components/ui/loader.jsx";
+import { Checkbox } from "src/components/ui/checkbox";
 
 const CartInfo = () => {
     const dispatch = useDispatch();
@@ -39,7 +39,20 @@ const CartInfo = () => {
     // Cart state
     const cartState = useSelector((state) => state.cart || {});
     const cartItems = cartState.items || [];
+    const selectedToPayments = cartState.selectedToPayments || [];
     const loading = cartState.loading || false;
+
+
+    useEffect(() => {
+        dispatch(fetchCartItems());
+    }, [dispatch]);
+
+    const handleCheckboxChange = (id) => {
+        console.log("selectedToPayments: ", selectedToPayments);
+        dispatch(toggleSelectItem(id));
+    };
+
+    console.log("selectedToPayments: ", selectedToPayments);
 
     const handleQuantityChange = (id, value) => {
         const newQuantity = parseInt(value) || 1;
@@ -104,6 +117,15 @@ const CartInfo = () => {
                             transition={{ delay: index * 0.1, duration: 0.4 }}
                             className="group p-4 md:p-6 flex flex-col md:flex-row gap-4 relative"
                         >
+                            <div className="flex items-center">
+                                <Checkbox
+                                    id={`checkbox-${item.product.id}`}
+                                    checked={selectedToPayments.includes(item.id)}
+                                    onCheckedChange={() => handleCheckboxChange(item.id)}
+                                    aria-label={`Select ${item.product.name}`}
+                                />
+                            </div>
+
                             <div className="w-full md:w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
                                 <img
                                     src={item.product.thumbnail}
@@ -121,22 +143,24 @@ const CartInfo = () => {
                                         {item.product.name}
                                     </Link>
 
-                                    <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                                        {item.product.color && (
-                                            <Badge variant="outline" className="font-normal">
-                                                Color: {item.product.color}
-                                            </Badge>
+                                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                                        {/* Display selected attributes */}
+                                        {item.selectedAttributes && Object.keys(item.selectedAttributes).length > 0 && (
+                                            <>
+                                                {Object.entries(item.selectedAttributes).map(([name, attr]) => (
+                                                    <span 
+                                                        key={name} 
+                                                        className="text-muted-foreground/70"
+                                                    >
+                                                        {attr.attributeValue}
+                                                    </span>
+                                                ))}
+                                                <span className="text-muted-foreground/30">•</span>
+                                            </>
                                         )}
-
-                                        {item.product.capacity && (
-                                            <Badge variant="outline" className="font-normal">
-                                                Capacity: {item.product.capacity}
-                                            </Badge>
-                                        )}
-                                    </div>
-
-                                    <div className="text-sm font-medium text-primary">
-                                        ${item.product.price.toFixed(2)}
+                                        <span className="text-primary font-medium">
+                                            ${item.price.toFixed(2)}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -155,7 +179,7 @@ const CartInfo = () => {
                                             min="1"
                                             value={item.quantity || 1}
                                             onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                                            className="w-10 h-8 text-center border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                            className="w-10 h-8 text-center border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
 
                                         <button
@@ -167,7 +191,7 @@ const CartInfo = () => {
                                     </div>
 
                                     <div className="text-right font-medium">
-                                        ${(item.product.price * item.quantity).toFixed(2)}
+                                        ${(item.price * item.quantity).toFixed(2)}
                                     </div>
                                 </div>
                             </div>

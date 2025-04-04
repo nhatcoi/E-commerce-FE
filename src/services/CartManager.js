@@ -18,11 +18,16 @@ class CartManager {
             return;
         }
 
-        let { product, quantity = 1 } = productData;
+
+
+        let { product, quantity = 1, selectedAttributes } = productData;
         let cart = JSON.parse(localStorage.getItem("guest_cart")) || { products: [] };
 
 
-        let existingProduct = cart.products.find(item => item.product.id === product.id);
+        let existingProduct = cart.products.find(item =>
+            item.product.id === product.id &&
+            JSON.stringify(item.selectedAttributes) === JSON.stringify(selectedAttributes)
+        );
 
         if (quantity > product.quantity_in_stock) {
             return showNotification("Overcoming the product level in the stock!", "error");
@@ -50,7 +55,10 @@ class CartManager {
         cart.products.push({
             id: this.getNextId(),
             product,
-            quantity
+            quantity,
+            selectedAttributes,
+            price: product.price,
+            totalPrice: product.price * quantity,
         });
 
         localStorage.setItem("guest_cart", JSON.stringify(cart));
