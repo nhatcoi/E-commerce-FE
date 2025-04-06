@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { authService } from "src/services/authService.js";
-import { userService } from "src/services/userService.js";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {authService} from "src/services/authService.js";
+import {userService} from "src/services/userService.js";
 
 // Async action to refresh token
 export const refreshTokenAsync = createAsyncThunk("auth/refreshToken", async (_, { rejectWithValue }) => {
@@ -22,23 +22,35 @@ export const loginAsync = createAsyncThunk("auth/login", async ({ userIdentifier
         const userResponse = await userService.getMyInfo();
         
         return {
-            accessToken: loginResponse.data.data.accessToken,
-            user: userResponse.data
+            accessToken: loginResponse.accessToken,
+            user: userResponse
         };
     } catch (error) {
         return rejectWithValue(error.response?.data?.message || "Login failed");
     }
 });
 
+
 // Async action to fetch user info
 export const fetchUserInfoAsync = createAsyncThunk("auth/fetchUserInfo", async (_, { rejectWithValue }) => {
     try {
-        const response = await userService.getMyInfo();
-        return response.data;
+        return await userService.getMyInfo();
     } catch (error) {
         return rejectWithValue(error.response?.data || "Failed to fetch user info");
     }
 });
+
+// Add update profile thunk
+export const updateUserProfileAsync = createAsyncThunk(
+    "auth/updateProfile",
+    async (userData, { rejectWithValue }) => {
+        try {
+            return await userService.updateProfile(userData);
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "Failed to update profile");
+        }
+    }
+);
 
 const authSlice = createSlice({
     name: "auth",
@@ -54,12 +66,14 @@ const authSlice = createSlice({
             state.user = action.payload.user;
             state.accessToken = action.payload.accessToken;
             state.isAuthenticated = true;
+            state.loading = false;
         },
         logout: (state) => {
             state.user = null;
             state.accessToken = null;
             state.isAuthenticated = false;
             state.error = null;
+            state.loading = false;
         },
 
         setAccessToken: (state, action) => {
@@ -114,6 +128,21 @@ const authSlice = createSlice({
             // Fetch User Info
             .addCase(fetchUserInfoAsync.fulfilled, (state, action) => {
                 state.user = action.payload;
+            })
+            
+            // Update Profile
+            .addCase(updateUserProfileAsync.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateUserProfileAsync.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+                state.error = null;
+            })
+            .addCase(updateUserProfileAsync.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             });
     },
 });
