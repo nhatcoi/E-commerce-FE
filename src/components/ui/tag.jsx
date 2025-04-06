@@ -1,25 +1,29 @@
-import * as React from "react"
-import { cn } from "src/lib/utils.js"
+import React from "react";
+import { cn } from "../../lib/utils";
 
-const Tag = React.forwardRef(({ className, variant = "default", selected = false, children, ...props }, ref) => {
+const Tag = ({ 
+  className, 
+  children,
+  selected = false,
+  onClick,
+  ...props 
+}) => {
   return (
     <div
-      ref={ref}
       className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-colors",
-        {
-          "bg-black text-white": selected,
-          "bg-white text-black border border-gray-300": !selected,
-          "hover:bg-gray-100": !selected && variant !== "static",
-        },
+        "inline-flex items-center justify-center rounded-full px-3 py-1 text-sm transition-colors",
+        selected 
+          ? "bg-primary text-primary-foreground" 
+          : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        onClick && "cursor-pointer",
         className
       )}
+      onClick={onClick}
       {...props}
     >
       {children}
     </div>
-  )
-})
-Tag.displayName = "Tag"
+  );
+};
 
-export { Tag } 
+export { Tag }; 
