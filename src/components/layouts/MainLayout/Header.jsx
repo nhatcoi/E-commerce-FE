@@ -2,16 +2,15 @@ import React, { useState, useEffect, useCallback, memo } from "react";
 import { Navbar, Nav } from "react-bootstrap";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import "../../../css/main/main.css";
-import "../../../css/main/header.css";
+import "src/styles/component/main.css";
+import "src/styles/component/Header.css";
 import throttle from "lodash/throttle";
 import { useSelector } from "react-redux";
 import CartPopover from "src/features/cart/CartPopover.jsx";
 import UserPopover from "src/features/auth/UserPopover.jsx";
 import Wishlist from "src/features/product/Wishlist.jsx";
-import Search from "src/components/Search.jsx";
+import Search from "src/features/product/Search.jsx";
 
-// Memoized child components to prevent unnecessary re-renders
 const MemoizedSearch = memo(Search);
 const MemoizedWishlist = memo(Wishlist);
 const MemoizedUserPopover = memo(UserPopover);
@@ -24,9 +23,7 @@ const Header = () => {
     const [prevScrollPos, setPrevScrollPos] = useState(0);
     const [visible, setVisible] = useState(true);
 
-    const { items: collectionOptions, loading: categoriesLoading } = useSelector((state) => state.categories || { items: [], loading: false });
     const cartState = useSelector((state) => state.cart);
-    const cartItemsCount = cartState?.totalItems || cartState?.items?.reduce((count, item) => count + item.quantity, 0) || 0;
 
     // for mobile
     const toggleSidebar = () => {
@@ -37,14 +34,8 @@ const Header = () => {
     const handleScroll = useCallback(
         throttle(() => {
             const currentScrollPos = window.scrollY;
-            
-            // Set scrolling state (for styling)
             setIsScrolling(currentScrollPos > 50);
-            
-            // Determine scroll direction
             const isScrollingDown = currentScrollPos > prevScrollPos;
-            
-            // Update visibility based on scroll direction and position
             if (currentScrollPos > 100) {
                 setVisible(!isScrollingDown);
             } else {
@@ -75,7 +66,6 @@ const Header = () => {
         { to: "/contact", label: "Contact Us" }
     ].filter(Boolean);
 
-    // Memoize these functions to prevent recreating them on each render
     const renderNavLinks = useCallback(() => (
         <>
             {navItems.map((item, index) =>
@@ -101,7 +91,7 @@ const Header = () => {
 
     return (
         <header className={`header-area ${isScrolling ? "scrolling" : ""}`}>
-            {/* Sidebar menu - always mounted, toggled with CSS */}
+            {/* Sidebar menu */}
             <div className={`sidebar-menu ${isSidebarOpen ? "active" : ""}`}>
                 <button className="close-btn" onClick={toggleSidebar}>
                     <FaTimes />
@@ -114,10 +104,10 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* Overlay - controlled by CSS classes */}
+            {/* Overlay */}
             {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
 
-            {/* Main header - always mounted, styled differently based on scroll state */}
+            {/* Main header */}
             <Navbar 
                 bg="white" 
                 expand="lg" 
@@ -138,7 +128,7 @@ const Header = () => {
                         </button>
                     </div>
                     
-                    {/* Nav links - always mounted */}
+                    {/* Nav links */}
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="mx-auto">{renderNavLinks()}</Nav>
                         <div className={isScrolling ? "d-none" : ""}>
