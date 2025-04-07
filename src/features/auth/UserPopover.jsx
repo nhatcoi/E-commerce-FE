@@ -4,7 +4,7 @@ import {useSelector, useDispatch} from "react-redux";
 import {motion, AnimatePresence} from "framer-motion";
 import {logout} from "src/store/slices/authSlice.js";
 import {authService} from "src/services/authService.js";
-import "../css/main/user-popover.css";
+import "../../css/main/user-popover.css";
 
 // Shadcn components
 import {Button} from "src/components/ui/button.jsx";

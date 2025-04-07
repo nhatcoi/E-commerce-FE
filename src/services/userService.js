@@ -1,12 +1,13 @@
 import { userApi } from "src/api/userApi.js";
 import { setUser } from "src/store/slices/authSlice.js";
 import store from "src/store/index.js";
+import axios from "axios";
 
 export const userService = {
     async getMyInfo() {
         const response = await userApi.getMyInfo();
         console.log("user", response.data);
-        return response.data;
+        return response.data.data;
     },
     
     async fetchAndUpdateUserProfile() {
@@ -25,6 +26,11 @@ export const userService = {
     
     async updateProfile(userData) {
         const response = await userApi.updateProfile(userData);
+        return response.data;
+    },
+
+    async updatePassword(password) {
+        const response = await userApi.updatePassword(password);
         return response.data;
     }
 };
