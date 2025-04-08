@@ -24,11 +24,13 @@ const Home = () => {
     const dispatch = useDispatch();
     const { items: products, loading, error } = useSelector((state) => state.products);
 
-
     useEffect(() => {
-        dispatch(fetchProducts({ page: 0, size: 8, sortByNew: true }));
-        dispatch(fetchCategories());
-        dispatch(fetchRecentNews());
+        // Fetch all data in parallel
+        Promise.all([
+            dispatch(fetchProducts({ page: 0, size: 8, sortByNew: true })),
+            dispatch(fetchCategories()),
+            dispatch(fetchRecentNews())
+        ]);
     }, [dispatch]);
 
     useEffect(() => {
@@ -37,18 +39,51 @@ const Home = () => {
         }
     }, [dispatch, products]);
 
-    if (loading) return <div className="flex justify-center py-6"><CircularProgress /></div>;
-    if (error) return <ServerError message={error} />;
-
-
-
+    // Render the layout structure regardless of loading state
     return (
-        <div className="home">
-            <Banner images={bannerTemplates} />
-            <Support/>
-            <StandOutSection/>
-            <CategorySection/>
-            <BlogSection/>
+        <div className="home min-h-screen">
+            {/* Loading Overlay */}
+            {loading && (
+                <div className="fixed inset-0 bg-white/80 z-50 flex items-center justify-center">
+                    <div className="flex flex-col items-center space-y-4">
+                        <CircularProgress size={40} />
+                        <Typography variant="body2" color="textSecondary">
+                            Loading...
+                        </Typography>
+                    </div>
+                </div>
+            )}
+
+            {/* Error State */}
+            {error && <ServerError message={error} />}
+
+            {/* Main Content */}
+            <div className={`transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+                {/* Banner Section - Always render with min height */}
+                <div className="min-h-[300px]">
+                    <Banner images={bannerTemplates} />
+                </div>
+
+                {/* Support Section */}
+                <div className="min-h-[100px]">
+                    <Support/>
+                </div>
+
+                {/* StandOut Section */}
+                <div className="min-h-[200px]">
+                    <StandOutSection/>
+                </div>
+
+                {/* Category Section */}
+                <div className="min-h-[200px]">
+                    <CategorySection/>
+                </div>
+
+                {/* Blog Section */}
+                <div className="min-h-[200px]">
+                    <BlogSection/>
+                </div>
+            </div>
         </div>
     );
 };
