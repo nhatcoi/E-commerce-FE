@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,11 +14,17 @@ import { ArrowRight, Lock, CheckCircle } from "lucide-react";
 // Import new Discount component
 import Discount from "./Discount.jsx";
 
-const CartProceedCheckout = () => {
+const ProceedCheckout = () => {
     const navigate = useNavigate();
 
     // Cart state
-    const cartItems = useSelector((state) => state.cart?.items || []);
+    const cart = useSelector(state => state.cart || { items: [], selectedToPayments: [] });
+    const { items, selectedToPayments = [] } = cart; // Provide default empty array
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const cartItems = items?.filter(item =>
+        Array.isArray(selectedToPayments) && selectedToPayments.includes(item.id)
+    ) || [];
 
     const [animateTotal, setAnimateTotal] = useState(false);
     const [appliedDiscount, setAppliedDiscount] = useState(null);
@@ -33,7 +39,7 @@ const CartProceedCheckout = () => {
     }, [cartItems, appliedDiscount]);
 
     const calculateSubtotal = () => {
-        return cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+        return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     };
 
     const calculateDiscount = () => {
@@ -141,13 +147,15 @@ const CartProceedCheckout = () => {
                     </CardContent>
 
                     <CardFooter className="flex flex-col gap-4 p-6 bg-muted/20 border-t border-border/40">
-                        <Button
-                            className="w-full hover:bg-primary/90 gap-2 font-medium py-6"
-                            onClick={() => navigate('/checkout')}
-                        >
-                            Proceed to Checkout
-                            <ArrowRight className="w-4 h-4" />
-                        </Button>
+                        {window.location.pathname !== '/checkout' && (
+                            <Button
+                                className="w-full hover:bg-primary/90 gap-2 font-medium py-6"
+                                onClick={() => navigate('/checkout')}
+                            >
+                                Proceed to Checkout
+                                <ArrowRight className="w-4 h-4" />
+                            </Button>
+                        )}
 
                         <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
                             <Lock className="w-3.5 h-3.5" /> Secure checkout
@@ -177,4 +185,4 @@ const CartProceedCheckout = () => {
     );
 };
 
-export default CartProceedCheckout;
+export default ProceedCheckout;
