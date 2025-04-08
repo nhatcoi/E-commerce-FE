@@ -420,12 +420,12 @@ const UserProfile = () => {
                 district: "",
                 postcode: "",
                 country: "",
-                isMain: editForm.addresses.length === 0 // Set as main if it's the first address
+                isMain: editForm.addresses.length === 0 // Set as component if it's the first address
             }]
         });
     };
 
-    // Add function to handle setting main address
+    // Add function to handle setting component address
     const handleSetMainAddress = (addressId) => {
         const newAddresses = editForm.addresses.map(address => ({
             ...address,
