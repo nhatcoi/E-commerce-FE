@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import ProductCard from "../product/ProductCard.jsx";
+import ProductCard from "./ProductCard.jsx";
 import { Button, MenuItem, Select, Grid, Typography, CircularProgress } from "@mui/material";
 import { ViewModule, ViewList } from "@mui/icons-material";
 import { ToggleGroup, ToggleGroupItem } from "src/components/ui/toggle-group.jsx";

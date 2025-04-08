@@ -1,72 +1,96 @@
-import React, {useState, useEffect} from "react";
-import {useParams, useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {motion, AnimatePresence} from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import ReactMarkdown from "react-markdown";
+import { Button } from "src/components/ui/button.jsx";
+import { Card } from "src/components/ui/card.jsx";
+import { Badge } from "src/components/ui/badge.jsx";
+import { Separator } from "src/components/ui/separator.jsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "src/components/ui/tabs.jsx";
+import { Skeleton } from "src/components/ui/skeleton.jsx";
+import { Minus, Plus, ShoppingCart, Heart, ArrowLeft, CheckCircle2, Star } from "lucide-react";
+import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
+import { cn } from "src/lib/utils.js";
+import { useProductAttributes, useProductActions, renderRatingStars } from "./product-hooks.jsx";
 
-// UI Components
-import {Button} from "src/components/ui/button.jsx";
-import {Card} from "src/components/ui/card.jsx";
-import {Badge} from "src/components/ui/badge.jsx";
-import {Separator} from "src/components/ui/separator.jsx";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "src/components/ui/tabs.jsx";
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "src/components/ui/carousel.jsx";
-import {Input} from "src/components/ui/input.jsx";
-import {Skeleton} from "src/components/ui/skeleton.jsx";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "src/components/ui/select.jsx";
 
-// Icons
-import {Star, Minus, Plus, ShoppingCart, Heart, ArrowLeft} from "lucide-react";
 
-// Actions
-import {fetchProductById, clearCurrentProduct} from "src/store/slices/product/productsSlice.js";
-import {addToCart} from "src/store/slices/cart/cartSlice.js";
+const relatedProducts = [
+    {
+        id: 1,
+        name: "Related Product 1",
+        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
+        price: 99.99,
+        rating: 4.5,
+    },
+    {
+        id: 2,
+        name: "Related Product 2",
+        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
+        price: 149.99,
+        rating: 4.2,
+    },
+    {
+        id: 3,
+        name: "Related Product 3",
+        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
+        price: 79.99,
+        rating: 4.8,
+    },
+    {
+        id: 4,
+        name: "Related Product 4",
+        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
+        price: 129.99,
+        rating: 4.3,
+    },
+    {
+        id: 5,
+        name: "Related Product 5",
+        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
+        price: 89.99,
+        rating: 4.6,
+    }
+];
+
 
 const ProductDetails = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {productId} = useParams();
+    const { productId } = useParams();
+    const [activeImage, setActiveImage] = useState(0);
 
-    // Get product data from Redux store
+    // Redux state
     const {
         currentProduct: product,
         detailLoading: loading,
         detailError: error
     } = useSelector((state) => state.products);
 
-    // State for product options and quantity
-    const [selectedAttributes, setSelectedAttributes] = useState({});
-    const [selectedColor, setSelectedColor] = useState("Natural Titanium");
-    const [selectedCapacity, setSelectedCapacity] = useState("256GB");
-    const [quantity, setQuantity] = useState(1);
-    const [activeImage, setActiveImage] = useState(0);
-    const [isWishlist, setIsWishlist] = useState(false);
+    // Custom hooks
+    const {
+        selectedAttributes,
+        handleSelectAttribute,
+        getFinalPrice,
+        getAttributeGroups
+    } = useProductAttributes(product);
 
-    // Available options for legacy products without attributes
-    const colors = ["Template"];
-    const capacities = ["Template"];
+    const {
+        quantity,
+        isInWishlist,
+        handleQuantityChange,
+        handleAddToCart,
+        handleWishlistAction,
+        fetchProduct
+    } = useProductActions(productId);
 
-    // Price modifier based on capacity
-    const capacityPriceModifier = {
-        "Template": 0
-    };
+    // Calculate final price
+    const finalPrice = getFinalPrice();
 
-    // Fetch product data on component mount
+    // Fetch product
     useEffect(() => {
         if (productId) {
-            dispatch(fetchProductById(productId));
+            fetchProduct();
         } else {
             navigate("/shop");
         }
@@ -75,196 +99,37 @@ const ProductDetails = () => {
         return () => {
             dispatch(clearCurrentProduct());
         };
-    }, [dispatch, productId, navigate]);
+    }, [productId, dispatch, navigate]);
 
-    // Set default selected attributes when product data loads
-    useEffect(() => {
-        if (product && product.attributes && product.attributes.length > 0) {
-            // Group attributes by name and select the first option from each group
-            const defaultAttributes = {};
-            const attributeGroups = {};
-
-            product.attributes.forEach(attr => {
-                if (!attributeGroups[attr.attributeName]) {
-                    attributeGroups[attr.attributeName] = [];
-                    defaultAttributes[attr.attributeName] = attr;
-                }
-                attributeGroups[attr.attributeName].push(attr);
-            });
-
-            setSelectedAttributes(defaultAttributes);
-        }
-    }, [product]);
-
-    // Handle attribute selection
-    const handleSelectAttribute = (attribute) => {
-        setSelectedAttributes(prev => ({
-            ...prev,
-            [attribute.attributeName]: attribute
-        }));
-    };
-
-    // Calculate final price based on selection
-    const getFinalPrice = () => {
-        if (!product) return 0;
-
-        // If no attributes are selected, return the default product price
-        if (Object.keys(selectedAttributes).length === 0) {
-            return product.price;
-        }
-
-        // If attributes are selected, calculate price with selected attributes
-        const basePrice = product.price;
-        const attributePrices = Object.values(selectedAttributes).map(attr => attr.price);
-        return Math.max(...attributePrices);
-    };
-
-    const finalPrice = getFinalPrice();
-
-    const handleQuantityChange = (value) => {
-        if (!product) return;
-
-        // Get minimum stock from all selected attributes
-        let maxStock = product.quantity_in_stock;
-
-        if (Object.keys(selectedAttributes).length > 0) {
-            const stocks = Object.values(selectedAttributes).map(attr => attr.stockQuantity);
-            maxStock = Math.min(...stocks);
-        }
-
-        const newQuantity = Math.max(1, Math.min(maxStock, value));
-        setQuantity(newQuantity);
-    };
-
-    const handleAddToCart = () => {
-        if (!product) return;
-
-        const productToAdd = {
-            id: product.id,
-            name: product.name,
-            price: finalPrice,
-            thumbnail: product.thumbnail,
-            // Add attribute information if available
-            ...(Object.keys(selectedAttributes).length > 0
-                    ? {
-                        attributes: Object.entries(selectedAttributes).map(([name, attr]) => ({
-                            name: attr.attributeName,
-                            value: attr.attributeValue
-                        }))
-                    }
-                    : {
-                        color: selectedColor,
-                        capacity: selectedCapacity
-                    }
-            ),
-            quantity: quantity
-        };
-
-        dispatch(addToCart(productToAdd));
-    };
-
-    // Convert rating to stars
-    const renderRatingStars = (rating) => {
-        if (!rating) return null;
-
-        const stars = [];
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 >= 0.5;
-
-        for (let i = 1; i <= 5; i++) {
-            if (i <= fullStars) {
-                stars.push(<Star key={i} fill="#FFD700" stroke="#FFD700" size={16}/>);
-            } else if (i === fullStars + 1 && hasHalfStar) {
-                stars.push(
-                    <div key={i} className="relative">
-                        <Star size={16} stroke="#FFD700"/>
-                        <div className="absolute top-0 left-0 overflow-hidden" style={{width: "50%"}}>
-                            <Star size={16} fill="#FFD700" stroke="#FFD700"/>
-                        </div>
-                    </div>
-                );
-            } else {
-                stars.push(<Star key={i} size={16} stroke="#FFD700"/>);
-            }
-        }
-
-        return stars;
-    };
-
-    // Group attributes by type and render them
+    // Render attribute groups
     const renderAttributeGroups = () => {
-        if (!product || !product.attributes || product.attributes.length === 0) {
-            return (
-                <>
-                    {/* Fallback to static options */}
-                    {/* Color Selection */}
-                    <div className="space-y-2">
-                        <div className="font-medium">Color</div>
-                        <div className="flex flex-wrap gap-2">
-                            {colors.map((color) => (
-                                <Button
-                                    key={color}
-                                    variant={selectedColor === color ? "default" : "outline"}
-                                    onClick={() => setSelectedColor(color)}
-                                    className="px-4 py-2 h-auto"
-                                >
-                                    {color}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Capacity Selection */}
-                    <div className="space-y-2">
-                        <div className="font-medium">Capacity</div>
-                        <div className="flex flex-wrap gap-2">
-                            {capacities.map((capacity) => (
-                                <Button
-                                    key={capacity}
-                                    variant={selectedCapacity === capacity ? "default" : "outline"}
-                                    onClick={() => setSelectedCapacity(capacity)}
-                                    className="px-4 py-2 h-auto"
-                                >
-                                    {capacity}
-                                    {capacity !== "256GB" && (
-                                        <span className="ml-1 text-xs">
-                      (+${capacityPriceModifier[capacity]})
-                    </span>
-                                    )}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                </>
-            );
-        }
-
-        // Group attributes by attributeName
-        const attributeGroups = product.attributes.reduce((acc, attr) => {
-            if (!acc[attr.attributeName]) {
-                acc[attr.attributeName] = [];
-            }
-            acc[attr.attributeName].push(attr);
-            return acc;
-        }, {});
+        const attributeGroups = getAttributeGroups();
 
         return Object.entries(attributeGroups).map(([groupName, attributes]) => (
             <div key={groupName} className="space-y-2">
-                <div className="font-medium">{groupName}</div>
+                <div className="font-medium text-sm">{groupName}</div>
                 <div className="flex flex-wrap gap-2">
                     {attributes.map((attr, index) => (
                         <Button
                             key={index}
                             variant={selectedAttributes[groupName]?.attributeValue === attr.attributeValue ? "default" : "outline"}
                             onClick={() => handleSelectAttribute(attr)}
-                            className="px-4 py-2 h-auto"
+                            className={cn(
+                                "px-3 py-1 h-auto text-xs relative",
+                                attr.stockQuantity <= 0 && "opacity-50 cursor-not-allowed"
+                            )}
                             disabled={attr.stockQuantity <= 0}
                         >
                             {attr.attributeValue}
                             {attr.price !== product.price && (
                                 <span className="ml-1 text-xs">
-                  {attr.price > product.price ? '+' : ''}
-                                    ${Math.abs(attr.price - product.price).toFixed(2)}
+                                    {attr.price > product.price ? '+' : ''}
+                                    ${Math.abs(attr.price + product.price).toFixed(2)}
+                                </span>
+                            )}
+                            {attr.stockQuantity <= 0 && (
+                                <span className="absolute -top-1 -right-1 text-red-500">
+                  <CheckCircle2 size={12}/>
                 </span>
                             )}
                         </Button>
@@ -330,25 +195,50 @@ const ProductDetails = () => {
         );
     }
 
+    // Calculate max stock based on selected attributes
+    const getMaxStock = () => {
+        if (!product) return 0;
+
+        if (Object.keys(selectedAttributes).length > 0) {
+            const selectedAttributeStocks = Object.values(selectedAttributes).map(attr => attr.stockQuantity);
+            return Math.min(...selectedAttributeStocks);
+        }
+
+        return product.quantity_in_stock;
+    };
+
+    const maxStock = getMaxStock();
+
+
     return (
         <div className="container mx-auto py-8 px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Product Images */}
-                <div className="space-y-4">
-                    <div className="aspect-square overflow-hidden rounded-xl border bg-white">
+            {/* Back Button */}
+            <Button
+                variant="ghost"
+                className="mb-6"
+                onClick={() => navigate("/shop")}
+            >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Shop
+            </Button>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* Product Images Section */}
+                <div className="space-y-6">
+                    <div className="aspect-square overflow-hidden rounded-xl border bg-white shadow-sm">
                         <img
                             src={product.productImages[activeImage] || product.thumbnail}
                             alt={product.name}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain p-4"
                         />
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-3">
                         {product.productImages.map((img, index) => (
                             <div
                                 key={index}
                                 onClick={() => setActiveImage(index)}
-                                className={`aspect-square rounded-md overflow-hidden border-2 cursor-pointer transition-all ${
+                                className={`aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all hover:border-primary ${
                                     activeImage === index ? "border-primary ring-2 ring-primary/20" : "border-border"
                                 }`}
                             >
@@ -362,131 +252,157 @@ const ProductDetails = () => {
                     </div>
                 </div>
 
-                {/* Product Info */}
-                <div className="space-y-6">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
-
-                        <div className="flex items-center gap-4 mt-2">
-                            <div className="flex items-center">
-                                {renderRatingStars(product.avgRating)}
-                                <span className="ml-2 text-sm text-muted-foreground">
-                  ({product.avgRating?.toFixed(1) || "N/A"})
-                </span>
+                {/* Product Info Section */}
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <div>
+                            <h1 className="text-4xl font-bold tracking-tight">{product.name}</h1>
+                            <div className="flex items-center gap-4 mt-3">
+                                <div className="flex items-center">
+                                    {renderRatingStars(product.avgRating)}
+                                    <span className="ml-2 text-sm text-muted-foreground">
+                                        ({product.avgRating?.toFixed(1) || "N/A"})
+                                    </span>
+                                </div>
+                                <Badge variant="outline" className="font-normal">
+                                    {product.quantity_in_stock > 0 ? "In Stock" : "Out of Stock"}
+                                </Badge>
                             </div>
-
-                            <Badge variant="outline" className="font-normal">
-                                {product.quantity_in_stock > 0 ? "In Stock" : "Out of Stock"}
-                            </Badge>
                         </div>
-                    </div>
 
-                    <div>
-                        <div className="text-3xl font-bold">
-                            ${finalPrice.toFixed(2)}
+                        <div className="space-y-2">
+                            <div className="text-4xl font-bold text-primary">
+                                ${finalPrice.toFixed(2)}
+                            </div>
                             {finalPrice !== product.price && (
-                                <span className="ml-2 text-sm text-muted-foreground line-through">
-                  ${product.price.toFixed(2)}
-                </span>
+                                <span className="text-lg text-muted-foreground line-through">
+                                    ${product.price.toFixed(2)}
+                                </span>
                             )}
                         </div>
                     </div>
 
-                    <Separator/>
+                    <Separator />
 
-                    {/* Dynamic Product Attributes (from API) */}
-                    {renderAttributeGroups()}
+                    {/* Dynamic Product Attributes */}
+                    <div className="space-y-6">
+                        {renderAttributeGroups()}
+                    </div>
 
                     {/* Quantity and Add to Cart */}
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex items-center border rounded-md">
+                        <div className="flex items-center border rounded-lg">
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-10 rounded-r-none"
-                                onClick={() => handleQuantityChange(quantity - 1)}
+                                className="h-12 rounded-r-none"
+                                onClick={() => handleQuantityChange(quantity - 1, maxStock)}
                                 disabled={quantity <= 1}
                             >
-                                <Minus size={16}/>
+                                <Minus size={16} />
                             </Button>
 
-                            <Input
-                                type="number"
-                                min="1"
-                                max={product.quantity_in_stock}
-                                value={quantity}
-                                onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                                className="w-16 h-10 text-center border-0 rounded-none"
-                            />
+                            <div className="w-16 h-12 flex items-center justify-center border-x">
+                                <span className="text-base font-medium">{quantity}</span>
+                            </div>
 
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-10 rounded-l-none"
-                                onClick={() => handleQuantityChange(quantity + 1)}
-                                disabled={quantity >= product.quantity_in_stock}
+                                className="h-12 rounded-l-none"
+                                onClick={() => handleQuantityChange(quantity + 1, maxStock)}
+                                disabled={quantity >= maxStock}
                             >
-                                <Plus size={16}/>
+                                <Plus size={16} />
                             </Button>
                         </div>
 
                         <Button
-                            className="flex-1 gap-2"
-                            onClick={handleAddToCart}
-                            disabled={product.quantity_in_stock === 0}
+                            className="flex-1 h-12 gap-2"
+                            onClick={() => handleAddToCart(product, selectedAttributes)}
+                            disabled={maxStock === 0}
                         >
-                            <ShoppingCart size={16}/>
+                            <ShoppingCart size={18} />
                             Add to Cart
                         </Button>
 
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
-                            className="h-10 w-10"
-                            onClick={() => setIsWishlist(!isWishlist)}
+                            className={cn(
+                                "h-12 w-12 rounded-full hover:bg-primary/10 transition-colors",
+                                isInWishlist && "text-red-500 hover:text-red-600"
+                            )}
+                            onClick={(e) => handleWishlistAction(e, product)}
                         >
-                            <Heart
-                                size={16}
-                                className={isWishlist ? "fill-red-500 text-red-500" : ""}
-                            />
+                            <Heart className={cn("h-5 w-5", isInWishlist && "fill-current")} />
                         </Button>
                     </div>
-
-                    {/* Product Tabs */}
-                    <Tabs defaultValue="description" className="w-full mt-8">
-                        <TabsList className="w-full grid grid-cols-2 h-auto">
-                            <TabsTrigger value="description" className="py-3">Description</TabsTrigger>
-                            <TabsTrigger value="specifications" className="py-3">Specifications</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="description" className="mt-4 text-sm">
-                            <Card className="p-4 border-border/40">
-                                <p className="whitespace-pre-line">{product.description}</p>
-                            </Card>
-                        </TabsContent>
-
-                        <TabsContent value="specifications" className="mt-4">
-                            <Card className="p-4 border-border/40">
-                                <div className="space-y-3 text-sm">
-                                    {product.specifications && product.specifications.length > 0 ? (
-                                        product.specifications.map((spec, index) => (
-                                            <div key={index}
-                                                 className="grid grid-cols-2 gap-2 pb-2 border-b border-border/40 last:border-0">
-                                                <span className="font-medium">{spec.name}</span>
-                                                <span>{spec.value}</span>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="py-8 text-center text-muted-foreground">
-                                            No specifications available for this product.
-                                        </div>
-                                    )}
-                                </div>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
                 </div>
             </div>
+
+            {/* Product Details Section */}
+            <div className="mt-16">
+                <Tabs defaultValue="description" className="w-full">
+                    <TabsList className="w-full grid grid-cols-2 h-auto mb-8">
+                        <TabsTrigger value="description" className="py-3 text-base">Description</TabsTrigger>
+                        <TabsTrigger value="specifications" className="py-3 text-base">Specifications</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="description" className="mt-4">
+                        <Card className="p-6 border-border/40">
+                            <h3 className="text-xl font-semibold mb-4">Product Description</h3>
+                            <div className="prose prose-sm max-w-none text-muted-foreground">
+                                <ReactMarkdown
+                                    components={{
+                                        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4" {...props} />,
+                                        h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-3" {...props} />,
+                                        h3: ({ node, ...props }) => <h3 className="text-lg font-bold mb-2" {...props} />,
+                                        p: ({ node, ...props }) => <p className="mb-4 leading-relaxed" {...props} />,
+                                        ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4" {...props} />,
+                                        ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-4" {...props} />,
+                                        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                                        a: ({ node, ...props }) => <a className="text-primary hover:underline" {...props} />,
+                                        strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+                                        em: ({ node, ...props }) => <em className="italic" {...props} />,
+                                        code: ({ node, ...props }) => <code className="bg-muted px-1 py-0.5 rounded text-sm" {...props} />,
+                                        pre: ({ node, ...props }) => <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4" {...props} />,
+                                        blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-muted-foreground pl-4 italic mb-4" {...props} />,
+                                        img: ({ node, ...props }) => <img className="rounded-lg my-4" {...props} />,
+                                    }}
+                                >
+                                    {product.description}
+                                </ReactMarkdown>
+                            </div>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="specifications" className="mt-4">
+                        <Card className="p-6 border-border/40">
+                            <h3 className="text-xl font-semibold mb-4">Product Specifications</h3>
+                            <div className="space-y-4">
+                                {product.specifications && product.specifications.length > 0 ? (
+                                    product.specifications.map((spec, index) => (
+                                        <div
+                                            key={index}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-4 py-3 border-b border-border/40 last:border-0"
+                                        >
+                                            <span className="font-medium text-muted-foreground">{spec.name}</span>
+                                            <span className="text-foreground">{spec.value}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        No specifications available for this product.
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    </TabsContent>
+
+                </Tabs>
+            </div>
+
         </div>
     );
 };

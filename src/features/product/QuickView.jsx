@@ -1,322 +1,270 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "src/components/ui/dialog.jsx";
 import { Button } from "src/components/ui/button.jsx";
 import { Badge } from "src/components/ui/badge.jsx";
-import { Star, ShoppingCart, ShoppingBag, CheckCircle2, Loader2, Heart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { CheckCircle2, Heart, Loader2, ShoppingBag, ShoppingCart, Star } from "lucide-react";
 import { cn } from "src/lib/utils.js";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductById } from "src/store/slices/product/productsSlice.js";
+import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
+import { useProductAttributes, useProductActions, renderRatingStars } from "./product-hooks.jsx";
 
 const QuickView = ({ productId, trigger }) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [selectedAttributes, setSelectedAttributes] = useState({});
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeImage, setActiveImage] = useState(0);
-  const [isWishlist, setIsWishlist] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [isOpen, setIsOpen] = useState(false);
+    const [activeImage, setActiveImage] = useState(0);
 
-  const {
-    currentProduct: product,
-    detailLoading: loading,
-    detailError: error
-  } = useSelector((state) => state.products);
+    // Redux state
+    const {
+        currentProduct: product,
+        detailLoading: loading,
+        detailError: error
+    } = useSelector((state) => state.products);
 
-  // Fetch product details when dialog opens or productId changes
-  useEffect(() => {
-    if (isOpen && productId) {
-      dispatch(fetchProductById(productId));
-    }
-  }, [isOpen, productId, dispatch]);
+    // Custom hooks
+    const {
+        selectedAttributes,
+        handleSelectAttribute,
+        getFinalPrice,
+        getAttributeGroups
+    } = useProductAttributes(product);
 
-  // Set default selected attributes when product data loads
-  useEffect(() => {
-    if (product && product.attributes && product.attributes.length > 0) {
-      const defaultAttributes = {};
-      const attributeGroups = {};
+    const {
+        quantity,
+        isInWishlist,
+        handleQuantityChange,
+        handleAddToCart,
+        handleWishlistAction,
+        fetchProduct
+    } = useProductActions(productId);
 
-      product.attributes.forEach(attr => {
-        if (!attributeGroups[attr.attributeName]) {
-          attributeGroups[attr.attributeName] = [];
-          defaultAttributes[attr.attributeName] = attr;
+    // Calculate final price
+    const finalPrice = getFinalPrice();
+
+    // Fetch product data when dialog opens
+    useEffect(() => {
+        if (isOpen) {
+            // Reset states when opening dialog
+            setActiveImage(0);
+            fetchProduct();
         }
-        attributeGroups[attr.attributeName].push(attr);
-      });
 
-      setSelectedAttributes(defaultAttributes);
-    }
-  }, [product]);
+        // Cleanup when dialog closes
+        return () => {
+            if (!isOpen) {
+                dispatch(clearCurrentProduct());
+            }
+        };
+    }, [isOpen, productId]);
 
-  // Handle attribute selection
-  const handleSelectAttribute = (attribute) => {
-    setSelectedAttributes(prev => ({
-      ...prev,
-      [attribute.attributeName]: attribute
-    }));
-  };
+    // Handle dialog state changes
+    const handleOpenChange = (open) => {
+        setIsOpen(open);
+    };
 
-  // Calculate final price based on selection
-  const getFinalPrice = () => {
-    if (!product) return 0;
+    // Render attribute groups
+    const renderAttributeGroups = () => {
+        const attributeGroups = getAttributeGroups();
 
-    // If no attributes are selected, return the default product price
-    if (Object.keys(selectedAttributes).length === 0) {
-      return product.price;
-    }
-
-    // If attributes are selected, calculate price with selected attributes
-    const basePrice = product.price;
-    const attributePrices = Object.values(selectedAttributes).map(attr => attr.price);
-    return Math.max(...attributePrices);
-  };
-
-  const finalPrice = getFinalPrice();
-
-  // Convert rating to stars
-  const renderRatingStars = (rating) => {
-    if (!rating) return null;
-
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<Star key={i} fill="#FFD700" stroke="#FFD700" size={16} />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(
-          <div key={i} className="relative">
-            <Star size={16} stroke="#FFD700" />
-            <div className="absolute top-0 left-0 overflow-hidden" style={{ width: "50%" }}>
-              <Star size={16} fill="#FFD700" stroke="#FFD700" />
-            </div>
-          </div>
-        );
-      } else {
-        stars.push(<Star key={i} size={16} stroke="#FFD700" />);
-      }
-    }
-
-    return stars;
-  };
-
-  // Group attributes by type and render them
-  const renderAttributeGroups = () => {
-    if (!product?.attributes?.length) return null;
-
-    // Group attributes by attributeName
-    const attributeGroups = product.attributes.reduce((acc, attr) => {
-      if (!acc[attr.attributeName]) {
-        acc[attr.attributeName] = [];
-      }
-      acc[attr.attributeName].push(attr);
-      return acc;
-    }, {});
-
-    return Object.entries(attributeGroups).map(([groupName, attributes]) => (
-      <div key={groupName} className="space-y-2">
-        <div className="font-medium text-sm">{groupName}</div>
-        <div className="flex flex-wrap gap-2">
-          {attributes.map((attr, index) => (
-            <Button
-              key={index}
-              variant={selectedAttributes[groupName]?.attributeValue === attr.attributeValue ? "default" : "outline"}
-              onClick={() => handleSelectAttribute(attr)}
-              className={cn(
-                "px-3 py-1 h-auto text-xs relative",
-                attr.stockQuantity <= 0 && "opacity-50 cursor-not-allowed"
-              )}
-              disabled={attr.stockQuantity <= 0}
-            >
-              {attr.attributeValue}
-              {attr.price !== product.price && (
-                <span className="ml-1 text-xs">
+        return Object.entries(attributeGroups).map(([groupName, attributes]) => (
+            <div key={groupName} className="space-y-2">
+                <div className="font-medium text-sm">{groupName}</div>
+                <div className="flex flex-wrap gap-2">
+                    {attributes.map((attr, index) => (
+                        <Button
+                            key={index}
+                            variant={selectedAttributes[groupName]?.attributeValue === attr.attributeValue ? "default" : "outline"}
+                            onClick={() => handleSelectAttribute(attr)}
+                            className={cn(
+                                "px-3 py-1 h-auto text-xs relative",
+                                attr.stockQuantity <= 0 && "opacity-50 cursor-not-allowed"
+                            )}
+                            disabled={attr.stockQuantity <= 0}
+                        >
+                            {attr.attributeValue}
+                            {attr.price !== product.price && (
+                                <span className="ml-1 text-xs">
                   {attr.price > product.price ? '+' : ''}
-                  ${Math.abs(attr.price - product.price).toFixed(2)}
+                                    ${Math.abs(attr.price + product.price).toFixed(2)}
                 </span>
-              )}
-              {attr.stockQuantity <= 0 && (
-                <span className="absolute -top-1 -right-1 text-red-500">
-                  <CheckCircle2 size={12} />
+                            )}
+                            {attr.stockQuantity <= 0 && (
+                                <span className="absolute -top-1 -right-1 text-red-500">
+                  <CheckCircle2 size={12}/>
                 </span>
-              )}
-            </Button>
-          ))}
-        </div>
-      </div>
-    ));
-  };
-
-  // Handle dialog state changes
-  const handleOpenChange = (open) => {
-    setIsOpen(open);
-    if (!open) {
-      setSelectedAttributes({});
-      setActiveImage(0);
-    }
-  };
-
-  // Render dialog content based on state
-  const renderDialogContent = () => {
-    if (error) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-red-100 p-4 mb-4">
-            <CheckCircle2 className="h-8 w-8 text-red-500" />
-          </div>
-          <p className="text-red-500 text-lg font-medium">Error loading product details</p>
-          <Button variant="outline" onClick={() => handleOpenChange(false)} className="mt-6">
-            Close
-          </Button>
-        </div>
-      );
-    }
-
-    if (loading) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Loading product details...</p>
-        </div>
-      );
-    }
-
-    if (!product) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <ShoppingBag className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <p className="text-muted-foreground text-lg">No product details available</p>
-          <Button variant="outline" onClick={() => handleOpenChange(false)} className="mt-6">
-            Close
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <>
-        <div className="grid grid-cols-2 gap-8">
-          {/* Product Image */}
-          <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:shadow-md">
-              <img
-                src={product.productImages?.[activeImage] || product.thumbnail}
-                alt={product.name}
-                className="w-full h-full object-contain transform transition-transform duration-300 hover:scale-105"
-              />
+                            )}
+                        </Button>
+                    ))}
+                </div>
             </div>
-            {product.productImages && product.productImages.length > 0 && (
-              <div className="grid grid-cols-4 gap-3">
-                {product.productImages.map((img, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setActiveImage(index)}
-                    className={cn(
-                      "aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-300 hover:shadow-md",
-                      activeImage === index 
-                        ? "border-primary ring-2 ring-primary/20 scale-105" 
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <img
-                      src={img}
-                      alt={`${product.name} view ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        ));
+    };
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-2xl font-semibold tracking-tight">{product.name}</h3>
-              <div className="flex items-center gap-4 mt-3">
-                <div className="flex items-center bg-primary/5 px-3 py-1 rounded-full">
-                  {renderRatingStars(product.avgRating)}
-                  <span className="ml-2 text-sm font-medium text-primary">
+    // Render dialog content based on state
+    const renderDialogContent = () => {
+        if (error) {
+            return (
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="rounded-full bg-red-100 p-4 mb-4">
+                        <CheckCircle2 className="h-8 w-8 text-red-500"/>
+                    </div>
+                    <p className="text-red-500 text-lg font-medium">Error loading product details</p>
+                    <Button variant="outline" onClick={() => handleOpenChange(false)} className="mt-6">
+                        Close
+                    </Button>
+                </div>
+            );
+        }
+
+        if (loading) {
+            return (
+                <div className="flex flex-col items-center justify-center py-12">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary mb-4"/>
+                    <p className="text-muted-foreground">Loading product details...</p>
+                </div>
+            );
+        }
+
+        if (!product) {
+            return (
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="rounded-full bg-muted p-4 mb-4">
+                        <ShoppingBag className="h-8 w-8 text-muted-foreground"/>
+                    </div>
+                    <p className="text-muted-foreground text-lg">No product details available</p>
+                    <Button variant="outline" onClick={() => handleOpenChange(false)} className="mt-6">
+                        Close
+                    </Button>
+                </div>
+            );
+        }
+
+        const maxStock = product.quantity_in_stock;
+
+        return (
+            <>
+                <div className="grid grid-cols-2 gap-8">
+                    {/* Product Image */}
+                    <div className="space-y-4">
+                        <div className="aspect-square overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:shadow-md">
+                            <img
+                                src={product.productImages?.[activeImage] || product.thumbnail}
+                                alt={product.name}
+                                className="w-full h-full object-contain transform transition-transform duration-300 hover:scale-105"
+                            />
+                        </div>
+                        {product.productImages && product.productImages.length > 0 && (
+                            <div className="grid grid-cols-4 gap-3">
+                                {product.productImages.map((img, index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => setActiveImage(index)}
+                                        className={cn(
+                                            "aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-300 hover:shadow-md",
+                                            activeImage === index
+                                                ? "border-primary ring-2 ring-primary/20 scale-105"
+                                                : "border-border hover:border-primary/50"
+                                        )}
+                                    >
+                                        <img
+                                            src={img}
+                                            alt={`${product.name} view ${index + 1}`}
+                                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="space-y-6">
+                        <div>
+                            <h3 className="text-2xl font-semibold tracking-tight">{product.name}</h3>
+                            <div className="flex items-center gap-4 mt-3">
+                                <div className="flex items-center bg-primary/5 px-3 py-1 rounded-full">
+                                    {renderRatingStars(product.avgRating)}
+                                    <span className="ml-2 text-sm font-medium text-primary">
                     ({product.avgRating?.toFixed(1) || "N/A"})
                   </span>
-                </div>
-                <Badge 
-                  variant={product.quantity_in_stock > 0 ? "default" : "destructive"} 
-                  className="font-normal px-3 py-1"
-                >
-                  {product.quantity_in_stock > 0 ? "In Stock" : "Out of Stock"}
-                </Badge>
-              </div>
-            </div>
+                                </div>
+                                <Badge
+                                    variant={product.quantity_in_stock > 0 ? "default" : "destructive"}
+                                    className="font-normal px-3 py-1"
+                                >
+                                    {product.quantity_in_stock > 0 ? "In Stock" : "Out of Stock"}
+                                </Badge>
+                            </div>
+                        </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-3xl font-bold text-primary">
-                  ${finalPrice.toFixed(2)}
-                </div>
-                {finalPrice !== product.price && (
-                  <span className="text-sm text-muted-foreground line-through">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="text-3xl font-bold text-primary">
+                                    ${finalPrice.toFixed(2)}
+                                </div>
+                                {finalPrice !== product.price && (
+                                    <span className="text-sm text-muted-foreground line-through">
                     ${product.price.toFixed(2)}
                   </span>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "rounded-full hover:bg-primary/10 transition-colors",
-                  isWishlist && "text-red-500 hover:text-red-600"
-                )}
-                onClick={() => setIsWishlist(!isWishlist)}
-              >
-                <Heart className={cn("h-5 w-5", isWishlist && "fill-current")} />
-              </Button>
-            </div>
+                                )}
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                    "rounded-full hover:bg-primary/10 transition-colors",
+                                    isInWishlist && "text-red-500 hover:text-red-600"
+                                )}
+                                onClick={(e) => handleWishlistAction(e, product)}
+                            >
+                                <Heart className={cn("h-5 w-5", isInWishlist && "fill-current")}/>
+                            </Button>
+                        </div>
 
-            {/* Product Attributes */}
-            <div className="space-y-4">
-              {renderAttributeGroups()}
-            </div>
+                        {/* Product Attributes */}
+                        <div className="space-y-4">
+                            {renderAttributeGroups()}
+                        </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3 pt-2">
-              <Button 
-                className="w-full h-12 text-base font-medium transition-all duration-300 hover:scale-[1.02]"
-                disabled={product.quantity_in_stock <= 0}
-              >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="w-full h-12 text-base font-medium transition-all duration-300 hover:scale-[1.02]"
-              >
-                <ShoppingBag className="mr-2 h-5 w-5" />
-                View Details
-              </Button>
-            </div>
-          </div>
-        </div>
-      </>
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-3 pt-2">
+                            <Button
+                                className="w-full h-12 text-base font-medium transition-all duration-300 hover:scale-[1.02]"
+                                disabled={maxStock <= 0}
+                                onClick={() => handleAddToCart(product, selectedAttributes)}
+                            >
+                                <ShoppingCart className="mr-2 h-5 w-5"/>
+                                Add to Cart
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => navigate(`/product/${product.id}`)}
+                                className="w-full h-12 text-base font-medium transition-all duration-300 hover:scale-[1.02]"
+                            >
+                                <ShoppingBag className="mr-2 h-5 w-5"/>
+                                View Details
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+            <DialogTrigger asChild>
+                {trigger}
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl p-6">
+                <DialogHeader className="pb-4">
+                    <DialogTitle className="text-2xl font-bold tracking-tight">Quick View</DialogTitle>
+                </DialogHeader>
+                {renderDialogContent()}
+            </DialogContent>
+        </Dialog>
     );
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl p-6">
-        <DialogHeader className="pb-4">
-          <DialogTitle className="text-2xl font-bold tracking-tight">Quick View</DialogTitle>
-        </DialogHeader>
-        {renderDialogContent()}
-      </DialogContent>
-    </Dialog>
-  );
 };
 
 export default QuickView;
