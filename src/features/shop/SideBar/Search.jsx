@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "src/components/ui/button.jsx";
 import { Input } from "src/components/ui/input.jsx";
-import "../../../css/main/Shop.css";
+import "src/styles/component/Shop.css";
 
 // eslint-disable-next-line react/prop-types
 const Search = ({ onSearch }) => {
