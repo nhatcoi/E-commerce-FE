@@ -1,21 +1,25 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import blogService from "src/services/blogService.js";
 
-// Fetch danh sách blog
 export const fetchBlogs = createAsyncThunk(
     "blogs/fetchBlogs",
     async (_, { rejectWithValue }) => {
         try {
-            const response = blogService.getBlogs();
+            const response = await blogService.getBlogs();
             console.log(response);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.message || "Failed to fetch blogs");
         }
+    },
+    {
+        condition: (_, { getState }) => {
+            const { blogs } = getState();
+            return blogs.items.length === 0; // nếu chưa có thì mới fetch
+        },
     }
 );
 
-// Fetch average views cho nhiều blog theo blogIds
 export const fetchRecentNews = createAsyncThunk(
     "blogs/fetchRecentNews",
     async (blogIds, { rejectWithValue }) => {
@@ -26,8 +30,15 @@ export const fetchRecentNews = createAsyncThunk(
         } catch (error) {
             return rejectWithValue(error.message || "Failed to fetch average views");
         }
+    },
+    {
+        condition: (_, { getState }) => {
+            const { blogs } = getState();
+            return blogs.items.length === 0; // nếu chưa có thì mới fetch
+        },
     }
 );
+
 
 const blogSlice = createSlice({
     name: "blogs",
