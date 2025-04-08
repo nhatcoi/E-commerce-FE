@@ -5,7 +5,7 @@ import {Navigation, Autoplay, Pagination} from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import '../../css/main/Banner.css';
+import 'src/styles/component/Banner.css';
 
 const Banner = ({ images }) => {
     const [isVisible, setIsVisible] = useState(false);

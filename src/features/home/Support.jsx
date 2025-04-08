@@ -1,5 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap';
-import '../../css/main/Home.css';
+import 'src/styles/component/Home.css';
 import support1 from 'src/assets/img/support-area/support-1.png';
 import support2 from 'src/assets/img/support-area/support-2.png';
 import support3 from 'src/assets/img/support-area/support-3.png';
@@ -12,7 +12,7 @@ const supportData = [
     },
     {
         imgSrc: support2,
-        title: 'Support 24/7',
+        title: 'SupportPage 24/7',
         description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit sed',
     },
     {
