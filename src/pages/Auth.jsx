@@ -5,7 +5,7 @@ import {motion, AnimatePresence} from "framer-motion";
 import {loginAsync, logout} from "src/store/slices/authSlice.js";
 import {authService} from "src/services/authService.js";
 import {authApi} from "src/api/authApi.js";
-import "../../css/main/account.css";
+import "src/styles/component/Auth.css";
 
 // shadcn components
 import {Button} from "src/components/ui/button.jsx";
