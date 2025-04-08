@@ -6,17 +6,16 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "src/components/ui/popover";
-import {Button} from "src/components/ui/button";
-import {Badge} from "src/components/ui/badge";
-import {ScrollArea} from "src/components/ui/scroll-area";
-import {Separator} from "src/components/ui/separator";
-import { toast } from "src/components/ui/use-toast";
+} from "src/components/ui/popover.jsx";
+import {Button} from "src/components/ui/button.jsx";
+import {Badge} from "src/components/ui/badge.jsx";
+import {ScrollArea} from "src/components/ui/scroll-area.jsx";
+import { toast } from "src/components/ui/use-toast.js";
 import {
     fetchWishlistItems,
     removeFromWishlist,
     clearWishlist
-} from "src/store/slices/wishlistSlice";
+} from "src/store/slices/wishlistSlice.js";
 
 const Wishlist = () => {
     const dispatch = useDispatch();
