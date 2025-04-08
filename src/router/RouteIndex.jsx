@@ -6,51 +6,51 @@ import Shop from "../pages/Shop.jsx";
 import ProductDetails from "../features/product/ProductDetails.jsx";
 import Cart from "../pages/Cart.jsx";
 import Checkout from "../pages/Checkout.jsx";
-import Login from "../pages/Login.jsx";
-import Register from "../pages/Register.jsx";
 import UserProfile from "../pages/UserProfile.jsx";
-import Orders from "../pages/Orders.jsx";
 import Wishlist from "../pages/Wishlist.jsx";
 import SystemHome from "../pages/SystemHome.jsx";
-import AccountLayout from "src/components/layouts/AccountLayout.jsx";
-
-import Auth from "src/features/Auth.jsx";
-
+import SupportPage from "src/pages/SupportPage.jsx";
+import Auth from "src/pages/Auth.jsx";
 import SystemLayout from "src/components/layouts/SystemLayout.jsx";
-import AuthLayout from "src/router/AuthLayout.jsx";
+import Contact from "src/pages/Contact.jsx";
+import Blog from "src/pages/Blog.jsx";
+import NotFound from "src/pages/NotFound.jsx";
+import Orders from "src/pages/Orders.jsx";
 
 const RouteIndex = () => {
     return (
         <Router>
             <Routes>
-                {/* Routes chính - MainLayout bọc quanh */}
+                {/* Main routes */}
                 <Route path="/" element={<MainLayout />}>
                     <Route index element={<Home />} />
                     <Route path="shop" element={<Shop />} />
-                    <Route path="/product/:productId" element={<ProductDetails />} />
+                    <Route path="product/:productId" element={<ProductDetails />} />
                     <Route path="cart" element={<Cart />} />
                     <Route path="checkout" element={<Checkout />} />
-                    <Route path="login" element={<Auth />} />
-                </Route>
+                    <Route path="blog" element={<Blog />} />
+                    <Route path="contact" element={<Contact />} />
+                    <Route path="support" element={<SupportPage />} />
 
-                {/* Routes tài khoản - Bảo vệ bằng AuthLayout */}
-                <Route path="user" element={<AccountLayout />}>
-                    <Route element={<AuthLayout />}>
+                    {/* User  */}
+                    <Route path="user">
                         <Route path="profile" element={<UserProfile />} />
-                        <Route path="my-account" element={<UserProfile />} />
                         <Route path="my-orders" element={<Orders />} />
                         <Route path="wishlist" element={<Wishlist />} />
                     </Route>
                 </Route>
 
-                {/* Routes hệ thống */}
+                {/* System */}
                 <Route path="system" element={<SystemLayout />}>
                     <Route index element={<SystemHome />} />
                 </Route>
 
-                {/* Routes authentication */}
-                <Route path="login" element={<Login />} />
-                <Route path="register" element={<Register />} />
+                {/* Auth */}
+                <Route path="/login" element={<Auth />} />
+                <Route path="/register" element={<Auth />} />
+
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </Router>
     );
