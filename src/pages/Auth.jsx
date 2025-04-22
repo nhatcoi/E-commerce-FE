@@ -1,9 +1,7 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate, useLocation} from "react-router-dom";
 import {motion, AnimatePresence} from "framer-motion";
-import {loginAsync, logout} from "src/store/slices/authSlice.js";
-import {authService} from "src/services/authService.js";
 import {authApi} from "src/api/authApi.js";
 import "src/styles/component/Auth.css";
 
@@ -11,16 +9,19 @@ import "src/styles/component/Auth.css";
 import {Button} from "src/components/ui/button.jsx";
 import {Input} from "src/components/ui/input.jsx";
 import {Label} from "src/components/ui/label.jsx";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "src/components/ui/tabs.jsx";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "src/components/ui/card.jsx";
 import {Alert, AlertDescription} from "src/components/ui/alert.jsx";
+import {toast} from "src/components/ui/use-toast";
+
+// RTK Query
+import {useLoginMutation, useLazyGetMyInfoQuery} from "src/store/authApi";
+import {setCredentials} from "src/store/auth2Slice.js";
 
 // Lucide icons
 import {
     User,
     Mail,
     Lock,
-    LogOut,
     Eye,
     EyeOff,
     AlertCircle,
@@ -32,7 +33,11 @@ const Auth = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    const {user, isAuthenticated, loading, error} = useSelector((state) => state.auth);
+
+    const {user, isAuthenticated} = useSelector((state) => state.auth2);
+    const [login, { isLoading, error: loginError }] = useLoginMutation();
+    const [triggerGetMyInfo] = useLazyGetMyInfoQuery();
+
 
     const [activeTab, setActiveTab] = useState("login");
     const [formData, setFormData] = useState({
@@ -47,24 +52,21 @@ const Auth = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [redirectMessage, setRedirectMessage] = useState("");
 
-    // Set redirect message if it exists in location state
+
     useEffect(() => {
         if (location.state?.message) {
             setRedirectMessage(location.state.message);
         }
     }, [location.state]);
 
-    // Redirect to home if user is already authenticated
     useEffect(() => {
         if (isAuthenticated && user) {
-            // Redirect to the 'from' path if it exists, otherwise go to home
             const redirectTo = location.state?.from || "/";
             navigate(redirectTo, { replace: true });
         }
     }, [isAuthenticated, user, navigate, location.state]);
 
     useEffect(() => {
-        // Reset form when changing tabs
         if (activeTab === "login" || activeTab === "register") {
             setFormData({
                 name: "",
@@ -76,6 +78,39 @@ const Auth = () => {
             setSuccessMessage("");
         }
     }, [activeTab]);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) return;
+
+        try {
+            const loginRes = await login({
+                userIdentifier: formData.email,
+                password: formData.password
+            }).unwrap();
+
+            const accessToken = loginRes.data.accessToken;
+
+            const userInfoRes = await triggerGetMyInfo().unwrap();
+
+            dispatch(setCredentials({
+                accessToken,
+                user: userInfoRes.data
+            }));
+
+            toast({
+                title: "Success",
+                description: "Logged in successfully",
+            });
+
+            navigate(location.state?.from || "/", { replace: true });
+
+        } catch (err) {
+            console.error("Login failed:", err);
+        }
+    };
+
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
@@ -120,36 +155,7 @@ const Auth = () => {
         return Object.keys(errors).length === 0;
     };
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
 
-        if (!validateForm()) return;
-
-        try {
-            // Use the updated loginAsync which now fetches user info as well
-            await dispatch(loginAsync({
-                userIdentifier: formData.email,
-                password: formData.password
-            })).unwrap();
-
-            setSuccessMessage("Login successful!");
-            
-            // Navigate based on 'from' in location state or default to home
-            const redirectTo = location.state?.from || "/";
-            navigate(redirectTo, { replace: true });
-
-            // Reset form
-            setFormData({
-                name: "",
-                email: "",
-                password: "",
-                confirmPassword: ""
-            });
-        } catch (err) {
-            // Error is already handled in the Redux slice through the rejected action
-            console.error("Login error in component:", err);
-        }
-    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -164,7 +170,11 @@ const Auth = () => {
                 password: formData.password
             });
 
-            setSuccessMessage("Registration successful! Please log in.");
+            toast({
+                title: "Success",
+                description: "Registration successful! Please log in.",
+            });
+
             setActiveTab("login");
 
             // Reset form
@@ -175,30 +185,19 @@ const Auth = () => {
                 confirmPassword: ""
             });
         } catch (err) {
-            setFormErrors({
-                ...formErrors,
-                general: err.response?.data?.message || "Registration failed. Please try again."
+            toast({
+                variant: "destructive",
+                title: "Registration failed",
+                description: err.response?.data?.message || "An error occurred during registration"
             });
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            await authService.logout();
-            dispatch(logout());
-            navigate("/");
-        } catch (error) {
-            console.error("Logout error:", error);
-        }
-    };
-
-    // Form variants for animation
     const formVariants = {
         hidden: {opacity: 0, y: 20},
         visible: {opacity: 1, y: 0, transition: {duration: 0.3}}
     };
 
-    // If user is already authenticated, don't render anything (we'll redirect in useEffect)
     if (isAuthenticated && user) {
         return null;
     }
@@ -239,7 +238,7 @@ const Auth = () => {
 
                                 {/* Error and success alerts */}
                                 <AnimatePresence>
-                                    {(error || formErrors.general) && (
+                                    {(loginError?.data?.message || formErrors.general) && (
                                         <motion.div
                                             initial={{opacity: 0, height: 0}}
                                             animate={{opacity: 1, height: "auto"}}
@@ -250,7 +249,7 @@ const Auth = () => {
                                             <Alert variant="destructive" className="mb-4">
                                                 <AlertCircle className="h-4 w-4"/>
                                                 <AlertDescription>
-                                                    {error || formErrors.general}
+                                                    {loginError?.data?.message || formErrors.general}
                                                 </AlertDescription>
                                             </Alert>
                                         </motion.div>
@@ -407,15 +406,15 @@ const Auth = () => {
                                     </div>
 
                                     <Button
-                                        className="w-full mt-6 button-animated"
+                                        className="w-full mt-6 flex items-center justify-center gap-2"
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={isLoading}
                                     >
-                                        {loading ? (
-                                            <div className="btn-loading">
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
                                                 <span>Please wait</span>
-                                            </div>
+                                            </>
                                         ) : (
                                             activeTab === "login" ? "Sign In" : "Create Auth"
                                         )}
