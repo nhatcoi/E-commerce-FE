@@ -1,21 +1,26 @@
 import axios from "axios";
 import store from "src/store/index.js";
-import { refreshTokenAsync, logout, setAccessToken } from "src/store/slices/authSlice.js";
+import { logout } from "src/store/slices/user/authSlice.js";
 import { tokenRefreshQueue } from "src/services/tokenRefreshQueue.js";
 
+
+import { authApi } from "src/store/authApi";
+import {setAccessToken} from "src/store/auth2Slice.js";
+import {setAccessToken as setAccessToken2} from "src/store/slices/user/authSlice.js";
+
 const api = axios.create({
-    baseURL: "http://localhost:8085",
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials: true, // Important for CORS with credentials
+    withCredentials: true,
 });
 
-// Add accessToken to header for each request
+
 api.interceptors.request.use(
     (config) => {
-        // Get token from Redux store
-        const { accessToken } = store.getState().auth;
+
+        const { accessToken } = store.getState().auth2;
         if (accessToken) {
             config.headers["Authorization"] = `Bearer ${accessToken}`;
         }
@@ -24,46 +29,47 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Handle 401 - Auto refresh token
+
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        // If the error is not 401 or the request has already been retried, reject
-        if (error.response?.status !== 401 || originalRequest._retry) {
+        if (
+            error.response?.status !== 401 ||
+            originalRequest._retry ||
+            originalRequest.url.includes('auth/log-out') ||
+            originalRequest.url.includes('auth/refresh-token')
+        ) {
             return Promise.reject(error);
         }
 
-        originalRequest._retry = true;
 
         try {
-            // If already refreshing, add to queue
             if (tokenRefreshQueue.isRefreshing()) {
                 return tokenRefreshQueue.addToQueue()
                     .then(() => {
-                        // After token is refreshed, get token from store
-                        const { accessToken } = store.getState().auth;
+                        const { accessToken } = store.getState().auth2;
                         originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
                         return api(originalRequest);
                     })
-                    .catch((err) => {
-                        return Promise.reject(err);
-                    });
+                    .catch(() => Promise.reject(error));
             }
 
-            // Attempt to refresh the token
-            const newAccessToken = await store.dispatch(refreshTokenAsync()).unwrap();
-            
-            // Update the original request with the new token
-            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-            
-            // Retry the original request
+            const result = await store
+                .dispatch(authApi.endpoints.refreshToken.initiate())
+                .unwrap();
+
+            const { accessToken } = result.data;
+            store.dispatch(setAccessToken(accessToken));
+
+            store.dispatch(setAccessToken2(accessToken));
+            originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+
             return api(originalRequest);
         } catch (refreshError) {
-            // If refresh fails, clear the session and reject
             store.dispatch(logout());
-            return Promise.reject(refreshError);
+            return Promise.reject(error);
         }
     }
 );
