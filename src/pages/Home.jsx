@@ -1,8 +1,8 @@
 import {useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from '../store/slices/categoriesSlice.js';
+import { fetchCategories } from '../store/slices/product/categoriesSlice.js';
 import { fetchProducts } from '../store/slices/product/productsSlice.js';
-import { fetchRecentNews } from '../store/slices/blogsSlice.js';
+
 import CategorySection from "src/features/home/CategorySection.jsx";
 import Banner from "src/features/home/Banner.jsx"
 import Support from "src/features/home/Support.jsx"
@@ -29,7 +29,6 @@ const Home = () => {
         Promise.all([
             dispatch(fetchProducts({ page: 0, size: 8, sortByNew: true })),
             dispatch(fetchCategories()),
-            dispatch(fetchRecentNews())
         ]);
     }, [dispatch]);
 

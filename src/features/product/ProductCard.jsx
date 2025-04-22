@@ -2,7 +2,7 @@ import QuickView from "src/features/product/QuickView.jsx";
 import {Link, useNavigate} from 'react-router-dom';
 import { toast } from "src/components/ui/use-toast";
 import { Heart, Eye, RefreshCw } from "lucide-react";
-
+import { generateSlug } from "src/lib/utils";
 import { useProductActions, renderRatingStars } from "./product-hooks.jsx";
 
 // eslint-disable-next-line react/prop-types
@@ -24,7 +24,7 @@ const ProductCard = ({ product, rating }) => {
 
     const handleProductClick = (e) => {
         e.preventDefault();
-        navigate(`/product/${product.id}`);
+        navigate(`/product/${generateSlug(product.name)}`);
     };
 
     // Calculate discount percentage using fake original price
@@ -107,17 +107,18 @@ const ProductCard = ({ product, rating }) => {
 
 
                 <Link
-                    to={`/product/${product.id}`}
+                    to={`/product/${generateSlug(product.name)}`}
                     className="text-base font-medium text-gray-800 hover:text-gray-600 line-clamp-2 mb-3"
                 >
                     {product.name}
                 </Link>
 
-
-                <div className="flex justify-center items-center gap-1 mb-3">
-                    {renderRatingStars(rating)}
-                    <span className="text-sm text-gray-500 ml-1">({rating.toFixed(1)})</span>
-                </div>
+                {rating && (
+                    <div className="flex justify-center items-center gap-1 mb-3">
+                        {renderRatingStars(rating)}
+                        <span className="text-sm text-gray-500 ml-1">({rating.toFixed(1)})</span>
+                    </div>
+                )}
 
                 <div className="flex items-center justify-center gap-2">
                     <span className="text-lg font-bold text-black">${product.price}</span>

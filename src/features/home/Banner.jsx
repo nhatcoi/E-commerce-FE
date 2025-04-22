@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import {Navigation, Autoplay, Pagination} from 'swiper/modules';
+import { Navigation, Autoplay, Pagination } from 'swiper/modules';
+import { bannerData } from 'src/data/home/banner';
 import 'swiper/swiper-bundle.css';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'src/styles/component/Banner.css';
 
-const Banner = ({ images }) => {
+const Banner = () => {
     const [isVisible, setIsVisible] = useState(false);
+    const { slides, settings } = bannerData;
 
     useEffect(() => {
         setIsVisible(true);
@@ -20,22 +22,26 @@ const Banner = ({ images }) => {
                 modules={[Autoplay, Pagination, Navigation]}
                 spaceBetween={50}
                 slidesPerView={1}
-                autoplay={{ delay: 8000, disableOnInteraction: false }}
-                pagination={{ clickable: true }}
-                navigation={true}
+                autoplay={settings.autoplay}
+                pagination={settings.pagination}
+                navigation={settings.navigation}
             >
-                {images.map((image, index) => (
-                    <SwiperSlide key={index}>
+                {slides.map((slide) => (
+                    <SwiperSlide key={slide.id}>
                         <div className="banner-slide">
-                            <img src={image} alt={`Slide ${index}`} className="banner-image" />
+                            <img src={slide.imageUrl} alt={slide.title} className="banner-image" />
                             <Container className="d-flex justify-content-center align-items-center h-100">
                                 <Row className="text-center text-white w-100">
                                     <Col>
                                         <div className="banner-text">
-                                            <h1>Welcome to Our Website</h1>
-                                            <p>Your journey to amazing experiences starts here.</p>
-                                            <Button variant="danger" className="banner-button">
-                                                Get Started
+                                            <h1>{slide.title}</h1>
+                                            <p>{slide.description}</p>
+                                            <Button
+                                                variant={slide.button.variant}
+                                                className="banner-button"
+                                                href={slide.button.url}
+                                            >
+                                                {slide.button.text}
                                             </Button>
                                         </div>
                                     </Col>
@@ -43,7 +49,6 @@ const Banner = ({ images }) => {
                             </Container>
                         </div>
                     </SwiperSlide>
-
                 ))}
             </Swiper>
         </div>

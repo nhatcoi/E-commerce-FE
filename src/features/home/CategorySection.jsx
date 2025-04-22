@@ -10,6 +10,7 @@ import {
   CarouselPrevious,
 } from "src/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { categoryData } from 'src/data/home/category';
 
 const CategorySection = () => {
     const { items: categoriesResponse, loading, error } = useSelector((state) => state.categories);
@@ -21,17 +22,17 @@ const CategorySection = () => {
     if (error) return <Typography variant="body1" className="text-red-500">Lỗi: {error}</Typography>;
 
     return (
-        <section className="py-12 my-20 bg-gray-50">
+        <section className={categoryData.sectionStyle.backgroundColor}>
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <div className="text-center mb-12">
                     <div className="flex items-center justify-center gap-6 mb-4">
                         <div className="w-32 h-[1px] bg-black"></div>
-                        <h2 className="text-3xl font-bold uppercase tracking-wider">Categories</h2>
+                        <h2 className="text-3xl font-bold uppercase tracking-wider">{categoryData.title}</h2>
                         <div className="w-32 h-[1px] bg-black"></div>
                     </div>
                     <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-                        Explore our wide range of categories and find exactly what you're looking for
+                        {categoryData.subtitle}
                     </p>
                 </div>
 

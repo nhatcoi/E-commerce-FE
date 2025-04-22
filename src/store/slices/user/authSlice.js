@@ -2,7 +2,6 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {authService} from "src/services/authService.js";
 import {userService} from "src/services/userService.js";
 
-// Async action to refresh token
 export const refreshTokenAsync = createAsyncThunk("auth/refreshToken", async (_, { rejectWithValue }) => {
     try {
         const response = await authService.refreshToken();
@@ -12,7 +11,6 @@ export const refreshTokenAsync = createAsyncThunk("auth/refreshToken", async (_,
     }
 });
 
-// Async action to login
 export const loginAsync = createAsyncThunk("auth/login", async ({ userIdentifier, password }, { rejectWithValue }) => {
     try {
         // First login to get the access token
@@ -30,8 +28,6 @@ export const loginAsync = createAsyncThunk("auth/login", async ({ userIdentifier
     }
 });
 
-
-// Async action to fetch user info
 export const fetchUserInfoAsync = createAsyncThunk("auth/fetchUserInfo", async (_, { rejectWithValue }) => {
     try {
         return await userService.getMyInfo();

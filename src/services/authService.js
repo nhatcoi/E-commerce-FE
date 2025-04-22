@@ -1,7 +1,9 @@
 import { authApi } from "src/api/authApi.js";
-import { logout, refreshTokenAsync, setAccessToken, fetchUserInfoAsync } from "src/store/slices/authSlice.js";
+import { authApi as authApi2 } from "src/store/authApi.js";
+// import { logout, refreshTokenAsync, setAccessToken, fetchUserInfoAsync } from "src/store/slices/user/authSlice.js";
 import store from "src/store/index.js";
 import { tokenRefreshQueue } from "./tokenRefreshQueue.js";
+import {logout, setAccessToken, setCredentials} from "src/store/auth2Slice";
 
 export const authService = {
     async login(userIdentifier, password) {
@@ -60,36 +62,27 @@ export const authService = {
         }
     },
     
-    // Check if user is authenticated on app startup
     checkAuth() {
         const { accessToken } = store.getState().auth;
         return !!accessToken;
     },
 
-    // Enhanced restoreSession function
     async restoreSession(dispatch) {
         try {
-            // Try to refresh token on app init
-            try {
-                // Attempt to refresh the token
-                await dispatch(refreshTokenAsync()).unwrap();
-                
-                // After successful refresh, fetch user info
-                await dispatch(fetchUserInfoAsync()).unwrap();
-                return true;
-            } catch (refreshError) {
-                // If refresh fails, clear the session
-                this.clearSession();
-                return false;
-            }
+            const tokenRes = await dispatch(authApi2.endpoints.refreshToken.initiate()).unwrap();
+            const userInfoRes = await dispatch(authApi2.endpoints.getMyInfo.initiate()).unwrap();
+
+            dispatch(setCredentials({
+                accessToken: tokenRes.data.accessToken,
+                user: userInfoRes.data
+            }));
+            return true;
         } catch (error) {
-            console.error("Session restoration failed:", error);
             this.clearSession();
             return false;
         }
     },
 
-    // Helper function to clear session
     clearSession() {
         store.dispatch(logout());
         tokenRefreshQueue.processQueue(new Error("Session cleared"));

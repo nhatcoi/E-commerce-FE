@@ -1,82 +1,54 @@
-import {wishlistApi} from "src/api/wishlistApi.js";
 import {
     fetchWishlistItems,
     addToWishlist,
     removeFromWishlist,
     clearWishlist
-} from "src/store/slices/wishlistSlice.js";
+} from "src/store/slices/product/wishlistSlice.js";
 import {toast} from "src/components/ui/use-toast";
+import api from "src/config/api.js";
 
 export const wishlistService = {
-    // Load wishlist items
-    loadWishlistItems: async (dispatch) => {
+    loadWishlistItems: async () => {
         try {
-            await dispatch(fetchWishlistItems()).unwrap();
-            return true;
+            const response = await api.get("/wishlist");
+            if (response.data && response.data.statusCode === 200 && response.data.data) {
+                return response.data.data;
+            }
+            return response.data;
         } catch (error) {
-            console.error("Failed to load wishlist items:", error);
-            return false;
+            return null;
         }
     },
 
     // Add item to wishlist
-    addItem: async (dispatch, productId, showToast = true) => {
+    addItem: async (productId) => {
         try {
-            await dispatch(addToWishlist(productId)).unwrap();
-            if (showToast) {
-                toast({
-                    title: "Added to Wishlist",
-                    description: "Item has been added to your wishlist",
-                    variant: "success"
-                });
+            const response = await api.post("/wishlist/add", {productId});
+
+            if (response.data && response.data.statusCode === 200 && response.data.data) {
+                return response.data.data;
             }
-            return true;
+            const updatedResponse = await api.get("/wishlist");
+            if (updatedResponse.data && updatedResponse.data.statusCode === 200 && updatedResponse.data.data) {
+                return updatedResponse.data.data;
+            }
+
+            return response.data;
         } catch (error) {
-            console.error("Failed to add item to wishlist:", error);
-            if (showToast) {
-                toast({
-                    title: "Error",
-                    description: error?.message || "Failed to add item to wishlist",
-                    variant: "destructive"
-                });
-            }
-            return false;
+            return null;
         }
     },
 
-    // Remove item from wishlist
-    removeItem: async (dispatch, productId, showToast = true) => {
-        try {
-            await dispatch(removeFromWishlist(productId)).unwrap();
-            if (showToast) {
-                toast({
-                    title: "Removed from Wishlist",
-                    description: "Item has been removed from your wishlist",
-                    variant: "default"
-                });
-            }
-            return true;
-        } catch (error) {
-            console.error("Failed to remove item from wishlist:", error);
-            if (showToast) {
-                toast({
-                    title: "Error",
-                    description: error?.message || "Failed to remove item from wishlist",
-                    variant: "destructive"
-                });
-            }
-            return false;
+    removeItem: async (productId) => {
+        const response = await api.delete(`/wishlist/remove/${productId}`);
+
+        if (response) {
+            return response.data;
         }
+
+        throw new Error(response.data?.message || "Failed to remove item");
     },
 
-    // Toggle wishlist item (add or remove)
-    toggleWishlistItem: async (dispatch, product, isInWishlist, showToast = true) => {
-        if (isInWishlist) {
-            return wishlistService.removeItem(dispatch, product.id, showToast);
-        } else {
-            return wishlistService.addItem(dispatch, product.id, showToast);
-        }
-    },
 
     // Clear all wishlist items
     clearWishlist: (dispatch) => {

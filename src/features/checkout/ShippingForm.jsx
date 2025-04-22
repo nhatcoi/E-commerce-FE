@@ -22,6 +22,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "src/components/ui/radio-group";
 import { MapPin, Clock } from "lucide-react";
 import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 
 const shippingMethods = [
     {
@@ -41,14 +42,19 @@ const shippingMethods = [
 ];
 
 const ShippingForm = ({ onSubmit, initialData }) => {
+    const navigate = useNavigate();
     const [useExistingAddress, setUseExistingAddress] = useState(false);
     const { register, handleSubmit, formState: { errors }, setValue } = useForm({
         defaultValues: initialData || {},
     });
 
     // get data user from state
-    const auth  = useSelector((state) => state.auth);
+    const auth  = useSelector((state) => state.auth2);
     const user = auth.user || null;
+    if (!user) {
+        navigate("/login");
+        return;
+    };
     const addresses = user?.addresses || [];
 
 

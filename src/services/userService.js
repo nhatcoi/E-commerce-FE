@@ -1,5 +1,5 @@
 import { userApi } from "src/api/userApi.js";
-import { setUser } from "src/store/slices/authSlice.js";
+import { setUser } from "src/store/slices/user/authSlice.js";
 import store from "src/store/index.js";
 import axios from "axios";
 

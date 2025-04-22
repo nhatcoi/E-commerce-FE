@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Tag } from "src/components/ui/tag.jsx";
+import { Badge } from "src/components/ui/Badge.jsx";
 
 const TagFilter = ({ tags, onTagChange }) => {
     const [selectedTags, setSelectedTags] = useState([]);
@@ -29,22 +29,24 @@ const TagFilter = ({ tags, onTagChange }) => {
         <div className="space-y-4">
             <h5 className="pro-sidebar-title">Tags</h5>
             <div className="flex flex-wrap gap-2">
-                <Tag
-                    selected={selectedTags.includes("")}
+                <Badge
                     onClick={() => handleTagClick("All Tags")}
-                    className="cursor-pointer"
+                    className={`cursor-pointer bg-white text-black border border-gray-300 ${
+                        selectedTags.includes("") ? "ring-2 ring-black" : ""
+                    }`}
                 >
                     All Tags
-                </Tag>
+                </Badge>
                 {tags.map((tag, index) => (
-                    <Tag
+                    <Badge
                         key={index}
-                        selected={selectedTags.includes(tag.name)}
                         onClick={() => handleTagClick(tag.name)}
-                        className="cursor-pointer"
+                        className={`cursor-pointer bg-white text-black border border-gray-300 ${
+                            selectedTags.includes(tag.name) ? "ring-2 ring-black" : ""
+                        }`}
                     >
                         {tag.name}
-                    </Tag>
+                    </Badge>
                 ))}
             </div>
         </div>

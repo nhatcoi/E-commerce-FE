@@ -15,14 +15,14 @@ import {
     fetchWishlistItems,
     removeFromWishlist,
     clearWishlist
-} from "src/store/slices/wishlistSlice.js";
+} from "src/store/slices/product/wishlistSlice.js";
 
 const Wishlist = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const {items, loading, error} = useSelector((state) => state.wishlist);
-    const {isAuthenticated} = useSelector((state) => state.auth);
+    const {isAuthenticated} = useSelector((state) => state.auth2);
 
     // Fetch wishlist items when the component mounts and when authenticated
     useEffect(() => {
@@ -76,7 +76,7 @@ const Wishlist = () => {
 
     const handleNavigateToWishlist = () => {
         setOpen(false);
-        navigate("/wishlist");
+        navigate("/user/wishlist");
     };
 
     const handleNavigateToProduct = (productId) => {

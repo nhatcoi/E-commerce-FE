@@ -5,22 +5,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "src/components/ui/button.jsx";
 import { Badge } from "src/components/ui/badge.jsx";
 import { CheckCircle2, Heart, Loader2, ShoppingBag, ShoppingCart, Star } from "lucide-react";
-import { cn } from "src/lib/utils.js";
+import {cn, generateSlug} from "src/lib/utils.js";
 import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
 import { useProductAttributes, useProductActions, renderRatingStars } from "./product-hooks.jsx";
+import {useGetProductByIdQuery} from "src/store/productApi.js";
 
+// eslint-disable-next-line react/prop-types
 const QuickView = ({ productId, trigger }) => {
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [activeImage, setActiveImage] = useState(0);
 
-    // Redux state
-    const {
-        currentProduct: product,
+    const { data,
         detailLoading: loading,
         detailError: error
-    } = useSelector((state) => state.products);
+    } = useGetProductByIdQuery(productId);
+
+    const product = data?.data;
 
     // Custom hooks
     const {
@@ -31,26 +34,17 @@ const QuickView = ({ productId, trigger }) => {
     } = useProductAttributes(product);
 
     const {
-        quantity,
         isInWishlist,
-        handleQuantityChange,
         handleAddToCart,
         handleWishlistAction,
-        fetchProduct
     } = useProductActions(productId);
 
-    // Calculate final price
     const finalPrice = getFinalPrice();
 
-    // Fetch product data when dialog opens
     useEffect(() => {
         if (isOpen) {
-            // Reset states when opening dialog
             setActiveImage(0);
-            fetchProduct();
         }
-
-        // Cleanup when dialog closes
         return () => {
             if (!isOpen) {
                 dispatch(clearCurrentProduct());
@@ -58,7 +52,6 @@ const QuickView = ({ productId, trigger }) => {
         };
     }, [isOpen, productId]);
 
-    // Handle dialog state changes
     const handleOpenChange = (open) => {
         setIsOpen(open);
     };
@@ -187,7 +180,7 @@ const QuickView = ({ productId, trigger }) => {
                                     {renderRatingStars(product.avgRating)}
                                     <span className="ml-2 text-sm font-medium text-primary">
                     ({product.avgRating?.toFixed(1) || "N/A"})
-                  </span>
+                    </span>
                                 </div>
                                 <Badge
                                     variant={product.quantity_in_stock > 0 ? "default" : "destructive"}
@@ -206,7 +199,7 @@ const QuickView = ({ productId, trigger }) => {
                                 {finalPrice !== product.price && (
                                     <span className="text-sm text-muted-foreground line-through">
                     ${product.price.toFixed(2)}
-                  </span>
+                    </span>
                                 )}
                             </div>
                             <Button
@@ -239,7 +232,7 @@ const QuickView = ({ productId, trigger }) => {
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={() => navigate(`/product/${product.id}`)}
+                                onClick={() => navigate(`/product/${generateSlug(product.name)}`)}
                                 className="w-full h-12 text-base font-medium transition-all duration-300 hover:scale-[1.02]"
                             >
                                 <ShoppingBag className="mr-2 h-5 w-5"/>

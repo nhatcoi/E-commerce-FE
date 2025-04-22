@@ -5,13 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     updateCartQuantity,
     removeFromCart,
-    clearCart, toggleSelectItem, fetchCartItems
-} from "../../store/slices/cart/cartSlice.js";
+    clearCart, 
+    toggleSelectItem, 
+    fetchCartItems
+} from "src/store/slices/product/cart/cartSlice.js";
 
 // Shadcn components
 import { Card, CardFooter } from "src/components/ui/card.jsx";
 import { Button } from "src/components/ui/button.jsx";
 import { Input } from "src/components/ui/input.jsx";
+import { LoadingSpinner } from "src/components/ui/loading-spinner.jsx";
+import { Error } from "src/components/ui/error.jsx";
 import {
     Tooltip,
     TooltipContent,
@@ -28,9 +32,6 @@ import {
     ArrowLeft,
     Trash2
 } from "lucide-react";
-
-// Loading animation
-import { Loader } from "src/components/ui/loader.jsx";
 import { Checkbox } from "src/components/ui/checkbox";
 
 const CartInfo = () => {
@@ -41,27 +42,21 @@ const CartInfo = () => {
     const cartItems = cartState.items || [];
     const selectedToPayments = cartState.selectedToPayments || [];
     const loading = cartState.loading || false;
-
+    const error = cartState.error;
 
     useEffect(() => {
         dispatch(fetchCartItems());
     }, [dispatch]);
 
     const handleCheckboxChange = (id) => {
-        console.log("selectedToPayments: ", selectedToPayments);
         dispatch(toggleSelectItem(id));
     };
 
-    console.log("selectedToPayments: ", selectedToPayments);
-
     const handleQuantityChange = (id, value) => {
         const newQuantity = parseInt(value) || 1;
-
-        // Debounce the actual dispatch
         const timer = setTimeout(() => {
             dispatch(updateCartQuantity({ id, quantity: newQuantity }));
         }, 500);
-
         return () => clearTimeout(timer);
     };
 
@@ -70,11 +65,16 @@ const CartInfo = () => {
     };
 
     if (loading) {
+        return <LoadingSpinner fullScreen text="Preparing your cart..." />;
+    }
+
+    if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[70vh]">
-                <Loader className="w-16 h-16 text-primary" />
-                <p className="mt-6 text-lg text-muted-foreground">Preparing your cart...</p>
-            </div>
+            <Error 
+                title="Failed to load cart"
+                message={error}
+                action={() => dispatch(fetchCartItems())}
+            />
         );
     }
 
@@ -92,11 +92,12 @@ const CartInfo = () => {
                     </div>
                     <h2 className="text-2xl font-medium mb-3 text-foreground">Your cart is empty</h2>
                     <p className="text-muted-foreground mb-6">
-                        Discover our collection and find something that resonates with your spirit.
+                        Looks like you haven't added anything to your cart yet.
                     </p>
                     <Link to="/shop">
-                        <Button className="px-6 font-medium transition-all hover:shadow-md">
-                            Browse Products
+                        <Button variant="outline" className="gap-2">
+                            <ShoppingBag className="w-4 h-4" />
+                            Start Shopping
                         </Button>
                     </Link>
                 </motion.div>

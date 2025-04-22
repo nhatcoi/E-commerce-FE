@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "src/components/ui/radio-group.jsx";
 import { Label } from "src/components/ui/label.jsx";
 import { useSelector } from "react-redux";
 import { CircularProgress, Typography } from "@mui/material";
+import {useGetCategoriesQuery} from "src/store/categoryApi.js";
 
-// eslint-disable-next-line react/prop-types
 const Categories = ({ onCategoryChange }) => {
-    const { items: categories, loading, error } = useSelector((state) => state.categories);
+    const {
+        data,
+        error,
+        isLoading: loading,
+    } = useGetCategoriesQuery();
+
+    const categories = data?.data ?? [];
     const [selectedCategory, setSelectedCategory] = useState("");
 
     if (loading) return <div className="flex justify-center py-6"><CircularProgress /></div>;

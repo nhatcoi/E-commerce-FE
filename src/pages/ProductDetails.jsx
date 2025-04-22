@@ -8,72 +8,40 @@ import { Badge } from "src/components/ui/badge.jsx";
 import { Separator } from "src/components/ui/separator.jsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "src/components/ui/tabs.jsx";
 import { Skeleton } from "src/components/ui/skeleton.jsx";
-import { Minus, Plus, ShoppingCart, Heart, ArrowLeft, CheckCircle2, Star } from "lucide-react";
+import {
+    Minus,
+    Plus,
+    ShoppingCart,
+    Heart,
+    ArrowLeft,
+    CheckCircle2,
+    Star,
+    Facebook,
+    Twitter,
+    Linkedin, Link as LinkIcon
+} from "lucide-react";
 import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
 import { cn } from "src/lib/utils.js";
-import { useProductAttributes, useProductActions, renderRatingStars } from "./product-hooks.jsx";
-
-
-
-const relatedProducts = [
-    {
-        id: 1,
-        name: "Related Product 1",
-        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
-        price: 99.99,
-        rating: 4.5,
-    },
-    {
-        id: 2,
-        name: "Related Product 2",
-        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
-        price: 149.99,
-        rating: 4.2,
-    },
-    {
-        id: 3,
-        name: "Related Product 3",
-        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
-        price: 79.99,
-        rating: 4.8,
-    },
-    {
-        id: 4,
-        name: "Related Product 4",
-        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
-        price: 129.99,
-        rating: 4.3,
-    },
-    {
-        id: 5,
-        name: "Related Product 5",
-        thumbnail: "https://images.unsplash.com/photo-1726065235203-4368c41c6f19?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8",
-        price: 89.99,
-        rating: 4.6,
-    }
-];
-
+import { useProductAttributes, useProductActions, renderRatingStars } from "../features/product/product-hooks.jsx";
+import CarouselProduct from '../features/product/CarouselProduct.jsx';
+import {useGetProductBySlugQuery} from "src/store/productApi.js";
 
 const ProductDetails = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { productId } = useParams();
+    const { slug } = useParams();
+
     const [activeImage, setActiveImage] = useState(0);
+    const { data, loading, error } = useGetProductBySlugQuery(slug);
+    const product = data?.data;
 
-    // Redux state
-    const {
-        currentProduct: product,
-        detailLoading: loading,
-        detailError: error
-    } = useSelector((state) => state.products);
 
-    // Custom hooks
     const {
         selectedAttributes,
         handleSelectAttribute,
         getFinalPrice,
         getAttributeGroups
-    } = useProductAttributes(product);
+    } = useProductAttributes(product || {});
 
     const {
         quantity,
@@ -81,65 +49,12 @@ const ProductDetails = () => {
         handleQuantityChange,
         handleAddToCart,
         handleWishlistAction,
-        fetchProduct
-    } = useProductActions(productId);
 
-    // Calculate final price
-    const finalPrice = getFinalPrice();
+    } = useProductActions(product?.id);
 
-    // Fetch product
-    useEffect(() => {
-        if (productId) {
-            fetchProduct();
-        } else {
-            navigate("/shop");
-        }
 
-        // Cleanup when component unmounts
-        return () => {
-            dispatch(clearCurrentProduct());
-        };
-    }, [productId, dispatch, navigate]);
+    const finalPrice = product ? getFinalPrice() : 0;
 
-    // Render attribute groups
-    const renderAttributeGroups = () => {
-        const attributeGroups = getAttributeGroups();
-
-        return Object.entries(attributeGroups).map(([groupName, attributes]) => (
-            <div key={groupName} className="space-y-2">
-                <div className="font-medium text-sm">{groupName}</div>
-                <div className="flex flex-wrap gap-2">
-                    {attributes.map((attr, index) => (
-                        <Button
-                            key={index}
-                            variant={selectedAttributes[groupName]?.attributeValue === attr.attributeValue ? "default" : "outline"}
-                            onClick={() => handleSelectAttribute(attr)}
-                            className={cn(
-                                "px-3 py-1 h-auto text-xs relative",
-                                attr.stockQuantity <= 0 && "opacity-50 cursor-not-allowed"
-                            )}
-                            disabled={attr.stockQuantity <= 0}
-                        >
-                            {attr.attributeValue}
-                            {attr.price !== product.price && (
-                                <span className="ml-1 text-xs">
-                                    {attr.price > product.price ? '+' : ''}
-                                    ${Math.abs(attr.price + product.price).toFixed(2)}
-                                </span>
-                            )}
-                            {attr.stockQuantity <= 0 && (
-                                <span className="absolute -top-1 -right-1 text-red-500">
-                  <CheckCircle2 size={12}/>
-                </span>
-                            )}
-                        </Button>
-                    ))}
-                </div>
-            </div>
-        ));
-    };
-
-    // Loading UI
     if (loading) {
         return (
             <div className="container mx-auto py-8 px-4">
@@ -208,6 +123,43 @@ const ProductDetails = () => {
     };
 
     const maxStock = getMaxStock();
+
+    const renderAttributeGroups = () => {
+        const attributeGroups = getAttributeGroups();
+
+        return Object.entries(attributeGroups).map(([groupName, attributes]) => (
+            <div key={groupName} className="space-y-2">
+                <div className="font-medium text-sm">{groupName}</div>
+                <div className="flex flex-wrap gap-2">
+                    {attributes.map((attr, index) => (
+                        <Button
+                            key={index}
+                            variant={selectedAttributes[groupName]?.attributeValue === attr.attributeValue ? "default" : "outline"}
+                            onClick={() => handleSelectAttribute(attr)}
+                            className={cn(
+                                "px-3 py-1 h-auto text-xs relative",
+                                attr.stockQuantity <= 0 && "opacity-50 cursor-not-allowed"
+                            )}
+                            disabled={attr.stockQuantity <= 0}
+                        >
+                            {attr.attributeValue}
+                            {attr.price !== product.price && (
+                                <span className="ml-1 text-xs">
+                                    {attr.price > product.price ? '+' : ''}
+                                    ${Math.abs(attr.price + product.price).toFixed(2)}
+                                </span>
+                            )}
+                            {attr.stockQuantity <= 0 && (
+                                <span className="absolute -top-1 -right-1 text-red-500">
+                  <CheckCircle2 size={12}/>
+                </span>
+                            )}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+        ));
+    };
 
 
     return (
@@ -287,6 +239,23 @@ const ProductDetails = () => {
                     {/* Dynamic Product Attributes */}
                     <div className="space-y-6">
                         {renderAttributeGroups()}
+                    </div>
+
+                    {/* Share Buttons */}
+                    <div className="flex items-center space-x-4 mb-12">
+                        <span className="text-sm font-medium">Share:</span>
+                        <Button size="icon" variant="outline">
+                            <Facebook className="h-4 w-4"/>
+                        </Button>
+                        <Button size="icon" variant="outline">
+                            <Twitter className="h-4 w-4"/>
+                        </Button>
+                        <Button size="icon" variant="outline">
+                            <Linkedin className="h-4 w-4"/>
+                        </Button>
+                        <Button size="icon" variant="outline">
+                            <LinkIcon className="h-4 w-4"/>
+                        </Button>
                     </div>
 
                     {/* Quantity and Add to Cart */}
@@ -402,6 +371,10 @@ const ProductDetails = () => {
 
                 </Tabs>
             </div>
+            <CarouselProduct
+                category={product.category_id}
+                productId={product.id}
+            />
 
         </div>
     );

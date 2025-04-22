@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "src/components/ui/use-toast";
-import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "src/store/slices/wishlistSlice.js";
-import { addToCart } from "src/store/slices/cart/cartSlice.js";
+import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "src/store/slices/product/wishlistSlice.js";
+import { addToCart } from "src/store/slices/product/cart/cartSlice.js";
 import { fetchProductById } from "src/store/slices/product/productsSlice.js";
 import {Star} from "lucide-react";
 
@@ -79,7 +79,7 @@ export const useProductActions = (productId) => {
     const [quantity, setQuantity] = useState(1);
 
     const { items: wishlistItems } = useSelector(state => state.wishlist);
-    const { isAuthenticated } = useSelector(state => state.auth);
+    const { isAuthenticated } = useSelector(state => state.auth2);
     const isInWishlist = wishlistItems?.some(item => Number(item.productId) === Number(productId));
 
     // Handle quantity changes
@@ -146,10 +146,6 @@ export const useProductActions = (productId) => {
         }
     };
 
-    // Fetch product data
-    const fetchProduct = () => {
-        dispatch(fetchProductById(productId));
-    };
 
     return {
         quantity,
@@ -158,7 +154,6 @@ export const useProductActions = (productId) => {
         handleQuantityChange,
         handleAddToCart,
         handleWishlistAction,
-        fetchProduct
     };
 };
 

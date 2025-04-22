@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { authService } from "src/services/authService.js";
-import { setLoading } from "src/store/slices/authSlice.js";
+import { setLoading } from "src/store/auth2Slice.js"; // auth2 slice
 
 export const useAppInitialization = () => {
     const dispatch = useDispatch();
-    const { loading, accessToken } = useSelector((state) => state.auth);
+    const { loading, accessToken } = useSelector((state) => state.auth2);
     const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {

@@ -2,11 +2,9 @@ import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useSelector, useDispatch} from "react-redux";
 import {motion, AnimatePresence} from "framer-motion";
-import {logout} from "src/store/slices/authSlice.js";
+import {logout} from "src/store/slices/user/authSlice.js";
 import {authService} from "src/services/authService.js";
 import "src/styles/component/user-popover.css";
-
-// Shadcn components
 import {Button} from "src/components/ui/button.jsx";
 import {
     Sheet,
@@ -23,7 +21,6 @@ import {
     DropdownMenuTrigger,
 } from "src/components/ui/dropdown-menu.jsx";
 
-// Icons
 import {
     User,
     LogOut,
@@ -41,7 +38,7 @@ import {
 const UserPopover = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {user, isAuthenticated} = useSelector((state) => state.auth);
+    const {user, isAuthenticated} = useSelector((state) => state.auth2);
 
     const [open, setOpen] = useState(false);
 

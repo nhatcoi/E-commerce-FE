@@ -1,9 +1,10 @@
 import React, {useEffect} from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "src/components/ui/card";
 import { Badge } from "src/components/ui/badge";
 import { Eye, Flame, Hash } from "lucide-react";
 import blogService from "src/services/blogService.js";
-
+import { generateSlug } from "src/lib/utils";
 
 const CATEGORIES = [
     { name: "Technology", count: 25 },
@@ -57,11 +58,15 @@ const BlogSidebar = () => {
                 <CardContent>
                     <div className="space-y-4">
                         {popularPosts.map(post => (
-                            <div key={post.id} className="flex items-center gap-3 group cursor-pointer">
+                            <Link 
+                                key={post.id} 
+                                to={`/blog/${generateSlug(post.title)}`}
+                                className="flex items-center gap-3 group hover:bg-muted/50 p-2 rounded-lg transition-colors"
+                            >
                                 <img
                                     src={post.thumbnail}
                                     alt={post.title}
-                                    className="w-20 h-20 object-cover rounded-md"
+                                    className="w-20 h-20 object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
                                 />
                                 <div>
                                     <h4 className="font-medium group-hover:text-primary transition-colors line-clamp-2">
@@ -72,7 +77,7 @@ const BlogSidebar = () => {
                                         {post.views} views
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </CardContent>
@@ -124,4 +129,4 @@ const BlogSidebar = () => {
     );
 };
 
-export default BlogSidebar; 
+export default BlogSidebar;

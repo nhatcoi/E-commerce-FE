@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "src/components/ui/tabs";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "src/components/ui/card";
@@ -53,17 +53,20 @@ import {
 } from "lucide-react";
 import {useToast} from "src/components/ui/use-toast";
 import {useDispatch} from "react-redux";
-import {fetchUserInfoAsync, updateUserProfileAsync} from "src/store/slices/authSlice.js";
 import {userService} from "src/services/userService.js";
+import {useLazyGetMyInfoQuery, useUpdateProfileMutation} from "src/store/authApi.js";
+import {setUser as setUserProfile} from "src/store/auth2Slice.js";
 
 const UserProfile = () => {
     const dispatch = useDispatch();
     const {toast} = useToast();
+    const userData = useSelector((state) => state.auth2.user);
+    const [triggerGetMyInfo] = useLazyGetMyInfoQuery();
+    const [updateProfile, {isLoading, error: loginError}] = useUpdateProfileMutation();
 
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+    const [emailNotifications, setEmailNotifications] = useState(true);
 
-    const userData = useSelector((state) => state.auth.user);
-
-    // State để lưu thông tin user
     const [user, setUser] = useState({
         fullName: "",
         username: "",
@@ -76,12 +79,12 @@ const UserProfile = () => {
         avatar: ""
     });
 
-    // Fetch user info khi component mount
-    useEffect(() => {
-        dispatch(fetchUserInfoAsync());
-    }, [dispatch]);
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
 
-    // Cập nhật state khi userFromStore thay đổi
     useEffect(() => {
         if (userData) {
             setUser({
@@ -95,8 +98,7 @@ const UserProfile = () => {
                 roleNames: userData.roleNames || [],
                 avatar: userData.avatar || "https://github.com/shadcn.png"
             });
-            
-            // Also update editForm if it's being edited
+
             if (isEditing) {
                 setEditForm({
                     name: userData.fullName || "",
@@ -109,61 +111,6 @@ const UserProfile = () => {
         }
     }, [userData]);
 
-    // useEffect(() => {
-    //     if (userData) {
-    //         setUser({
-    //             name: userData.fullName || "Unknown",
-    //             email: userData.email || "",
-    //             phone: userData.phoneNumber || "",
-    //             addresses: userData.addresses || [],
-    //             avatar: userData.avatar || "https://github.com/shadcn.png",
-    //             birthdate: userData.dateOfBirth || "",
-    //             gender: "male",
-    //         });
-    //     }
-    // }, [userData]);
-
-    // "fullName": "A1 User",
-    //     "username": "a1",
-    //     "phoneNumber": "0123456789",
-    //     "email": "a1@gmail.com",
-    //     "dateOfBirth": "2000-01-01",
-    //     "isActive": true,
-    //     "addresses": [
-    //     {
-    //         "id": 1,
-    //         "addressLine": "123 Đường ABC",
-    //         "city": "Hà Nội",
-    //         "district": "Ba Đình",
-    //         "postcode": "100000",
-    //         "country": "Vietnam"
-    //     },
-    //     {
-    //         "id": 2,
-    //         "addressLine": "456 Đường XYZ",
-    //         "city": "Hồ Chí Minh",
-    //         "district": "Quận 1",
-    //         "postcode": "700000",
-    //         "country": "Vietnam"
-    //     }
-    // ],
-    //     "roleNames": [
-    //     "STAFF",
-    //     "USER"
-    // ]
-
-
-    // const [user, setUser] = useState({
-    //   name: "John Doe",
-    //   email: "john.doe@example.com",
-    //   phone: "+1 (555) 123-4567",
-    //   address: "123 Main St, New York, NY 10001",
-    //   avatar: "https://github.com/shadcn.png",
-    //   birthdate: "1990-01-15",
-    //   gender: "male",
-    // });
-
-    // Edit mode state
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({
         name: "",
@@ -173,7 +120,19 @@ const UserProfile = () => {
         addresses: []
     });
 
-    // Initialize editForm when user data changes
+    useEffect(() => {
+        if (user) {
+            setEditForm({
+                phone: user.phoneNumber || '',
+                email: user.email || '',
+                name: user.fullName || '',
+                birthdate: user.dateOfBirth || '',
+                addresses: user.addresses || [],
+            });
+        }
+    }, [user]);
+
+
     useEffect(() => {
         setEditForm({
             name: user.fullName || "",
@@ -184,18 +143,117 @@ const UserProfile = () => {
         });
     }, [user]);
 
-    // Password change state
-    const [passwordForm, setPasswordForm] = useState({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+
+    const handleEditToggle = () => {
+        if (isEditing) {
+            setEditForm({
+                name: user.fullName || "",
+                email: user.email || "",
+                phone: user.phoneNumber || "",
+                birthdate: user.dateOfBirth || "",
+                addresses: user.addresses || []
+            });
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleEditFormChange = (e) => {
+        setEditForm({
+            ...editForm,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSaveChanges = async () => {
+        const formattedData = {
+            phoneNumber: editForm.phone || user.phoneNumber,
+            email: editForm.email || user.email,
+            fullName: editForm.name || user.fullName,
+            dateOfBirth: editForm.birthdate || user.dateOfBirth,
+            addresses: editForm.addresses.map(address => ({
+                id: address.id,
+                addressLine: address.addressLine,
+                city: address.city,
+                district: address.district,
+                postcode: address.postcode,
+                country: address.country,
+                isMain: address.isMain
+            }))
+        };
+        try {
+            const res = await updateProfile(formattedData).unwrap();
+            setIsEditing(false);
+            dispatch(setUserProfile(res.data));
+            toast({
+                title: "Profile Updated",
+                description: "Your profile information has been updated successfully.",
+            });
+        } catch (error) {
+            toast({
+                title: "Update Failed",
+                description: error?.data?.message || "Failed to update profile. Please try again.",
+                variant: "destructive",
+            });
+        }
+
+    };
+
+    const [showPasswords, setShowPasswords] = useState({
+        current: false,
+        new: false,
+        confirm: false
     });
 
-    // Security settings state
-    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-    const [emailNotifications, setEmailNotifications] = useState(true);
+    const togglePasswordVisibility = (field) => {
+        setShowPasswords(prev => ({
+            ...prev,
+            [field]: !prev[field]
+        }));
+    };
 
-    // Recent login devices
+
+    const handlePasswordChange = (e) => {
+        setPasswordForm({
+            ...passwordForm,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handlePasswordSubmit = async () => {
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            toast({
+                title: "Passwords don't match",
+                description: "Please make sure your passwords match.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            await userService.updatePassword({
+                currentPassword: passwordForm.currentPassword,
+                newPassword: passwordForm.newPassword
+            });
+
+            setPasswordForm({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
+
+            toast({
+                title: "Success",
+                description: "Your password has been changed successfully.",
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error.response?.data?.message || "Failed to change password. Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
     const [sessions, setSessions] = useState([
         {
             id: "session-1",
@@ -226,126 +284,7 @@ const UserProfile = () => {
         },
     ]);
 
-    // Add state for password visibility
-    const [showPasswords, setShowPasswords] = useState({
-        current: false,
-        new: false,
-        confirm: false
-    });
 
-    // Add toggle function for password visibility
-    const togglePasswordVisibility = (field) => {
-        setShowPasswords(prev => ({
-            ...prev,
-            [field]: !prev[field]
-        }));
-    };
-
-    // Handle profile edit
-    const handleEditToggle = () => {
-        if (isEditing) {
-            // Cancel edit - reset to current user data
-            setEditForm({
-                name: user.fullName || "",
-                email: user.email || "",
-                phone: user.phoneNumber || "",
-                birthdate: user.dateOfBirth || "",
-                addresses: user.addresses || []
-            });
-        }
-        setIsEditing(!isEditing);
-    };
-
-    const handleSaveChanges = () => {
-        // Format the data according to the API request structure
-        const formattedData = {
-            phoneNumber: editForm.phone || user.phoneNumber,
-            email: editForm.email || user.email,
-            fullName: editForm.name || user.fullName,
-            dateOfBirth: editForm.birthdate || user.dateOfBirth,
-            addresses: editForm.addresses.map(address => ({
-                id: address.id,
-                addressLine: address.addressLine,
-                city: address.city,
-                district: address.district,
-                postcode: address.postcode,
-                country: address.country,
-                isMain: address.isMain
-            }))
-        };
-
-        userService.updateProfile(formattedData)
-            .then(() => {
-                setIsEditing(false);
-                // Refresh user data after successful update
-                dispatch(fetchUserInfoAsync());
-                toast({
-                    title: "Profile Updated",
-                    description: "Your profile information has been updated successfully.",
-                });
-            })
-            .catch((error) => {
-                toast({
-                    title: "Update Failed",
-                    description: error.message || "Failed to update profile. Please try again.",
-                    variant: "destructive",
-                });
-            });
-    };
-
-    const handleEditFormChange = (e) => {
-        setEditForm({
-            ...editForm,
-            [e.target.name]: e.target.value,
-        });
-    };
-
-    // Handle password change
-    const handlePasswordChange = (e) => {
-        setPasswordForm({
-            ...passwordForm,
-            [e.target.name]: e.target.value,
-        });
-    };
-
-    const handlePasswordSubmit = async () => {
-        // Validate password
-        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-            toast({
-                title: "Passwords don't match",
-                description: "Please make sure your passwords match.",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        try {
-            await userService.updatePassword({
-                currentPassword: passwordForm.currentPassword,
-                newPassword: passwordForm.newPassword
-            });
-
-            // Reset form on success
-            setPasswordForm({
-                currentPassword: "",
-                newPassword: "",
-                confirmPassword: "",
-            });
-
-            toast({
-                title: "Success",
-                description: "Your password has been changed successfully.",
-            });
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: error.response?.data?.message || "Failed to change password. Please try again.",
-                variant: "destructive",
-            });
-        }
-    };
-
-    // Handle session logout
     const handleSessionLogout = (sessionId) => {
         setSessions(sessions.filter(session => session.id !== sessionId));
         toast({
@@ -354,7 +293,7 @@ const UserProfile = () => {
         });
     };
 
-    // Handle avatar change
+
     const handleAvatarChange = (e) => {
         // In a real application, you would upload the file to a server
         // and receive a URL back. For this example, we'll simulate that.
@@ -371,7 +310,7 @@ const UserProfile = () => {
         }
     };
 
-    // Handle account deletion
+
     const handleDeleteAccount = () => {
         // Account deletion logic would go here
         toast({
@@ -382,7 +321,7 @@ const UserProfile = () => {
         // Redirect to homepage or login page
     };
 
-    // Handle 2FA toggle
+
     const handleTwoFactorToggle = (checked) => {
         setTwoFactorEnabled(checked);
         toast({
@@ -393,11 +332,11 @@ const UserProfile = () => {
         });
     };
 
-    // Add new function to handle address changes
+
     const handleAddressChange = (addressId, field, value) => {
-        const newAddresses = editForm.addresses.map(address => 
-            address.id === addressId 
-                ? { ...address, [field]: value }
+        const newAddresses = editForm.addresses.map(address =>
+            address.id === addressId
+                ? {...address, [field]: value}
                 : address
         );
         setEditForm({
@@ -406,11 +345,11 @@ const UserProfile = () => {
         });
     };
 
-    // Add new function to add/remove addresses
+
     const handleAddAddress = () => {
         // Generate a new unique ID (timestamp + random number for uniqueness)
         const newId = Date.now() + Math.floor(Math.random() * 1000);
-        
+
         setEditForm({
             ...editForm,
             addresses: [...editForm.addresses, {
@@ -425,7 +364,6 @@ const UserProfile = () => {
         });
     };
 
-    // Add function to handle setting component address
     const handleSetMainAddress = (addressId) => {
         const newAddresses = editForm.addresses.map(address => ({
             ...address,
@@ -445,7 +383,6 @@ const UserProfile = () => {
         });
     };
 
-    // Helper function to sort addresses (default first)
     const sortAddresses = (addresses) => {
         return [...addresses].sort((a, b) => {
             if (a.isMain && !b.isMain) return -1;
@@ -576,9 +513,9 @@ const UserProfile = () => {
                                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                                 >
                                                     {showPasswords.current ? (
-                                                        <EyeOff size={16} />
+                                                        <EyeOff size={16}/>
                                                     ) : (
-                                                        <Eye size={16} />
+                                                        <Eye size={16}/>
                                                     )}
                                                 </button>
                                             </div>
@@ -599,9 +536,9 @@ const UserProfile = () => {
                                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                                 >
                                                     {showPasswords.new ? (
-                                                        <EyeOff size={16} />
+                                                        <EyeOff size={16}/>
                                                     ) : (
-                                                        <Eye size={16} />
+                                                        <Eye size={16}/>
                                                     )}
                                                 </button>
                                             </div>
@@ -622,9 +559,9 @@ const UserProfile = () => {
                                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                                 >
                                                     {showPasswords.confirm ? (
-                                                        <EyeOff size={16} />
+                                                        <EyeOff size={16}/>
                                                     ) : (
-                                                        <Eye size={16} />
+                                                        <Eye size={16}/>
                                                     )}
                                                 </button>
                                             </div>
@@ -716,7 +653,8 @@ const UserProfile = () => {
                                                         onChange={handleEditFormChange}
                                                     />
                                                 ) : (
-                                                    <div className="p-2 border rounded-md bg-muted/20">{user.fullName}</div>
+                                                    <div
+                                                        className="p-2 border rounded-md bg-muted/20">{user.fullName}</div>
                                                 )}
                                             </div>
 
@@ -782,7 +720,7 @@ const UserProfile = () => {
                                                         </Button>
                                                     )}
                                                 </div>
-                                                
+
                                                 {isEditing ? (
                                                     <div className="space-y-4">
                                                         {sortAddresses(editForm.addresses).map((address, index) => (
@@ -811,13 +749,15 @@ const UserProfile = () => {
                                                                             size="sm"
                                                                             onClick={() => handleRemoveAddress(address.id)}
                                                                         >
-                                                                            <X size={14} className="text-muted-foreground" />
+                                                                            <X size={14}
+                                                                               className="text-muted-foreground"/>
                                                                         </Button>
                                                                     </div>
                                                                 </div>
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                     <div className="space-y-2">
-                                                                        <Label htmlFor={`addressLine-${address.id}`}>Address Line</Label>
+                                                                        <Label htmlFor={`addressLine-${address.id}`}>Address
+                                                                            Line</Label>
                                                                         <Input
                                                                             id={`addressLine-${address.id}`}
                                                                             value={address.addressLine}
@@ -825,7 +765,8 @@ const UserProfile = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label htmlFor={`district-${address.id}`}>District</Label>
+                                                                        <Label
+                                                                            htmlFor={`district-${address.id}`}>District</Label>
                                                                         <Input
                                                                             id={`district-${address.id}`}
                                                                             value={address.district}
@@ -833,7 +774,8 @@ const UserProfile = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label htmlFor={`city-${address.id}`}>City</Label>
+                                                                        <Label
+                                                                            htmlFor={`city-${address.id}`}>City</Label>
                                                                         <Input
                                                                             id={`city-${address.id}`}
                                                                             value={address.city}
@@ -841,7 +783,8 @@ const UserProfile = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label htmlFor={`postcode-${address.id}`}>Postcode</Label>
+                                                                        <Label
+                                                                            htmlFor={`postcode-${address.id}`}>Postcode</Label>
                                                                         <Input
                                                                             id={`postcode-${address.id}`}
                                                                             value={address.postcode}
@@ -849,7 +792,8 @@ const UserProfile = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label htmlFor={`country-${address.id}`}>Country</Label>
+                                                                        <Label
+                                                                            htmlFor={`country-${address.id}`}>Country</Label>
                                                                         <Input
                                                                             id={`country-${address.id}`}
                                                                             value={address.country}
@@ -985,14 +929,13 @@ const UserProfile = () => {
                                                                 <Badge className="ml-2">Current</Badge>
                                                             )}
                                                         </div>
-                                                        <div
-                                                            className="text-sm text-muted-foreground flex flex-wrap gap-x-4 mt-1">
-                              <span className="flex items-center">
-                                <MapPin size={12} className="mr-1"/> {session.location}
-                              </span>
+                                                        <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 mt-1">
                                                             <span className="flex items-center">
-                                <Clock size={12} className="mr-1"/> {session.time}
-                              </span>
+                                                                <MapPin size={12} className="mr-1"/> {session.location}
+                                                            </span>
+                                                            <span className="flex items-center">
+                                                                <Clock size={12} className="mr-1"/> {session.time}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>

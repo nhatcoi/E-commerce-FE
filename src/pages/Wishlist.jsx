@@ -6,14 +6,14 @@ import {Button} from "src/components/ui/button";
 import {Card, CardContent} from "src/components/ui/card";
 import {Separator} from "src/components/ui/separator";
 import {ScrollArea} from "src/components/ui/scroll-area";
-import {fetchWishlistItems, removeFromWishlist, clearWishlist} from "src/store/slices/wishlistSlice";
+import {fetchWishlistItems, removeFromWishlist, clearWishlist} from "src/store/slices/product/wishlistSlice.js";
 import {toast} from "src/components/ui/use-toast";
 
 const Wishlist = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {items, loading, error} = useSelector((state) => state.wishlist);
-    const {isAuthenticated} = useSelector((state) => state.auth);
+    const {user, isAuthenticated} = useSelector((state) => state.auth2);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -173,7 +173,7 @@ const Wishlist = () => {
                                                 </Button>
 
                                                 <Button
-                                                    variant="destructive"
+                                                    variant="dark"
                                                     size="icon"
                                                     className="h-9 w-9"
                                                     onClick={() => handleRemoveItem(item.productId)}

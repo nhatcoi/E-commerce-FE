@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader } from "src/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "src/components/ui/avatar";
 import { Button } from "src/components/ui/button";
@@ -7,6 +8,7 @@ import { format, parseISO } from 'date-fns';
 import { Badge } from "src/components/ui/badge";
 import { Eye, MessageSquare, Calendar, ArrowRight } from "lucide-react";
 import blogService from "src/services/blogService.js";
+import { generateSlug } from "src/lib/utils";
 import {
     Pagination,
     PaginationContent,
@@ -14,36 +16,29 @@ import {
     PaginationLink, PaginationNext,
     PaginationPrevious
 } from "src/components/ui/pagination.jsx";
+import {useGetBlogsQuery} from "src/store/blogApi.js";
 
 
 const BlogGrid = ({ view, searchQuery, category }) => {
-    const [blogs, setBlogs] = useState([]);
     const postsPerPage = 4;
-    const [pagination, setPagination] = useState();
+    const [page, setPage] = useState(0);
 
-    useEffect(() => {
-        const params = {
-            page: 0,
-            size: postsPerPage,
-            keyword: searchQuery || undefined,
-            category: category === "All post" ? undefined : category,
-        }
-        fetchBlogs(params).then(r => r);
-    }, [searchQuery, category]);  // Re-fetch when page, searchQuery or category changes
+    const params = useMemo(() => ({
+        page,
+        size: postsPerPage,
+        keyword: searchQuery || undefined,
+        category: category === "All post" ? undefined : category,
+    }), [page, searchQuery, category]);
 
-    const fetchBlogs = async (params) => {
+    const { data, isLoading: loading, error } = useGetBlogsQuery(params);
 
-
-        const blogResponse = await blogService.getBlogs(params);
-        setBlogs(blogResponse.data);
-        setPagination(blogResponse.pagination)
-    };
+    const blogs = data?.data || [];
+    const pagination = data?.pagination;
 
     const handlePageChange = (newPage) => {
         if (!pagination || newPage < 0 || newPage >= pagination.totalPages) return;
-        fetchBlogs({page: newPage, size: pagination.pageSize}).then(r => r);
+        setPage(newPage);
     };
-
 
     return (
         <div className="space-y-8">
@@ -57,18 +52,23 @@ const BlogGrid = ({ view, searchQuery, category }) => {
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
                         <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="relative aspect-video overflow-hidden">
+                            <Link 
+                                to={`/blog/${generateSlug(post.title)}`} 
+                                className="relative aspect-video overflow-hidden"
+                            >
                                 <img
                                     src={post.thumbnail}
                                     alt={post.title}
                                     className="object-cover w-full h-full transform hover:scale-105 transition-transform duration-300"
                                 />
                                 <Badge className="absolute top-4 left-4">{post.category}</Badge>
-                            </div>
+                            </Link>
                             <CardHeader>
-                                <h3 className="text-xl font-semibold line-clamp-2 hover:text-primary cursor-pointer">
-                                    {post.title}
-                                </h3>
+                                <Link to={`/blog/${generateSlug(post.title)}`}>
+                                    <h3 className="text-xl font-semibold line-clamp-2 hover:text-primary cursor-pointer">
+                                        {post.title}
+                                    </h3>
+                                </Link>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-muted-foreground line-clamp-3 mb-4">{post.excerpt}</p>
@@ -96,9 +96,11 @@ const BlogGrid = ({ view, searchQuery, category }) => {
                                         </Avatar>
                                         <span className="text-sm font-medium">{post.author.name}</span>
                                     </div>
-                                    <Button variant="ghost" size="sm">
-                                        Read More
-                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                    <Button variant="ghost" size="sm" asChild>
+                                        <Link to={`/blog/${generateSlug(post.title)}`}>
+                                            Read More
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
                                     </Button>
                                 </div>
                             </CardFooter>

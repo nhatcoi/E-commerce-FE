@@ -1,44 +1,18 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import blogService from "src/services/blogService.js";
+import blogApi from "src/api/blogApi.js";
 
 export const fetchBlogs = createAsyncThunk(
     "blogs/fetchBlogs",
-    async (_, { rejectWithValue }) => {
+    async (params, { rejectWithValue }) => {
         try {
-            const response = await blogService.getBlogs();
-            console.log(response);
+            const response = await blogApi.getBlogs(params);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.message || "Failed to fetch blogs");
         }
-    },
-    {
-        condition: (_, { getState }) => {
-            const { blogs } = getState();
-            return blogs.items.length === 0; // nếu chưa có thì mới fetch
-        },
     }
 );
-
-export const fetchRecentNews = createAsyncThunk(
-    "blogs/fetchRecentNews",
-    async (blogIds, { rejectWithValue }) => {
-        try {
-            const response = await blogService.getRecentNews();
-            console.log("blog", response.data);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.message || "Failed to fetch average views");
-        }
-    },
-    {
-        condition: (_, { getState }) => {
-            const { blogs } = getState();
-            return blogs.items.length === 0; // nếu chưa có thì mới fetch
-        },
-    }
-);
-
 
 const blogSlice = createSlice({
     name: "blogs",
@@ -47,29 +21,24 @@ const blogSlice = createSlice({
         loading: false,
         error: null,
     },
-    reducers: {},
+    reducers: {
+        resetBlogState: (state) => {
+            state.items = [];
+            state.loading = false;
+            state.error = null;
+        }
+    },
     extraReducers: (builder) => {
         builder
-            // .addCase(fetchBlogs.pending, (state) => {
-            //     state.loading = true;
-            //     state.error = null;
-            // })
-            // .addCase(fetchBlogs.fulfilled, (state, action) => {
-            //     state.loading = false;
-            //     state.blogs = action.payload;
-            // })
-            // .addCase(fetchBlogs.rejected, (state, action) => {
-            //     state.loading = false;
-            //     state.error = action.payload;
-            // })
-            .addCase(fetchRecentNews.pending, (state) => {
+            .addCase(fetchBlogs.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
-            .addCase(fetchRecentNews.fulfilled, (state, action) => {
+            .addCase(fetchBlogs.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items =  action.payload;
+                state.items = action.payload;
             })
-            .addCase(fetchRecentNews.rejected, (state, action) => {
+            .addCase(fetchBlogs.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });

@@ -1,4 +1,4 @@
-import { cartApi } from "../api/cartApi.js";
+import {cartApi} from "../api/cartApi.js";
 import CartManager from "./CartManager.js";
 import store from "../store/index.js";
 import {toast} from "src/components/ui/use-toast.js"; // Import store để truy cập trạng thái Redux
@@ -55,16 +55,12 @@ const cartService = {
 
     fetchCartItems: async () => {
         try {
-            const { auth } = store.getState();
-            console.log("Auth state:", auth);  // Debug log
-            if (!auth.isAuthenticated) {
-                const localCart = CartManager.getCart();
-                console.log("Returning local cart:", localCart);  // Debug log
-                return localCart;
+            const { auth2 } = store.getState();
+            if (!auth2.isAuthenticated) {
+                return CartManager.getCart();
             }
 
-            const cartResponse = await cartApi.fetchCartItems(auth.user.id);
-            console.log("cartResponse.data.data", cartResponse.data);
+            const cartResponse = await cartApi.fetchCartItems(auth2.user.id);
             return cartResponse.data.data;
         } catch (error) {
             console.error("Error fetching cart items:", error);

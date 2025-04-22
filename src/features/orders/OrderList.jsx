@@ -1,24 +1,40 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader } from "src/components/ui/card.jsx";
 import { Badge } from "src/components/ui/badge.jsx";
 import { Package, ShoppingCart } from "lucide-react";
 import { Button } from "src/components/ui/button.jsx";
 import { toast } from "src/components/ui/use-toast.js";
 import OrderDetail from "./OrderDetail.jsx";
-import api from "src/config/api.js";
-// import orderService from "src/services/orderService.js";
+import {
+    useGetOrdersQuery,
+    useReturnOrderMutation,
+    useCancelOrderMutation,
+    useGetPaymentUrlQuery
+} from "src/store/orderApi";
+import { updateOrderFilter } from "src/store/orderSlice";
 
 const OrderList = ({ status, searchQuery }) => {
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const dispatch = useDispatch();
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    
-    // Use refs to track loading state and prevent duplicate requests
-    const loadingRef = useRef(false);
+
+    const {
+        data: ordersData,
+        isLoading,
+        isFetching,
+        error
+    } = useGetOrdersQuery({
+        status: status === 'all' ? undefined : status,
+        page,
+        size: 10
+    });
+
+    const [returnOrder] = useReturnOrderMutation();
+    const [cancelOrder] = useCancelOrderMutation();
+
+    // infinite scroll
     const observer = useRef(null);
     const lastOrderElementRef = useRef(null);
 
@@ -33,26 +49,8 @@ const OrderList = ({ status, searchQuery }) => {
 
     const handleReturnOrder = async (e, orderId) => {
         e.stopPropagation();
-
-        toast({
-            title: "Return Initiated",
-            description: "Return process started for order " + orderId,
-            variant: "default"
-        });
-        // Update the order status in the local state
         try {
-            setLoading(true);
-            await api.put(`/orders/${orderId}/return`);
-
-            // Update the order status in the local state
-            setOrders(prevOrders =>
-                prevOrders.map(order =>
-                    order.id === orderId
-                        ? { ...order, status: 'returns' }
-                        : order
-                )
-            );
-
+            await returnOrder(orderId).unwrap();
             toast({
                 title: "Order Returned",
                 description: "Your order has been returned successfully.",
@@ -65,26 +63,13 @@ const OrderList = ({ status, searchQuery }) => {
                 description: "Failed to return order. Please try again.",
                 variant: "destructive"
             });
-        } finally {
-            setLoading(false);
         }
     }
 
     const handleCancelOrder = async (e, orderId) => {
         e.stopPropagation();
         try {
-            setLoading(true);
-            await api.put(`/orders/${orderId}/cancel`);
-            
-            // Update the order status in the local state
-            setOrders(prevOrders => 
-                prevOrders.map(order => 
-                    order.id === orderId 
-                        ? { ...order, status: 'cancelled' }
-                        : order
-                )
-            );
-
+            await cancelOrder(orderId).unwrap();
             toast({
                 title: "Order Cancelled",
                 description: "Your order has been cancelled successfully.",
@@ -97,20 +82,16 @@ const OrderList = ({ status, searchQuery }) => {
                 description: "Failed to cancel order. Please try again.",
                 variant: "destructive"
             });
-        } finally {
-            setLoading(false);
         }
     };
 
     const handleContinuePayment = async (e, orderId) => {
         e.stopPropagation();
         try {
-            setLoading(true);
-            const response = await api.get(`/orders/${orderId}/payment-url`);
-            
-            if (response.data?.paymentUrl) {
-                // Redirect to payment gateway
-                window.location.href = response.data.paymentUrl;
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            const { data } = await useGetPaymentUrlQuery(orderId).unwrap();
+            if (data?.paymentUrl) {
+                window.location.href = data.paymentUrl;
             } else {
                 throw new Error('Payment URL not found');
             }
@@ -121,54 +102,14 @@ const OrderList = ({ status, searchQuery }) => {
                 description: "Failed to process payment. Please try again.",
                 variant: "destructive"
             });
-        } finally {
-            setLoading(false);
         }
     };
 
-    const fetchOrders = useCallback(async (pageNumber) => {
-        if (loadingRef.current) return;
-        loadingRef.current = true;
-        setLoading(true);
-
-        try {
-            const response = await api.get(`/orders`, {
-                params: {
-                    status: status === 'all' ? undefined : status,
-                    page: pageNumber,
-                    size: 10,
-                }
-            });
-            
-            const newOrders = response.data.data || [];
-            
-            setOrders(prev => {
-                // If it's the first page, replace the array
-                if (pageNumber === 1) return newOrders;
-                // Otherwise append new orders
-                return [...prev, ...newOrders];
-            });
-
-            setHasMore(newOrders.length > 0);
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching orders:', err);
-            setError('Failed to load orders. Please try again later.');
-            setHasMore(false);
-        } finally {
-            setLoading(false);
-            loadingRef.current = false;
-        }
-    }, [status]);
-
     // Reset when status changes
     useEffect(() => {
-        setOrders([]);
         setPage(1);
-        setHasMore(true);
-        setError(null);
-        fetchOrders(1);
-    }, [status, fetchOrders]);
+        dispatch(updateOrderFilter({ status: status === 'all' ? undefined : status }));
+    }, [status, dispatch]);
 
     // Intersection Observer setup
     useEffect(() => {
@@ -180,7 +121,7 @@ const OrderList = ({ status, searchQuery }) => {
 
         observer.current = new IntersectionObserver((entries) => {
             const firstEntry = entries[0];
-            if (firstEntry.isIntersecting && hasMore && !loadingRef.current) {
+            if (firstEntry.isIntersecting && !isFetching && ordersData?.pagination.hasNextPage) {
                 setPage(prev => prev + 1);
             }
         }, options);
@@ -190,29 +131,22 @@ const OrderList = ({ status, searchQuery }) => {
                 observer.current.disconnect();
             }
         };
-    }, [hasMore]);
-
-    // Fetch when page changes
-    useEffect(() => {
-        if (page > 1) {
-            fetchOrders(page);
-        }
-    }, [page, fetchOrders]);
+    }, [isFetching, ordersData?.pagination.hasNextPage]);
 
     // Update last element observer
     useEffect(() => {
         if (lastOrderElementRef.current) {
             observer.current.disconnect();
         }
-        
-        if (hasMore && !loading) {
+
+        if (ordersData?.pagination.hasNextPage && !isLoading) {
             const lastElement = document.querySelector('.order-card:last-child');
             if (lastElement) {
                 lastOrderElementRef.current = lastElement;
                 observer.current.observe(lastElement);
             }
         }
-    }, [orders, hasMore, loading]);
+    }, [ordersData, isLoading]);
 
     const getStatusBadgeColor = (orderStatus) => {
         const colors = {
@@ -224,6 +158,7 @@ const OrderList = ({ status, searchQuery }) => {
         return colors[orderStatus] || "bg-gray-100 text-gray-800";
     };
 
+    const orders = ordersData?.data || [];
     const filteredOrders = orders.filter((order) => {
         if (!order) return false;
 
@@ -243,17 +178,17 @@ const OrderList = ({ status, searchQuery }) => {
         setIsDetailOpen(true);
     };
 
-    // Content to render based on state
+
     const renderContent = () => {
         if (error && orders.length === 0) {
             return (
                 <div className="flex items-center justify-center h-[200px] text-red-500">
-                    {error}
+                    {error.message || "Failed to load orders"}
                 </div>
             );
         }
 
-        if (filteredOrders.length === 0 && !loading) {
+        if (filteredOrders.length === 0 && !isLoading) {
             return (
                 <div className="flex items-center justify-center h-[200px] text-gray-500">
                     No orders found
@@ -378,13 +313,11 @@ const OrderList = ({ status, searchQuery }) => {
 
     return (
         <div className="relative min-h-[400px] transition-all duration-200">
-            {/* Main content with smooth transitions */}
-            <div className={`space-y-6 transition-opacity duration-200 ${loading && orders.length === 0 ? 'opacity-50' : 'opacity-100'}`}>
+            <div className={`space-y-6 transition-opacity duration-200 ${(isLoading || isFetching) && orders.length === 0 ? 'opacity-50' : 'opacity-100'}`}>
                 {renderContent()}
             </div>
 
-            {/* Loading overlay */}
-            {loading && (
+            {(isLoading || isFetching) && (
                 <div className={`absolute inset-0 flex items-center justify-center ${orders.length > 0 ? 'bg-white/50' : ''}`}>
                     <div className="flex space-x-2 items-center">
                         <div className="h-2 w-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -394,14 +327,12 @@ const OrderList = ({ status, searchQuery }) => {
                 </div>
             )}
 
-            {/* End of list indicator */}
-            {!hasMore && orders.length > 0 && (
+            {!ordersData?.pagination.hasNextPage && orders.length > 0 && (
                 <div className="text-center py-6 text-gray-400 text-sm">
                     No more orders to load
                 </div>
             )}
 
-            {/* Order detail modal */}
             <OrderDetail
                 order={selectedOrder}
                 open={isDetailOpen}

@@ -83,17 +83,22 @@
     position: relative;
     width: 100%;
     transition: all 0.3s ease;
+    will-change: transform;
 }
 
 /* Khi cuộn xuống */
 .header-main.fixed {
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
-    background-color: white;
+    left: 30%;
+    transform: translateX(-50%);
+    width: 45%;
+    border-radius: 100px;
+    margin-top: 0.5%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
     z-index: 1050;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    transition: transform 0.3s ease;
 }
 
 /* Khi không cuộn (ẩn dần nếu cần) */
@@ -160,4 +165,27 @@
         display: flex;
         align-items: center;
     }
+}
+
+/* Hide header when scrolling down */
+.header-main.header-hidden {
+    transform: translateY(-100%);
+}
+
+/* Don't hide elements, use opacity/visibility instead */
+.d-none {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Make sure content is preserved during transitions */
+.header-wap {
+    position: relative;
+}
+
+/* Make sure nav items don't remount */
+.navbar-nav, .nav-item, .nav-link {
+    transition: opacity 0.3s ease;
 }

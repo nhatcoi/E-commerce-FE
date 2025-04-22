@@ -2,7 +2,7 @@ import {useState, useEffect, useMemo} from "react";
 import {useNavigate} from "react-router-dom";
 import {useSelector, useDispatch} from "react-redux";
 import {motion, AnimatePresence} from "framer-motion";
-import {fetchCartItems, removeFromCart} from "src/store/slices/cart/cartSlice.js";
+import {fetchCartItems, removeFromCart} from "src/store/slices/product/cart/cartSlice.js";
 
 // Shadcn components
 import {Button} from "src/components/ui/button.jsx";
