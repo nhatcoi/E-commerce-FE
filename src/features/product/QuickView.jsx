@@ -12,16 +12,14 @@ import {useGetProductByIdQuery} from "src/store/productApi.js";
 
 // eslint-disable-next-line react/prop-types
 const QuickView = ({ productId, trigger }) => {
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [activeImage, setActiveImage] = useState(0);
 
-    const { data,
-        detailLoading: loading,
-        detailError: error
-    } = useGetProductByIdQuery(productId);
+    const { data, isLoading: loading, error } = useGetProductByIdQuery(productId, {
+        skip: !isOpen, // Skip the query when dialog is closed
+    });
 
     const product = data?.data;
 
@@ -50,8 +48,8 @@ const QuickView = ({ productId, trigger }) => {
                 dispatch(clearCurrentProduct());
             }
         };
-    }, [isOpen, productId]);
-
+    }, [isOpen, productId, dispatch]);
+    
     const handleOpenChange = (open) => {
         setIsOpen(open);
     };

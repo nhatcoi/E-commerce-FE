@@ -18,11 +18,12 @@ import {categoryApi} from "src/store/categoryApi.js";
 import {blogApi} from "src/store/blogApi.js";
 import {orderApi} from "src/store/orderApi.js";
 import orderReducer from "src/store/orderSlice.js";
+import {wishlistApi} from "src/store/wishlistApi.js";
 
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth'],
+    whitelist: ['auth2'], // Only persist auth2 state
 };
 
 const rootReducer = combineReducers({
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [blogApi.reducerPath]: blogApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
+    [wishlistApi.reducerPath]: wishlistApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -63,9 +65,9 @@ const store = configureStore({
             productApi.middleware,
             categoryApi.middleware,
             blogApi.middleware,
-            orderApi.middleware
+            orderApi.middleware,
+            wishlistApi.middleware
         ),
-
     devTools: import.meta.env.MODE !== 'production',
 });
 

@@ -1,8 +1,5 @@
-import {useEffect } from 'react';
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from '../store/slices/product/categoriesSlice.js';
-import { fetchProducts } from '../store/slices/product/productsSlice.js';
-
+import { useEffect } from 'react';
+import { useSelector } from "react-redux";
 import CategorySection from "src/features/home/CategorySection.jsx";
 import Banner from "src/features/home/Banner.jsx"
 import Support from "src/features/home/Support.jsx"
@@ -12,8 +9,9 @@ import BlogSection from "src/features/home/BlogSection.jsx"
 import banner2 from 'src/assets/img/banner/banner-template.png';
 import banner3 from 'src/assets/img/banner/banner-template.png';
 import {CircularProgress, Typography} from "@mui/material";
-import {fetchAverageRatings} from "src/store/slices/product/ratingSlice.js";
 import ServerError from 'src/components/error/ServerError';
+import { useGetProductsQuery } from 'src/store/productApi';
+import { useGetCategoriesQuery } from 'src/store/categoryApi';
 
 const bannerTemplates = [
     banner2,
@@ -21,22 +19,31 @@ const bannerTemplates = [
 ];
 
 const Home = () => {
-    const dispatch = useDispatch();
-    const { items: products, loading, error } = useSelector((state) => state.products);
+    const { 
+        data: productsData,
+        isLoading: productsLoading,
+        error: productsError
+    } = useGetProductsQuery({ 
+        page: 0, 
+        size: 8, 
+        sortByNew: true 
+    }, {
+        // Tránh refetch khi component remount
+        refetchOnMountOrArgChange: false,
+        // Cache data trong 5 phút
+        pollingInterval: 5 * 60 * 1000
+    });
 
-    useEffect(() => {
-        // Fetch all data in parallel
-        Promise.all([
-            dispatch(fetchProducts({ page: 0, size: 8, sortByNew: true })),
-            dispatch(fetchCategories()),
-        ]);
-    }, [dispatch]);
+    const {
+        isLoading: categoriesLoading,
+        error: categoriesError
+    } = useGetCategoriesQuery(undefined, {
+        refetchOnMountOrArgChange: false,
+        pollingInterval: 5 * 60 * 1000
+    });
 
-    useEffect(() => {
-        if (products.length > 0) {
-            dispatch(fetchAverageRatings(products));
-        }
-    }, [dispatch, products]);
+    const loading = productsLoading || categoriesLoading;
+    const error = productsError || categoriesError;
 
     // Render the layout structure regardless of loading state
     return (
@@ -54,7 +61,7 @@ const Home = () => {
             )}
 
             {/* Error State */}
-            {error && <ServerError message={error} />}
+            {error && <ServerError message={error?.data?.message || 'Something went wrong'} />}
 
             {/* Main Content */}
             <div className={`transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>

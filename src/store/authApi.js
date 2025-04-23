@@ -3,7 +3,12 @@ import axiosBaseQuery from 'src/config/axiosBaseQuery.js';
 
 export const authApi = createApi({
     reducerPath: 'authApi',
-    baseQuery: axiosBaseQuery(),
+    baseQuery: axiosBaseQuery({
+        cache: {
+            ttl: 5 * 60 * 1000, // Cache for 5 minutes
+            methods: ['GET']
+        }
+    }),
     endpoints: (builder) => ({
         login: builder.mutation({
             query: ({ userIdentifier, password }) => ({
@@ -29,6 +34,7 @@ export const authApi = createApi({
                 url: '/users/my-info',
                 method: 'GET',
             }),
+            keepUnusedDataFor: 300, // Keep data for 5 minutes
         }),
         updateProfile: builder.mutation({
             query: (data) => ({
