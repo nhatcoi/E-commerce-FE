@@ -64,7 +64,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.1",
     "react-slick": "^0.30.3",
-    "recharts": "^2.15.2",
+    "recharts": "^2.15.3",
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1",
     "sonner": "^2.0.2",
