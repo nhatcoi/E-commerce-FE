@@ -11,9 +11,16 @@ import {
 } from "src/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { categoryData } from 'src/data/home/category';
+import {useGetCategoriesQuery} from "src/store/categoryApi.js";
 
 const CategorySection = () => {
-    const { items: categoriesResponse, loading, error } = useSelector((state) => state.categories);
+    const {
+        data,
+        error,
+        isLoading: loading,
+    } = useGetCategoriesQuery();
+    const categoriesResponse = data?.data ?? [];
+
     const plugin = React.useRef(
         Autoplay({ delay: 3000, stopOnInteraction: false })
     );
