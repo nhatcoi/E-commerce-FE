@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import Grid from "@mui/material/Grid";
-import ProductCard from "../product/ProductCard.jsx";
+import ProductCard from "../product2/ProductCard.jsx";
 import { CircularProgress, Typography } from "@mui/material";
-import {useGetProductsQuery} from "src/store/productApi.js";
+import {useGetProductsQuery} from "src/features/product/services/productApi.js";
 import {fetchAverageRatings} from "src/store/slices/product/ratingSlice.js";
 import { standoutData } from 'src/data/home/standout';
 

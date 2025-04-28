@@ -8,8 +8,8 @@ import throttle from "lodash/throttle";
 import { useSelector } from "react-redux";
 import CartPopover from "src/features/cart/CartPopover.jsx";
 import UserPopover from "src/features/auth/UserPopover.jsx";
-import Wishlist from "src/features/product/Wishlist.jsx";
-import Search from "src/features/product/Search.jsx";
+import Wishlist from "src/features/product2/Wishlist.jsx";
+import Search from "src/features/product2/Search.jsx";
 
 const MemoizedSearch = memo(Search);
 const MemoizedWishlist = memo(Wishlist);
