@@ -5,9 +5,9 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from 'src/components/ui/carousel';
-import ProductCard from './ProductCard';
-import {useGetProductsQuery} from "src/store/productApi.js";
+} from 'src/components/ui/carousel.jsx';
+import ProductCard from './ProductCard.jsx';
+import {useGetProductsQuery} from "src/features/product/services/productApi.js";
 import {useSelector} from "react-redux";
 
 export default function CarouselProduct(params) {

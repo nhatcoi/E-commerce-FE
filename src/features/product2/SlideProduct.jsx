@@ -1,5 +1,5 @@
 import React from 'react';
-import { Slider } from 'src/components/ui/slider';
+import { Slider } from 'src/components/ui/slider.jsx';
 
 export default function SlideProduct({ products }) {
   return (

@@ -8,7 +8,7 @@ import { CheckCircle2, Heart, Loader2, ShoppingBag, ShoppingCart, Star } from "l
 import {cn, generateSlug} from "src/lib/utils.js";
 import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
 import { useProductAttributes, useProductActions, renderRatingStars } from "./product-hooks.jsx";
-import {useGetProductByIdQuery} from "src/store/productApi.js";
+import {useGetProductByIdQuery} from "src/features/product/services/productApi.js";
 
 // eslint-disable-next-line react/prop-types
 const QuickView = ({ productId, trigger }) => {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "src/components/ui/use-toast";
+import { toast } from "src/components/ui/use-toast.js";
 import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "src/store/slices/product/wishlistSlice.js";
 import { addToCart } from "src/store/slices/product/cart/cartSlice.js";
 import { fetchProductById } from "src/store/slices/product/productsSlice.js";

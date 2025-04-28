@@ -1,8 +1,8 @@
-import QuickView from "src/features/product/QuickView.jsx";
+import QuickView from "src/features/product2/QuickView.jsx";
 import {Link, useNavigate} from 'react-router-dom';
-import { toast } from "src/components/ui/use-toast";
+import { toast } from "src/components/ui/use-toast.js";
 import { Heart, Eye, RefreshCw } from "lucide-react";
-import { generateSlug } from "src/lib/utils";
+import { generateSlug } from "src/lib/utils.js";
 import { useProductActions, renderRatingStars } from "./product-hooks.jsx";
 
 // eslint-disable-next-line react/prop-types

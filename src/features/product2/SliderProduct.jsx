@@ -1,16 +1,16 @@
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent } from "src/components/ui/card";
+import { Card, CardContent } from "src/components/ui/card.jsx";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "src/components/ui/carousel";
-import { Button } from "src/components/ui/button";
+} from "src/components/ui/carousel.jsx";
+import { Button } from "src/components/ui/button.jsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import ProductCard from "./ProductCard";
+import ProductCard from "./ProductCard.jsx";
 
 const SliderProduct = ({ products, title = "Related Products", autoPlay = true, interval = 3000 }) => {
     const [api, setApi] = useState();
