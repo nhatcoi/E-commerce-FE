@@ -5,10 +5,11 @@ export const authApi = createApi({
     reducerPath: 'authApi',
     baseQuery: axiosBaseQuery({
         cache: {
-            ttl: 5 * 60 * 1000, // Cache for 5 minutes
+            ttl: 5 * 60 * 1000,
             methods: ['GET']
         }
     }),
+    tagTypes: ['Auth'],
     endpoints: (builder) => ({
         login: builder.mutation({
             query: ({ userIdentifier, password }) => ({
@@ -34,22 +35,15 @@ export const authApi = createApi({
                 url: '/users/my-info',
                 method: 'GET',
             }),
-            keepUnusedDataFor: 300, // Keep data for 5 minutes
-        }),
-        updateProfile: builder.mutation({
-            query: (data) => ({
-                url: '/users/update-profile',
-                method: 'PUT',
-                data,
-            }),
+            keepUnusedDataFor: 300,
         }),
     }),
 });
 
 export const {
     useLoginMutation,
-    useUpdateProfileMutation,
+    useLogoutMutation,
+    useRefreshTokenMutation,
     useGetMyInfoQuery,
     useLazyGetMyInfoQuery,
-    useLogoutMutation,
 } = authApi;
