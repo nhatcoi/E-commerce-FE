@@ -22,9 +22,9 @@ import {
 } from "lucide-react";
 import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
 import { cn } from "src/lib/utils.js";
-import { useProductAttributes, useProductActions, renderRatingStars } from "../features/product/product-hooks.jsx";
-import CarouselProduct from '../features/product/CarouselProduct.jsx';
-import {useGetProductBySlugQuery} from "src/store/productApi.js";
+import { useProductAttributes, useProductActions, renderRatingStars } from "../features/product2/product-hooks.jsx";
+import CarouselProduct from '../features/product2/CarouselProduct.jsx';
+import {useGetProductBySlugQuery} from "src/features/product/services/productApi.js";
 
 const ProductDetails = () => {
     const dispatch = useDispatch();

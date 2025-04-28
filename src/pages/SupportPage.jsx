@@ -468,16 +468,17 @@ const SupportPage = () => {
                             <CardDescription>Tell us how we can help you</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <Select>
+                            <Select defaultValue="general">
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select category"/>
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="general">General Inquiry</SelectItem>
                                     <SelectItem value="order-issue">Order Issue</SelectItem>
                                     <SelectItem value="return-request">Return Request</SelectItem>
                                     <SelectItem value="product-question">Product Question</SelectItem>
                                     <SelectItem value="website-feedback">Website Feedback</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
+                                    <SelectItem value="other-issue">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                             <Input placeholder="Subject"/>

@@ -10,7 +10,7 @@ import banner2 from 'src/assets/img/banner/banner-template.png';
 import banner3 from 'src/assets/img/banner/banner-template.png';
 import {CircularProgress, Typography} from "@mui/material";
 import ServerError from 'src/components/error/ServerError';
-import { useGetProductsQuery } from 'src/store/productApi';
+import { useGetProductsQuery } from 'src/features/product/services/productApi.js';
 import { useGetCategoriesQuery } from 'src/store/categoryApi';
 
 const bannerTemplates = [
