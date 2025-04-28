@@ -17,6 +17,15 @@ import Blog from "src/pages/Blog.jsx";
 import BlogDetail from "src/pages/BlogDetail.jsx";
 import NotFound from "src/pages/NotFound.jsx";
 import Orders from "src/pages/Orders.jsx";
+import DashboardLayout from "../components/layouts/DashboardLayout/DashboardLayout.jsx";
+import Dashboard from "src/features/dashboard/Dashboard";
+import ProductsDashboard from "src/features/product/pages/ProductsDashboard.jsx";
+import ProductDetailDashboard from "src/features/product/pages/ProductDetailDashboard.jsx";
+import Categories from "src/features/dashboard/Categories";
+import UsersDashboard from "src/features/users/pages/UsersDashboard.jsx";
+import Analytics from "src/features/dashboard/Analytics";
+import Settings from "src/features/dashboard/Settings";
+import {UserDetailDashboard} from "src/features/users/index.js";
 
 const RouteIndex = () => {
     return (
@@ -45,6 +54,19 @@ const RouteIndex = () => {
                 {/* System */}
                 <Route path="system" element={<SystemLayout />}>
                     <Route index element={<SystemHome />} />
+                </Route>
+
+                {/* Admin Dashboard Routes */}
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="products" element={<ProductsDashboard />} />
+                    <Route path="products/:productId" element={<ProductDetailDashboard />} />
+                    <Route path="categories" element={<Categories />} />
+                    <Route path="orders" element={<Orders />} />
+                    <Route path="users" element={<UsersDashboard />} />
+                    <Route path="users/:userId" element={<UserDetailDashboard />} />
+                    <Route path="analytics" element={<Analytics />} />
+                    <Route path="settings" element={<Settings />} />
                 </Route>
 
                 {/* Auth */}
