@@ -6,14 +6,17 @@ export const orderApi = createApi({
     baseQuery: axiosBaseQuery(),
     tagTypes: ['Order'],
     endpoints: (builder) => ({
-        createOrder: builder.mutation({
-            query: (orderRequest) => ({
-                url: '/orders/create-order',
-                method: 'POST',
-                data: orderRequest
+        getOrders: builder.query({
+            query: (params = {}) => ({
+                url: '/orders',
+                method: 'GET',
+                params
             }),
-            invalidatesTags: ['Order']
+            providesTags: (result = []) => 
+                result.map(({ id }) => ({ type: 'Order', id }))
+                    .concat({ type: 'Order', id: 'LIST' })
         }),
+
         getOrderById: builder.query({
             query: (id) => ({
                 url: `/orders/${id}`,
@@ -21,52 +24,45 @@ export const orderApi = createApi({
             }),
             providesTags: (result, error, id) => [{ type: 'Order', id }]
         }),
-        getOrders: builder.query({
-            query: (params) => ({
-                url: '/orders',
-                method: 'GET',
-                params
+
+        updateOrderStatus: builder.mutation({
+            query: ({ id, status }) => ({
+                url: `/orders/${id}/status`,
+                method: 'PUT',
+                data: { status }
             }),
-            providesTags: (result = []) =>
-                result?.items?.map(({ id }) => ({ type: 'Order', id })) ?? []
-                    .concat({ type: 'Order', id: 'LIST' }),
-                    keepUnusedDataFor: 5
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Order', id },
+                { type: 'Order', id: 'LIST' }
+            ]
         }),
+
         cancelOrder: builder.mutation({
             query: (id) => ({
                 url: `/orders/${id}/cancel`,
                 method: 'PUT'
             }),
-            invalidatesTags: (result, error, id) => [{ type: 'Order', id }]
+            invalidatesTags: (result, error, id) => [
+                { type: 'Order', id },
+                { type: 'Order', id: 'LIST' }
+            ]
         }),
-        returnOrder: builder.mutation({
-            query: (id) => ({
-                url: `/orders/${id}/return`,
-                method: 'PUT'
-            }),
-            invalidatesTags: (result, error, id) => [{ type: 'Order', id }]
-        }),
-        getPaymentUrl: builder.query({
-            query: (orderId) => ({
-                url: `/orders/${orderId}/payment-url`,
-                method: 'GET'
-            })
-        }),
-        getPaymentStatus: builder.query({
-            query: (orderId) => ({
-                url: `/orders/payment-status/${orderId}`,
-                method: 'GET'
+
+        exportOrders: builder.query({
+            query: (params) => ({
+                url: '/orders/export',
+                method: 'GET',
+                params,
+                responseType: 'blob'
             })
         })
     })
 });
 
 export const {
-    useCreateOrderMutation,
-    useGetOrderByIdQuery,
     useGetOrdersQuery,
+    useGetOrderByIdQuery,
+    useUpdateOrderStatusMutation,
     useCancelOrderMutation,
-    useReturnOrderMutation,
-    useGetPaymentUrlQuery,
-    useGetPaymentStatusQuery
+    useExportOrdersQuery
 } = orderApi;

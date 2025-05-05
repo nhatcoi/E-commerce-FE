@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "src/components/ui/card.jsx";
-import { useGetOrdersQuery } from "src/store/orderApi.js";
+import { useGetOrdersQuery } from "src/features/orders/services/orderApi.js";
 import { useGetProductsQuery } from "src/features/product/services/productApi.js";
 import { useGetUsersQuery } from "src/store/userApi.js";
 import {

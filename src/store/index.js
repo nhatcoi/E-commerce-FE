@@ -17,9 +17,10 @@ import product2Reducer from "src/store/product2Slice.js";
 import category2Reducer from "src/store/category2Slice.js";
 import {categoryApi} from "src/store/categoryApi.js";
 import {blogApi} from "src/store/blogApi.js";
-import {orderApi} from "src/store/orderApi.js";
+import {orderApi} from "src/features/orders/services/orderApi.js";
 import orderReducer from "src/store/orderSlice.js";
 import {wishlistApi} from "src/store/wishlistApi.js";
+import { setupListeners } from '@reduxjs/toolkit/query';
 
 const persistConfig = {
     key: 'root',
@@ -66,6 +67,8 @@ export const store = configureStore({
             wishlistApi.middleware
         ),
 });
+
+setupListeners(store.dispatch);
 
 export const persistor = persistStore(store);
 export default store;

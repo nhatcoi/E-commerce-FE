@@ -3,11 +3,11 @@ import { RadioGroup, RadioGroupItem } from "src/components/ui/radio-group.jsx";
 import { Label } from "src/components/ui/label.jsx";
 import { CircularProgress, Typography } from "@mui/material";
 import { useGetCategoriesQuery } from "src/store/categoryApi.js";
+import { buildCategoryTree, flattenCategoryTree } from "src/utils/categoryUtils";
 
 const Categories = ({ onCategoryChange }) => {
     const { data, error, isLoading } = useGetCategoriesQuery();
     const categories = data?.data ?? [];
-
     const [selectedCategory, setSelectedCategory] = useState("");
 
     if (isLoading)
@@ -24,11 +24,14 @@ const Categories = ({ onCategoryChange }) => {
             </Typography>
         );
 
+    const treeCategories = buildCategoryTree(categories);
+    const flattenedCategories = flattenCategoryTree(treeCategories);
+    
     const categoryOptions = [
         { id: "", label: "All Categories" },
-        ...categories.map((category) => ({
+        ...flattenedCategories.map((category) => ({
             id: category.id.toString(),
-            label: category.name,
+            label: category.displayName,
         })),
     ];
 
@@ -48,7 +51,10 @@ const Categories = ({ onCategoryChange }) => {
                 {categoryOptions.map((option) => (
                     <div key={option.id} className="flex items-center space-x-2">
                         <RadioGroupItem value={option.id} id={`category-${option.id || "all"}`} />
-                        <Label htmlFor={`category-${option.id || "all"}`} className="cursor-pointer">
+                        <Label 
+                            htmlFor={`category-${option.id || "all"}`} 
+                            className="cursor-pointer whitespace-pre"
+                        >
                             {option.label}
                         </Label>
                     </div>

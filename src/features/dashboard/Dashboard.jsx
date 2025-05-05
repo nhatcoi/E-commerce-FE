@@ -3,7 +3,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "src/components/ui/card";
 import {Button} from "src/components/ui/button";
 import {Loader2} from "lucide-react";
 import {useGetProductsQuery} from "src/features/product/services/productApi.js";
-import {useGetOrdersQuery} from "src/store/orderApi.js";
+import {useGetOrdersQuery} from "src/features/orders/services/orderApi.js";
 import {useGetUsersQuery} from "src/store/userApi.js";
 import {LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from 'recharts';
 

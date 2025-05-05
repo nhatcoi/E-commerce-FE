@@ -15,13 +15,16 @@ import SystemLayout from "src/components/layouts/SystemLayout.jsx";
 import Contact from "src/pages/Contact.jsx";
 import Blog from "src/pages/Blog.jsx";
 import BlogDetail from "src/pages/BlogDetail.jsx";
+import Orders from "src/features/orders/pages/Orders.jsx";
+import OrderDashboard from "src/features/orders/pages/OrdersDashboard.jsx";
+import Gallery from "src/features/gallery/Gallery.jsx";
+
 import NotFound from "src/pages/NotFound.jsx";
-import Orders from "src/pages/Orders.jsx";
 import DashboardLayout from "../components/layouts/DashboardLayout/DashboardLayout.jsx";
 import Dashboard from "src/features/dashboard/Dashboard";
 import ProductsDashboard from "src/features/product/pages/ProductsDashboard.jsx";
 import ProductDetailDashboard from "src/features/product/pages/ProductDetailDashboard.jsx";
-import Categories from "src/features/dashboard/Categories";
+import Categories from "src/features/category/pages/Categories.jsx";
 import UsersDashboard from "src/features/users/pages/UsersDashboard.jsx";
 import Analytics from "src/features/dashboard/Analytics";
 import Settings from "src/features/dashboard/Settings";
@@ -62,7 +65,9 @@ const RouteIndex = () => {
                     <Route path="products" element={<ProductsDashboard />} />
                     <Route path="products/:productId" element={<ProductDetailDashboard />} />
                     <Route path="categories" element={<Categories />} />
-                    <Route path="orders" element={<Orders />} />
+                    <Route path="orders" element={<OrderDashboard />} />
+                    {/* <Route path="orders/:orderId" element={<OrdersDetailDashboard />} /> */}
+                    <Route path="gallery" element={<Gallery />} />
                     <Route path="users" element={<UsersDashboard />} />
                     <Route path="users/:userId" element={<UserDetailDashboard />} />
                     <Route path="analytics" element={<Analytics />} />
