@@ -1,17 +1,22 @@
-# Use Nginx as base image for serving content
+FROM node:22 AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+# Force rebuild esbuild binary to match Docker env
+RUN npm rebuild esbuild
+
+COPY . .
+
+RUN npm run build
+
 FROM nginx:alpine
 
-# Set working directory to nginx asset directory
-WORKDIR /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Remove default nginx static assets
-RUN rm -rf ./*
-
-# Copy static assets from local dist folder
-COPY dist .
-
-# Expose port 80
 EXPOSE 80
 
-# Container runs nginx with global directives and daemon off
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]

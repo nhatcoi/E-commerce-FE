@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Badge } from "src/components/ui/Badge.jsx";
+import { Badge } from "src/components/ui/badge.jsx";
 
 const TagFilter = ({ tags, onTagChange }) => {
     const [selectedTags, setSelectedTags] = useState([]);
