@@ -1,32 +1,17 @@
-# Build stage
-FROM node:20-alpine AS build
-
-WORKDIR /app
-
-# Copy package files and install dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-# Copy the rest of the application code
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage
+# Use Nginx as base image for serving content
 FROM nginx:alpine
 
-# Copy built assets from the build stage
-COPY --from=build /app/dist /usr/share/nginx/html
+# Set working directory to nginx asset directory
+WORKDIR /usr/share/nginx/html
 
-# Copy custom nginx config if needed
-# COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Remove default nginx static assets
+RUN rm -rf ./*
+
+# Copy static assets from local dist folder
+COPY dist .
 
 # Expose port 80
 EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost/ || exit 1
-
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Container runs nginx with global directives and daemon off
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
