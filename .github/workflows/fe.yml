@@ -53,7 +53,7 @@ jobs:
             echo ">>> Running new container"
             docker run -d \
               --name ecommerce-fe \
-#              --env-file /home/jackie/ENV/ecommerce-fe/.env \
+              --env-file /home/jackie/ENV/ecommerce-fe/.env \
               -p 5173:80 \
               ${{ secrets.DOCKER_USERNAME }}/ecommerce-fe:latest
 
