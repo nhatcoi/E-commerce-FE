@@ -51,7 +51,7 @@ jobs:
             docker run -d \
               --name ecommerce-fe \
               --env-file /home/jackie/ENV/ecommerce-fe/.env \
-              -p 80:80 \
+              -p 5173:80 \
               ${{ secrets.DOCKER_USERNAME }}/ecommerce-fe:latest
 
 # deploy
