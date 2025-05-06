@@ -53,3 +53,5 @@ jobs:
               --env-file /home/jackie/ENV/ecommerce-fe/.env \
               -p 80:80 \
               ${{ secrets.DOCKER_USERNAME }}/ecommerce-fe:latest
+
+# deploy
