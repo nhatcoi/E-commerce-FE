@@ -25,7 +25,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'cart', 'wishlist'],
+    whitelist: ['auth2', 'auth', 'cart', 'wishlist'],
 };
 
 const rootReducer = combineReducers({
