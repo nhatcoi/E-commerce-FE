@@ -22,13 +22,7 @@ import orderReducer from "src/store/orderSlice.js";
 import {wishlistApi} from "src/store/wishlistApi.js";
 import { setupListeners } from '@reduxjs/toolkit/query';
 
-const persistConfig = {
-    key: 'root',
-    storage,
-    whitelist: ['auth2', 'auth', 'cart', 'wishlist'],
-};
-
-const rootReducer = combineReducers({
+const nonPersistedReducers = {
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
@@ -36,6 +30,9 @@ const rootReducer = combineReducers({
     [blogApi.reducerPath]: blogApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
     [wishlistApi.reducerPath]: wishlistApi.reducer,
+};
+
+const persistedReducers = {
     products: productReducer,
     ratings: ratingReducer,
     categories: categoriesReducer,
@@ -48,12 +45,26 @@ const rootReducer = combineReducers({
     category2: category2Reducer,
     order: orderReducer,
     wishlist: wishlistReducer,
+};
+
+const persistConfig = {
+    key: 'root',
+    storage,
+    whitelist: ['auth2', 'auth', 'cart', 'wishlist'],
+};
+
+const persistedReducer = persistReducer(
+    persistConfig,
+    combineReducers(persistedReducers)
+);
+
+const rootReducer = combineReducers({
+    ...nonPersistedReducers,
+    ...persistedReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 export const store = configureStore({
-    reducer: persistedReducer,
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: false,
@@ -69,6 +80,5 @@ export const store = configureStore({
 });
 
 setupListeners(store.dispatch);
-
 export const persistor = persistStore(store);
 export default store;
