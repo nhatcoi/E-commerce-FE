@@ -15,7 +15,7 @@ import {toast} from "src/components/ui/use-toast";
 
 // RTK Query
 import {useLoginMutation, useLazyGetMyInfoQuery} from "src/store/authApi";
-import {setCredentials} from "../store/auth2Slice";
+import {setCredentials} from "src/store/auth2slice";
 
 // Lucide icons
 import {
@@ -85,29 +85,52 @@ const Auth = () => {
         if (!validateForm()) return;
 
         try {
+            console.log("Starting login process");
             const loginRes = await login({
                 userIdentifier: formData.email,
                 password: formData.password
             }).unwrap();
 
             const accessToken = loginRes.data.accessToken;
+            console.log("Received access token:", accessToken ? "Token exists" : "No token");
 
-            const userInfoRes = await triggerGetMyInfo().unwrap();
+            try {
+                const userInfoRes = await triggerGetMyInfo().unwrap();
+                console.log("User info retrieved successfully");
 
-            dispatch(setCredentials({
-                accessToken,
-                user: userInfoRes.data
-            }));
+                dispatch(setCredentials({
+                    accessToken,
+                    user: userInfoRes.data
+                }));
 
-            toast({
-                title: "Success",
-                description: "Logged in successfully",
-            });
+                // Verify redux state was updated
+                const currentState = store.getState().auth2;
+                console.log("Auth state after login:", 
+                    currentState.accessToken ? "Token set in state" : "No token in state",
+                    currentState.user ? "User set in state" : "No user in state"
+                );
 
-            navigate(location.state?.from || "/", { replace: true });
+                toast({
+                    title: "Success",
+                    description: "Logged in successfully",
+                });
 
+                navigate(location.state?.from || "/", { replace: true });
+            } catch (userInfoErr) {
+                console.error("Failed to get user info:", userInfoErr);
+                toast({
+                    variant: "destructive",
+                    title: "Login Error",
+                    description: "Failed to get user information"
+                });
+            }
         } catch (err) {
             console.error("Login failed:", err);
+            toast({
+                variant: "destructive",
+                title: "Login failed",
+                description: err.data?.message || "An unexpected error occurred"
+            });
         }
     };
 

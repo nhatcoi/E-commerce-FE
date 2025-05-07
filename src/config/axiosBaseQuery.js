@@ -1,9 +1,7 @@
 import axiosInstance from './api';
 
-// Cache for storing responses
 const cache = new Map();
 
-// Helper to remove empty params
 const removeEmptyParams = (obj) => {
     if (!obj) return obj;
     return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -21,23 +19,20 @@ const axiosBaseQuery = ({
 } = {}) => {
     return async ({ url, method, data, params }) => {
         try {
-            // Clean up empty params
             const cleanParams = removeEmptyParams(params);
             const cleanData = removeEmptyParams(data);
 
-            // Generate cache key for cacheable requests
             const shouldCache = ttl > 0 && methods.includes(method?.toUpperCase());
             const cacheKey = shouldCache ? 
                 `${method}-${url}-${JSON.stringify(cleanParams)}-${JSON.stringify(cleanData)}` : 
                 null;
 
-            // Check cache first
             if (shouldCache && cache.has(cacheKey)) {
                 const { data: cachedData, expiry } = cache.get(cacheKey);
                 if (expiry > Date.now()) {
                     return { data: cachedData };
                 }
-                cache.delete(cacheKey); // Remove expired cache
+                cache.delete(cacheKey);
             }
 
             const result = await axiosInstance({
@@ -48,7 +43,6 @@ const axiosBaseQuery = ({
                 headers: prepareHeaders(),
             });
 
-            // Cache the response if needed
             if (shouldCache) {
                 cache.set(cacheKey, {
                     data: result.data,

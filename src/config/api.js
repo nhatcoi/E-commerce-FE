@@ -19,10 +19,15 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
+        // Get the current state directly for each request
+        const state = store.getState();
+        const accessToken = state.auth2?.accessToken;
 
-        const { accessToken } = store.getState().auth2;
         if (accessToken) {
             config.headers["Authorization"] = `Bearer ${accessToken}`;
+            console.log("API request using token:", config.url);
+        } else {
+            console.log("API request without token:", config.url);
         }
         return config;
     },
@@ -44,6 +49,8 @@ api.interceptors.response.use(
             return Promise.reject(error);
         }
 
+        console.log("Attempting token refresh for:", originalRequest.url);
+        originalRequest._retry = true;
 
         try {
             if (tokenRefreshQueue.isRefreshing()) {
@@ -61,13 +68,16 @@ api.interceptors.response.use(
                 .unwrap();
 
             const { accessToken } = result.data;
+            console.log("Token refreshed successfully");
+            
+            // Update both auth states
             store.dispatch(setAccessToken(accessToken));
-
             store.dispatch(setAccessToken2(accessToken));
+            
             originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
-
             return api(originalRequest);
         } catch (refreshError) {
+            console.error("Token refresh failed:", refreshError);
             store.dispatch(logout());
             return Promise.reject(error);
         }

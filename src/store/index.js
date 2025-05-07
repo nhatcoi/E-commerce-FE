@@ -4,7 +4,6 @@ import storage from 'redux-persist/lib/storage';
 import productReducer from "./slices/product/productsSlice.js";
 import ratingReducer from "./slices/product/ratingSlice.js";
 import categoriesReducer from "./slices/product/categoriesSlice.js";
-import blogReducer from "./slices/blog/blogsSlice.js";
 import filtersReducer from "./slices/product/filtersSlice.js";
 import cartsReducer from "src/store/slices/product/cart/cartSlice.js";
 import authReducer from "./slices/user/authSlice.js";
@@ -36,7 +35,6 @@ const persistedReducers = {
     products: productReducer,
     ratings: ratingReducer,
     categories: categoriesReducer,
-    blogs: blogReducer,
     filters: filtersReducer,
     cart: cartsReducer,
     auth: authReducer,
@@ -67,7 +65,10 @@ export const store = configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-            serializableCheck: false,
+            serializableCheck: {
+                ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+                ignoredPaths: ['auth2.user', 'auth.user'],
+            },
         }).concat(
             authApi.middleware,
             userApi.middleware,
