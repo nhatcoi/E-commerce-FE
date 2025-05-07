@@ -7,7 +7,7 @@ const initialState = {
     loading: false,
 };
 
-const auth2Slice = createSlice({
+const auth2slice = createSlice({
     name: 'auth2',
     initialState,
     reducers: {
@@ -35,5 +35,5 @@ const auth2Slice = createSlice({
     },
 });
 
-export const { setCredentials, setAccessToken, setUser, logout, setLoading } = auth2Slice.actions;
-export default auth2Slice.reducer;
+export const { setCredentials, setAccessToken, setUser, logout, setLoading } = auth2slice.actions;
+export default auth2slice.reducer;

@@ -153,7 +153,7 @@ services/
 index/
  ├── index.js
  ├── slices/
- │   ├── auth2Slice.js
+ │   ├── auth2slice.js
  │   ├── cartSlice.js
 ```
 

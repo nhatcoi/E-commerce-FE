@@ -15,7 +15,7 @@ import {toast} from "src/components/ui/use-toast";
 
 // RTK Query
 import {useLoginMutation, useLazyGetMyInfoQuery} from "src/store/authApi";
-import {setCredentials} from "src/store/auth2Slice.js";
+import {setCredentials} from "src/store/auth2slice";
 
 // Lucide icons
 import {
