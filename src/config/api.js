@@ -5,7 +5,7 @@ import { tokenRefreshQueue } from "src/services/tokenRefreshQueue.js";
 
 
 import { authApi } from "src/store/authApi";
-import {setAccessToken} from "src/store/auth2slice.js";
+import {setAccessToken} from "src/store/auth2Slice.js";
 import {setAccessToken as setAccessToken2} from "src/store/slices/user/authSlice.js";
 
 const api = axios.create({

@@ -3,7 +3,7 @@ import { authApi as authApi2 } from "src/store/authApi.js";
 // import { logout, refreshTokenAsync, setAccessToken, fetchUserInfoAsync } from "src/store/slices/user/authSlice.js";
 import store from "src/store/index.js";
 import { tokenRefreshQueue } from "./tokenRefreshQueue.js";
-import {logout, setAccessToken, setCredentials} from "src/store/auth2slice";
+import {logout, setAccessToken, setCredentials} from "src/store/auth2Slice";
 
 export const authService = {
     async login(userIdentifier, password) {

@@ -11,7 +11,7 @@ import authReducer from "./slices/user/authSlice.js";
 import wishlistReducer from "./slices/product/wishlistSlice.js";
 import { authApi } from "./authApi.js";
 import { userApi } from "./userApi.js";
-import auth2Reducer from "./auth2slice.js";
+import auth2Reducer from "./auth2Slice.js";
 import {productApi} from "src/features/product/services/productApi.js";
 import product2Reducer from "src/store/product2Slice.js";
 import category2Reducer from "src/store/category2Slice.js";

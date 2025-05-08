@@ -56,7 +56,7 @@ import {useDispatch} from "react-redux";
 import {userService} from "src/services/userService.js";
 import {useLazyGetMyInfoQuery} from "src/store/authApi.js";
 import {useUpdateProfileMutation} from "src/store/userApi.js";
-import {setUser as setUserProfile} from "src/store/auth2slice.js";
+import {setUser as setUserProfile} from "src/store/auth2Slice.js";
 
 const UserProfile = () => {
     const dispatch = useDispatch();
