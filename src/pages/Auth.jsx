@@ -16,7 +16,7 @@ import {toast} from "src/components/ui/use-toast";
 
 // RTK Query
 import {useLoginMutation, useLazyGetMyInfoQuery} from "src/store/authApi";
-import {setAccessToken, setCredentials, logout} from "src/store/auth2Slice.js";
+import {setAccessToken, setCredentials, setLogout} from "src/store/auth2Slice.js";
 
 // Lucide icons
 import {
@@ -87,7 +87,7 @@ const Auth = () => {
 
         try {
             // Clear any existing auth state first
-            dispatch(logout());
+            dispatch(setLogout());
 
             const loginRes = await login({
                 userIdentifier: formData.email,
@@ -149,7 +149,7 @@ const Auth = () => {
 
         } catch (err) {
             console.error("Login failed:", err);
-            dispatch(logout());
+            dispatch(setLogout());
             toast({
                 title: "Error",
                 description: err.message || "Login failed. Please try again.",

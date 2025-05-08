@@ -30,7 +30,7 @@ const auth2Slice = createSlice({
             state.user = action.payload;
             console.log('setUser new state:', state);
         },
-        logout: (state) => {
+        setLogout: (state) => {
             state.accessToken = null;
             state.user = null;
             state.isAuthenticated = false;
@@ -42,5 +42,5 @@ const auth2Slice = createSlice({
     },
 });
 
-export const { setCredentials, setAccessToken, setUser, logout, setLoading } = auth2Slice.actions;
+export const { setCredentials, setAccessToken, setUser, setLogout, setLoading } = auth2Slice.actions;
 export default auth2Slice.reducer;

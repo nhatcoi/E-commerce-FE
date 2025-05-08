@@ -3,7 +3,7 @@ import { authApi as authApi2 } from "src/store/authApi.js";
 // import { logout, refreshTokenAsync, setAccessToken, fetchUserInfoAsync } from "src/store/slices/user/authSlice.js";
 import store from "src/store/index.js";
 import { tokenRefreshQueue } from "./tokenRefreshQueue.js";
-import {logout, setAccessToken, setCredentials} from "src/store/auth2Slice";
+import {setLogout, setAccessToken, setCredentials} from "src/store/auth2Slice";
 
 export const authService = {
     async login(userIdentifier, password) {
@@ -61,11 +61,6 @@ export const authService = {
             throw error;
         }
     },
-    
-    checkAuth() {
-        const { accessToken } = store.getState().auth;
-        return !!accessToken;
-    },
 
     async restoreSession(dispatch) {
         try {
@@ -84,7 +79,7 @@ export const authService = {
     },
 
     clearSession() {
-        store.dispatch(logout());
+        store.dispatch(setLogout());
         tokenRefreshQueue.processQueue(new Error("Session cleared"));
     }
 };
