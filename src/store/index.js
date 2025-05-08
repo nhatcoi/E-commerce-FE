@@ -1,5 +1,5 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import productReducer from "./slices/product/productsSlice.js";
 import ratingReducer from "./slices/product/ratingSlice.js";
@@ -11,7 +11,7 @@ import authReducer from "./slices/user/authSlice.js";
 import wishlistReducer from "./slices/product/wishlistSlice.js";
 import { authApi } from "./authApi.js";
 import { userApi } from "./userApi.js";
-import auth2Reducer from "./auth2Slice.js";
+import auth2Reducer from "./auth2slice.js";
 import {productApi} from "src/features/product/services/productApi.js";
 import product2Reducer from "src/store/product2Slice.js";
 import category2Reducer from "src/store/category2Slice.js";
@@ -22,13 +22,25 @@ import orderReducer from "src/store/orderSlice.js";
 import {wishlistApi} from "src/store/wishlistApi.js";
 import { setupListeners } from '@reduxjs/toolkit/query';
 
-const persistConfig = {
-    key: 'root',
+// Configure auth2 persistence separately
+const auth2PersistConfig = {
+    key: 'auth2',
     storage,
-    whitelist: ['auth', 'cart', 'wishlist'],
+    whitelist: ['accessToken', 'user', 'isAuthenticated']
 };
 
-const rootReducer = combineReducers({
+// Configure other reducers persistence
+const rootPersistConfig = {
+    key: 'root',
+    storage,
+    whitelist: ['auth', 'cart', 'wishlist']
+};
+
+// Create the persisted auth2 reducer
+const persistedAuth2Reducer = persistReducer(auth2PersistConfig, auth2Reducer);
+
+// Combine all reducers
+const rootReducer = {
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
@@ -43,20 +55,21 @@ const rootReducer = combineReducers({
     filters: filtersReducer,
     cart: cartsReducer,
     auth: authReducer,
-    auth2: auth2Reducer,
+    auth2: persistedAuth2Reducer,
     product2: product2Reducer,
     category2: category2Reducer,
     order: orderReducer,
     wishlist: wishlistReducer,
-});
+};
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
+// Create the store
 export const store = configureStore({
-    reducer: persistedReducer,
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-            serializableCheck: false,
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
         }).concat(
             authApi.middleware,
             userApi.middleware,

@@ -3,6 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useNavigate, useLocation} from "react-router-dom";
 import {motion, AnimatePresence} from "framer-motion";
 import {authApi} from "src/api/authApi.js";
+import store from "src/store/index.js";
 import "src/styles/component/Auth.css";
 
 // shadcn components
@@ -15,7 +16,7 @@ import {toast} from "src/components/ui/use-toast";
 
 // RTK Query
 import {useLoginMutation, useLazyGetMyInfoQuery} from "src/store/authApi";
-import {setCredentials} from "src/store/auth2Slice.js";
+import {setAccessToken, setCredentials, logout} from "src/store/auth2slice.js";
 
 // Lucide icons
 import {
@@ -85,29 +86,75 @@ const Auth = () => {
         if (!validateForm()) return;
 
         try {
+            // Clear any existing auth state first
+            dispatch(logout());
+
             const loginRes = await login({
                 userIdentifier: formData.email,
                 password: formData.password
             }).unwrap();
 
-            const accessToken = loginRes.data.accessToken;
+            if (!loginRes.data?.accessToken) {
+                throw new Error("No access token received from server");
+            }
 
-            const userInfoRes = await triggerGetMyInfo().unwrap();
+            const token = loginRes.data.accessToken;
+            console.log("Received token:", token);
 
+            // First update credentials with token only
             dispatch(setCredentials({
-                accessToken,
-                user: userInfoRes.data
+                accessToken: token,
+                user: null
             }));
 
-            toast({
-                title: "Success",
-                description: "Logged in successfully",
-            });
+            // Then fetch user info
+            try {
+                const userInfoRes = await triggerGetMyInfo().unwrap();
+                console.log("User info response:", userInfoRes);
 
-            navigate(location.state?.from || "/", { replace: true });
+                if (!userInfoRes.data) {
+                    throw new Error("No user data received");
+                }
+
+                // Update credentials with both token and user
+                dispatch(setCredentials({
+                    accessToken: token,
+                    user: userInfoRes.data
+                }));
+
+                toast({
+                    title: "Success",
+                    description: "Logged in successfully",
+                });
+
+                // Check the state after updates
+                const currentState = store.getState().auth2;
+                console.log("Current auth state:", currentState);
+
+                if (currentState.accessToken && currentState.user) {
+                    navigate(location.state?.from || "/", { replace: true });
+                } else {
+                    throw new Error("Failed to update authentication state");
+                }
+
+            } catch (userError) {
+                console.error("Failed to fetch user info:", userError);
+                // Don't logout here, just show a warning
+                toast({
+                    title: "Warning",
+                    description: "Logged in but failed to fetch user info",
+                    variant: "warning",
+                });
+            }
 
         } catch (err) {
             console.error("Login failed:", err);
+            dispatch(logout());
+            toast({
+                title: "Error",
+                description: err.message || "Login failed. Please try again.",
+                variant: "destructive",
+            });
         }
     };
 

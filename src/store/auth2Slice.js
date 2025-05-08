@@ -7,27 +7,34 @@ const initialState = {
     loading: false,
 };
 
-const auth2Slice = createSlice({
+const auth2slice = createSlice({
     name: 'auth2',
     initialState,
     reducers: {
         setCredentials: (state, action) => {
+            console.log('setCredentials payload:', action.payload);
             const { accessToken, user } = action.payload;
             state.accessToken = accessToken;
             state.user = user;
             state.isAuthenticated = !!accessToken;
+            console.log('setCredentials new state:', state);
         },
         setAccessToken: (state, action) => {
+            console.log('setAccessToken payload:', action.payload);
             state.accessToken = action.payload;
             state.isAuthenticated = !!action.payload;
+            console.log('setAccessToken new state:', state);
         },
         setUser: (state, action) => {
+            console.log('setUser payload:', action.payload);
             state.user = action.payload;
+            console.log('setUser new state:', state);
         },
         logout: (state) => {
             state.accessToken = null;
             state.user = null;
             state.isAuthenticated = false;
+            console.log('logout new state:', state);
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
@@ -35,5 +42,5 @@ const auth2Slice = createSlice({
     },
 });
 
-export const { setCredentials, setAccessToken, setUser, logout, setLoading } = auth2Slice.actions;
-export default auth2Slice.reducer;
+export const { setCredentials, setAccessToken, setUser, logout, setLoading } = auth2slice.actions;
+export default auth2slice.reducer;
