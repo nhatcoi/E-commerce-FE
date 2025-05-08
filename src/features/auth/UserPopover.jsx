@@ -40,6 +40,8 @@ const UserPopover = () => {
     const navigate = useNavigate();
     const {user, isAuthenticated} = useSelector((state) => state.auth2);
 
+    console.log("UserPopover", user, isAuthenticated);
+
     const [open, setOpen] = useState(false);
 
     const handleLogout = async () => {
