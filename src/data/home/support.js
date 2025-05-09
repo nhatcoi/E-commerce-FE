@@ -1,6 +1,6 @@
-import support1 from 'src/assets/img/support-area/support-1.png';
-import support2 from 'src/assets/img/support-area/support-2.png';
-import support3 from 'src/assets/img/support-area/support-3.png';
+import support1 from 'src/assets/img/support/support-1.png';
+import support2 from 'src/assets/img/support/support-2.png';
+import support3 from 'src/assets/img/support/support-3.png';
 
 export const supportData = {
   items: [

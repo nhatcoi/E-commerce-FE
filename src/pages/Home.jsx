@@ -1,22 +1,14 @@
-import { useEffect } from 'react';
-import { useSelector } from "react-redux";
+import {CircularProgress, Typography} from "@mui/material";
+import ServerError from 'src/components/error/ServerError';
+
 import CategorySection from "src/features/home/CategorySection.jsx";
 import Banner from "src/features/home/Banner.jsx"
 import Support from "src/features/home/Support.jsx"
 import StandOutSection from "src/features/home/StandOutSection.jsx"
 import BlogSection from "src/features/home/BlogSection.jsx"
 
-import banner2 from 'src/assets/img/banner/banner-template.png';
-import banner3 from 'src/assets/img/banner/banner-template.png';
-import {CircularProgress, Typography} from "@mui/material";
-import ServerError from 'src/components/error/ServerError';
 import { useGetProductsQuery } from 'src/features/product/services/productApi.js';
 import { useGetCategoriesQuery } from 'src/store/categoryApi';
-
-const bannerTemplates = [
-    banner2,
-    banner3
-];
 
 const Home = () => {
     const { 
@@ -67,7 +59,7 @@ const Home = () => {
             <div className={`transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
                 {/* Banner Section - Always render with min height */}
                 <div className="min-h-[300px]">
-                    <Banner images={bannerTemplates} />
+                    <Banner/>
                 </div>
 
                 {/* Support Section */}

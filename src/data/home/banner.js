@@ -1,8 +1,12 @@
+import banner1 from 'src/assets/img/banner/banner1.png';
+import banner2 from 'src/assets/img/banner/banner2.png';
+import banner3 from 'src/assets/img/banner/banner3.png';
+
 export const bannerData = {
   slides: [
     {
       id: 1,
-      imageUrl: 'src/assets/img/banner/banner-template.png',
+      imageUrl: banner1,
       title: 'Welcome to Our Website',
       description: 'Your journey to amazing experiences starts here.',
       button: {
@@ -13,7 +17,7 @@ export const bannerData = {
     },
     {
       id: 2,
-      imageUrl: 'src/assets/img/banner/banner-template.png',
+      imageUrl: banner2,
       title: 'Discover Our Collection',
       description: 'Explore our wide range of quality products.',
       button: {
@@ -24,7 +28,7 @@ export const bannerData = {
     },
     {
       id: 3,
-      imageUrl: 'src/assets/img/banner/banner-template.png',
+      imageUrl: banner3,
       title: 'Special Offers',
       description: 'Limited time deals on selected items.',
       button: {
