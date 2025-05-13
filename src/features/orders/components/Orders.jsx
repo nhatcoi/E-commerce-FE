@@ -5,14 +5,18 @@ import { OrderSkeleton } from './OrderSkeleton';
 import { useOrders } from '../hooks/useOrders';
 import { useOrderError } from '../hooks/useOrderError';
 import { formatCurrency } from "src/utils/formatCurrency";
+import {useGetOrdersQuery} from "src/store/orderApi.js";
 
 export const Orders = ({ userId }) => {
     const {
-        orders,
+        data = {},
         isLoading,
-        error,
-        totalPurchaseValue,
-    } = useOrders(userId);
+        error
+    } = useGetOrdersQuery({ userId });
+
+    const orders = data.data || [];
+
+    const totalPurchaseValue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
 
     // Handle order errors
     useOrderError(error);

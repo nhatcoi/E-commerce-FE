@@ -11,26 +11,8 @@ export const useOrders = (userId) => {
     const { currentOrder, error } = useSelector(state => state.order);
 
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                setIsLoading(true);
-                dispatch(setLoading(true));
-                // In production, use the real API call
-                // const response = await orderService.getOrders();
-                // setOrders(response.data);
-                
-                // Using mock data for development
-                setOrders(MOCK_ORDERS);
-                dispatch(setError(null));
-            } catch (error) {
-                dispatch(setError(error.message));
-            } finally {
-                setIsLoading(false);
-                dispatch(setLoading(false));
-            }
-        };
+       // get order from rtk query
 
-        fetchOrders();
     }, [dispatch, userId]);
 
     const totalPurchaseValue = orders.reduce((sum, order) => sum + order.totalAmount, 0);

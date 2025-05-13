@@ -1,5 +1,6 @@
 import {clsx} from "clsx";
 import {twMerge} from "tailwind-merge";
+import {toLower} from "lodash";
 
 export function cn(...inputs) {
     return twMerge(clsx(inputs));
@@ -18,4 +19,8 @@ export function generateSlug(text) {
 
 export function getSlugFromUrl(url) {
     return url.split('/').pop();
+}
+
+export function stringCompare(a, b) {
+    return toLower(a) === toLower(b);
 }
