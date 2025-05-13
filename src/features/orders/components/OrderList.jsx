@@ -123,13 +123,20 @@ const OrderList = ({ status, searchQuery }) => {
             } else {
                 // Thêm đơn hàng mới vào danh sách hiện có, tránh trùng lặp
                 setAllOrders(prev => {
-                    const newOrderIds = new Set(ordersData.data.map(order => order.id));
+                    // Kiểm tra dữ liệu trước khi xử lý
+                    const newOrderIds = new Set(
+                        Array.isArray(ordersData.data) 
+                            ? ordersData.data.filter(order => order?.id).map(order => order.id)
+                            : []
+                    );
 
                     // Giữ lại những đơn hàng cũ không có trong dữ liệu mới
-                    const filteredPrev = prev.filter(order => !newOrderIds.has(order.id));
+                    const filteredPrev = Array.isArray(prev) 
+                        ? prev.filter(order => order?.id && !newOrderIds.has(order.id))
+                        : [];
 
                     // Nối với dữ liệu mới
-                    return [...filteredPrev, ...ordersData.data];
+                    return [...filteredPrev, ...(Array.isArray(ordersData.data) ? ordersData.data : [])];
                 });
             }
         }
@@ -211,8 +218,9 @@ const OrderList = ({ status, searchQuery }) => {
 
     // Render các nút hành động dựa trên trạng thái đơn hàng
     const renderActionButtons = useCallback((order) => {
+        if (!order || !order.status) return null;
 
-        if ( stringCompare(order.status, ORDER_STATUS.PENDING) ) {
+        if (stringCompare(order.status, ORDER_STATUS.PENDING)) {
             return (
                 <>
                     <Button
@@ -235,7 +243,7 @@ const OrderList = ({ status, searchQuery }) => {
             );
         }
 
-        if ( stringCompare(order.status, ORDER_STATUS.PAID || ORDER_STATUS.COMPLETED ) ) {
+        if (stringCompare(order.status, ORDER_STATUS.PAID) || stringCompare(order.status, ORDER_STATUS.COMPLETED)) {
             return (
                 <Button
                     variant="default"
@@ -262,45 +270,49 @@ const OrderList = ({ status, searchQuery }) => {
         }
 
         return null;
-    }, [handleContinuePayment, handleCancelOrder, handleReturnOrder, handleRepurchase, isOrderStatus]);
+    }, [handleContinuePayment, handleCancelOrder, handleReturnOrder, handleRepurchase]);
 
     // Render một mục sản phẩm trong đơn hàng
-    const renderOrderItem = useCallback((item) => (
-        <div
-            key={item.id}
-            className="flex items-start space-x-4 py-4 border-t"
-        >
-            <img
-                src={item.thumbnail}
-                alt={item.name}
-                className="w-20 h-20 object-cover rounded"
-            />
-            <div className="flex-1">
-                <h3 className="font-medium">{item.name}</h3>
-                <p className="text-sm text-gray-500">{item.attributes}</p>
-                <div className="mt-2 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <ShoppingCart className="h-4 w-4 text-gray-500"/>
-                        <span className="text-sm">{UI_TEXT.ORDER.QUANTITY_PREFIX}{item.quantity}</span>
-                    </div>
-                    <div className="text-right">
-                        {item.sellingPrice < item.originalPrice && (
-                            <p className="text-sm line-through text-gray-500">
-                                {item.originalPrice.toFixed(2)}₫
+    const renderOrderItem = useCallback((item) => {
+        if (!item || !item.id) return null;
+        
+        return (
+            <div
+                key={item.id}
+                className="flex items-start space-x-4 py-4 border-t"
+            >
+                <img
+                    src={item.thumbnail || ''}
+                    alt={item.name || ''}
+                    className="w-20 h-20 object-cover rounded"
+                />
+                <div className="flex-1">
+                    <h3 className="font-medium">{item.name || ''}</h3>
+                    <p className="text-sm text-gray-500">{item.attributes || ''}</p>
+                    <div className="mt-2 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                            <ShoppingCart className="h-4 w-4 text-gray-500"/>
+                            <span className="text-sm">{UI_TEXT.ORDER.QUANTITY_PREFIX}{item.quantity || 0}</span>
+                        </div>
+                        <div className="text-right">
+                            {item.sellingPrice < item.originalPrice && (
+                                <p className="text-sm line-through text-gray-500">
+                                    {(item.originalPrice || 0).toFixed(2)}₫
+                                </p>
+                            )}
+                            <p className="font-medium text-primary">
+                                {(item.sellingPrice || 0).toFixed(2)}₫
                             </p>
-                        )}
-                        <p className="font-medium text-primary">
-                            {item.sellingPrice.toFixed(2)}₫
-                        </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    ), []);
+        );
+    }, []);
 
     // Render contents
     const renderContent = useCallback(() => {
-        if (error && allOrders.length === 0) {
+        if (error && (!allOrders || allOrders.length === 0)) {
             return (
                 <div className="flex items-center justify-center h-[200px] text-red-500">
                     {error.message || UI_TEXT.ORDER.ERROR_LOADING}
@@ -308,7 +320,7 @@ const OrderList = ({ status, searchQuery }) => {
             );
         }
 
-        if (allOrders.length === 0 && !isLoading) {
+        if (!allOrders || allOrders.length === 0 && !isLoading) {
             return (
                 <div className="flex items-center justify-center h-[200px] text-gray-500">
                     {UI_TEXT.ORDER.NO_ORDERS}
@@ -319,42 +331,46 @@ const OrderList = ({ status, searchQuery }) => {
         // Display
         return (
             <div className="space-y-4 transition-all duration-200">
-                {allOrders.map((order, index) => (
-                    <Card
-                        key={order.id}
-                        // Áp dụng ref cho phần tử cuối cùng
-                        ref={index === allOrders.length - 1 ? lastOrderElementRef : null}
-                        className="order-card shadow-sm cursor-pointer hover:shadow-md transition-all duration-200"
-                        onClick={() => handleOrderClick(order)}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <div className="flex items-center space-x-4">
-                                <Package className="h-5 w-5 text-gray-500"/>
-                                <div>
-                                    <p className="font-medium">{order.shop}</p>
-                                    <p className="text-sm text-gray-500">{UI_TEXT.ORDER.CODE_PREFIX}{order.id}</p>
+                {Array.isArray(allOrders) && allOrders.map((order, index) => {
+                    if (!order) return null;
+                    
+                    return (
+                        <Card
+                            key={order.id || index}
+                            // Áp dụng ref cho phần tử cuối cùng
+                            ref={index === allOrders.length - 1 ? lastOrderElementRef : null}
+                            className="order-card shadow-sm cursor-pointer hover:shadow-md transition-all duration-200"
+                            onClick={() => handleOrderClick(order)}
+                        >
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <div className="flex items-center space-x-4">
+                                    <Package className="h-5 w-5 text-gray-500"/>
+                                    <div>
+                                        <p className="font-medium">{order.shop || ''}</p>
+                                        <p className="text-sm text-gray-500">{UI_TEXT.ORDER.CODE_PREFIX}{order.id || ''}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <Badge className={STATUS_BADGE_COLORS[order.status] || "bg-gray-100 text-gray-800"}>
-                                {order.status}
-                            </Badge>
-                        </CardHeader>
-                        <CardContent>
-                            {order.items?.map(renderOrderItem)}
+                                <Badge className={STATUS_BADGE_COLORS[order.status] || "bg-gray-100 text-gray-800"}>
+                                    {order.status || ''}
+                                </Badge>
+                            </CardHeader>
+                            <CardContent>
+                                {Array.isArray(order.items) && order.items.map(renderOrderItem)}
 
-                            {/* Footer đơn hàng: các nút hành động và tổng tiền */}
-                            <div className="flex justify-end gap-8 items-center border-t pt-4 mt-4">
-                                <div className="flex gap-2">
-                                    {renderActionButtons(order)}
+                                {/* Footer đơn hàng: các nút hành động và tổng tiền */}
+                                <div className="flex justify-end gap-8 items-center border-t pt-4 mt-4">
+                                    <div className="flex gap-2">
+                                        {renderActionButtons(order)}
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm text-gray-500">{UI_TEXT.ORDER.TOTAL_LABEL}</p>
+                                        <p className="text-lg font-bold">{(order.total || 0).toFixed(2)}₫</p>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-500">{UI_TEXT.ORDER.TOTAL_LABEL}</p>
-                                    <p className="text-lg font-bold">{order.total.toFixed(2)}₫</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                            </CardContent>
+                        </Card>
+                    );
+                })}
             </div>
         );
     }, [allOrders, error, isLoading, lastOrderElementRef, handleOrderClick, renderOrderItem, renderActionButtons]);
@@ -362,13 +378,13 @@ const OrderList = ({ status, searchQuery }) => {
     return (
         <div className="relative min-h-[400px] transition-all duration-200">
             {/* Nội dung chính */}
-            <div className={`space-y-6 transition-opacity duration-200 ${(isLoading && allOrders.length === 0) ? 'opacity-50' : 'opacity-100'}`}>
+            <div className={`space-y-6 transition-opacity duration-200 ${(isLoading && (!allOrders || allOrders.length === 0)) ? 'opacity-50' : 'opacity-100'}`}>
                 {renderContent()}
             </div>
 
             {/* Loading indicator */}
             {(isLoading || isFetching) && (
-                <div className={`absolute inset-0 flex items-center justify-center ${allOrders.length > 0 ? 'bg-white/50 pointer-events-none' : ''}`}>
+                <div className={`absolute inset-0 flex items-center justify-center ${allOrders && allOrders.length > 0 ? 'bg-white/50 pointer-events-none' : ''}`}>
                     <div className="flex space-x-2 items-center">
                         <div className="h-2 w-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                         <div className="h-2 w-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -378,7 +394,7 @@ const OrderList = ({ status, searchQuery }) => {
             )}
 
             {/* Thông báo không có thêm đơn hàng */}
-            {!ordersData?.pagination?.hasNextPage && allOrders.length > 0 && !isLoading && !isFetching && (
+            {!ordersData?.pagination?.hasNextPage && allOrders && allOrders.length > 0 && !isLoading && !isFetching && (
                 <div className="text-center py-6 text-gray-400 text-sm">
                     {UI_TEXT.ORDER.NO_MORE_ORDERS}
                 </div>

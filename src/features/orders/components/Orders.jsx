@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "src/components/ui/card";
 import { OrderList } from './OrderList';
 import { OrderSkeleton } from './OrderSkeleton';
-import { useOrders } from '../hooks/useOrders';
 import { useOrderError } from '../hooks/useOrderError';
 import { formatCurrency } from "src/utils/formatCurrency";
 import {useGetOrdersQuery} from "src/store/orderApi.js";
