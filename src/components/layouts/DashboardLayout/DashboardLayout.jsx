@@ -1,6 +1,6 @@
 import React from "react";
 import {Outlet, Link} from "react-router-dom";
-import {cn} from "src/lib/utils.js";
+import {cn} from "src/utils/utils.js";
 import {
     Sheet,
     SheetContent,

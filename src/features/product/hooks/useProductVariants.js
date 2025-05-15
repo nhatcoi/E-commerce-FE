@@ -10,8 +10,8 @@ export const useProductVariants = (initialAttributes = [], initialSpecifications
             {
                 attributeName: "",
                 attributeValue: "",
-                price: 0,
-                stockQuantity: 0
+                price: "",
+                stockQuantity: ""
             }
         ]);
     };
@@ -22,12 +22,16 @@ export const useProductVariants = (initialAttributes = [], initialSpecifications
 
     const updateAttribute = (index, field, value) => {
         const newAttributes = [...attributes];
+        let finalValue = value;
+        
+        // Convert to number for numeric fields
         if (field === 'price' || field === 'stockQuantity') {
-            value = value === '' ? 0 : Number(value);
+            finalValue = value === '' ? '' : Number(value);
         }
+        
         newAttributes[index] = {
             ...newAttributes[index],
-            [field]: value
+            [field]: finalValue
         };
         setAttributes(newAttributes);
     };

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import PropTypes from 'prop-types';
-import { cn } from "src/lib/utils";
+import { cn } from "src/utils/utils.js";
 import { Button } from "src/components/ui/button";
 import { Calendar } from "src/components/ui/calendar";
 import {

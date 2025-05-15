@@ -8,7 +8,6 @@ import OrderSummary from 'src/features/checkout/OrderSummary';
 import ShippingForm from 'src/features/checkout/ShippingForm';
 import PaymentForm from 'src/features/checkout/PaymentForm';
 import OrderConfirmation from 'src/features/checkout/OrderConfirmation';
-import OrderSummarySidebar from 'src/features/checkout/OrderSummarySidebar';
 import ProceedCheckout from "src/features/cart/ProceedCheckout.jsx";
 import { getStripeRedirectStatus, clearStripeParams } from 'src/utils/stripeUtils';
 import { orderService } from 'src/services/orderService';
@@ -141,19 +140,7 @@ const Checkout = () => {
                 );
             case 3:
                 return (
-                    <OrderConfirmation 
-                        orderData={orderData || {
-                            shipping: shippingData,
-                            payment: paymentData,
-                            cart: {
-                                items: selectedItems,
-                                subtotal: selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0),
-                                shipping: 0, // Add your shipping calculation
-                                discount: 0, // Add discount calculation if available
-                                total: selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0)
-                            }
-                        }}
-                    />
+                    <OrderConfirmation orderId={orderData?.id}/>
                 );
             default:
                 return null;

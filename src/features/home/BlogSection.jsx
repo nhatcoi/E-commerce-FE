@@ -7,7 +7,7 @@ import { Button } from "src/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "src/components/ui/card";
 import ServerError from 'src/components/error/ServerError';
 import { blogSectionData } from 'src/data/home/blog';
-import {generateSlug} from "src/lib/utils.js";
+import {generateSlug} from "src/utils/utils.js";
 import { useGetRecentNewsQuery } from 'src/store/blogApi';
 
 const BlogSection = () => {

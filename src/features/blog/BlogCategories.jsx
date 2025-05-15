@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import { ScrollArea, ScrollBar } from "src/components/ui/scroll-area";
 import { Button } from "src/components/ui/button";
-import { cn } from "src/lib/utils";
+import { cn } from "src/utils/utils.js";
 import blogService from "src/services/blogService.js";
 
 const CATEGORIES = [

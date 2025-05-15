@@ -1,164 +1,120 @@
-import { motion } from "framer-motion";
-import { CheckCircle, Package, Printer, Mail } from "lucide-react";
-import { Button } from "src/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "src/components/ui/card";
-import { Separator } from "src/components/ui/separator";
+import { useGetOrderByIdQuery } from "src/store/orderApi.js";
+import { Card, CardContent, CardHeader, CardTitle } from "src/components/ui/card.jsx";
+import { Button } from "src/components/ui/button.jsx";
+import { Separator } from "src/components/ui/separator.jsx";
+import { CheckCircle2, Printer } from "lucide-react";
 
-const OrderConfirmation = ({ orderData }) => {
-    const { shipping, payment, cart } = orderData;
-    const orderNumber = `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+// eslint-disable-next-line react/prop-types
+const OrderConfirmation = ({ orderId }) => {
+    const { data, isLoading, error } = useGetOrderByIdQuery(orderId);
+    const orderData = data?.data || {};
 
     const handlePrintOrder = () => {
         window.print();
     };
 
-    return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="space-y-8"
-        >
-            {/* Success Header */}
-            <div className="text-center space-y-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-                    <CheckCircle className="w-8 h-8 text-primary" />
-                </div>
-                <div className="space-y-2">
-                    <h1 className="text-2xl font-semibold">Order Confirmed!</h1>
-                    <p className="text-muted-foreground">
-                        Thank you for your purchase. Your order has been received.
-                    </p>
-                </div>
+    if (isLoading) {
+        return (
+            <div className="text-center py-8">
+                <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
+                <p className="mt-2 text-muted-foreground">Loading order details...</p>
             </div>
+        );
+    }
 
-            {/* Order Details Card */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Order Details</CardTitle>
-                    <CardDescription>
-                        Order Number: {orderNumber}
-                    </CardDescription>
+    if (error) {
+        return (
+            <div className="text-center py-8 text-destructive">
+                <p>Failed to load order details. Please try again later.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto py-8 px-4">
+            <Card className="mb-8">
+                <CardHeader className="text-center pb-6">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle2 className="w-6 h-6 text-primary" />
+                    </div>
+                    <CardTitle className="text-2xl font-semibold text-primary">Order Confirmed!</CardTitle>
+                    <p className="text-muted-foreground mt-2">
+                        Thank you for your order. We'll send you shipping confirmation soon.
+                    </p>
                 </CardHeader>
+
                 <CardContent className="space-y-6">
-                    {/* Shipping Information */}
+                    {/* Order Info */}
                     <div className="space-y-2">
-                        <h3 className="font-medium">Shipping Address</h3>
-                        <div className="text-sm text-muted-foreground">
-                            <p>{shipping.fullName}</p>
-                            <p>{shipping.address}</p>
-                            <p>{`${shipping.city}, ${shipping.district} ${shipping.postcode}`}</p>
-                            <p>{shipping.country}</p>
-                            <p>Phone: {shipping.phone}</p>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Order Number:</span>
+                            <span className="font-medium">{orderData.orderNumber}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Date:</span>
+                            <span className="font-medium">
+                                {new Date(orderData.createdAt).toLocaleDateString()}
+                            </span>
                         </div>
                     </div>
 
                     <Separator />
 
-                    {/* Payment Information */}
-                    <div className="space-y-2">
-                        <h3 className="font-medium">Payment Method</h3>
-                        <div className="text-sm text-muted-foreground">
-                            <p>{payment.paymentMethod === 'credit-card' 
-                                ? `Credit Card ending in ${payment.paymentDetails.cardNumber.slice(-4)}` 
-                                : payment.paymentMethod}
-                            </p>
-                        </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Order Summary */}
+                    {/* Items */}
                     <div className="space-y-4">
-                        <h3 className="font-medium">Order Summary</h3>
-                        <div className="space-y-2">
-                            {cart.items.map((item) => (
-                                <div key={item.id} className="flex justify-between text-sm">
-                                    <span>{item.name} × {item.quantity}</span>
-                                    <span className="font-medium">
-                                        ${(item.price * item.quantity).toFixed(2)}
-                                    </span>
+                        <h3 className="font-medium">Order Items</h3>
+                        {orderData.items?.map((item) => (
+                            <div key={item.id} className="flex justify-between text-sm">
+                                <div>
+                                    <span className="font-medium">{item.product.name}</span>
+                                    {item.selectedAttributes && (
+                                        <span className="text-muted-foreground ml-2">
+                                            ({Object.values(item.selectedAttributes)
+                                                .map(attr => attr.attributeValue)
+                                                .join(", ")})
+                                        </span>
+                                    )}
+                                    <span className="text-muted-foreground ml-2">× {item.quantity}</span>
                                 </div>
-                            ))}
+                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Separator />
+
+                    {/* Totals */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Subtotal</span>
+                            <span>${orderData.subtotal?.toFixed(2)}</span>
                         </div>
-                        <Separator />
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                                <span>Subtotal</span>
-                                <span>${cart.subtotal.toFixed(2)}</span>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Shipping</span>
+                            <span>${orderData.shipping?.toFixed(2)}</span>
+                        </div>
+                        {orderData.discount > 0 && (
+                            <div className="flex justify-between text-sm text-primary">
+                                <span>Discount</span>
+                                <span>-${orderData.discount?.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-sm">
-                                <span>Shipping</span>
-                                <span>${cart.shipping.toFixed(2)}</span>
-                            </div>
-                            {cart.discount > 0 && (
-                                <div className="flex justify-between text-sm text-primary">
-                                    <span>Discount</span>
-                                    <span>-${cart.discount.toFixed(2)}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between font-medium pt-4">
-                                <span>Total</span>
-                                <span>${cart.total.toFixed(2)}</span>
-                            </div>
+                        )}
+                        <div className="flex justify-between font-medium pt-2">
+                            <span>Total</span>
+                            <span className="text-lg">${orderData.total?.toFixed(2)}</span>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Estimated Delivery */}
-            <Card>
-                <CardContent className="flex items-center gap-4 py-6">
-                    <Package className="w-6 h-6 text-primary" />
-                    <div>
-                        <p className="font-medium">Estimated Delivery</p>
-                        <p className="text-sm text-muted-foreground">
-                            {shipping.shippingMethod === 'express' 
-                                ? '1-2 business days' 
-                                : '3-5 business days'}
-                        </p>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                    variant="outline" 
-                    className="flex-1 gap-2"
-                    onClick={handlePrintOrder}
-                >
+            <div className="flex justify-center">
+                <Button variant="outline" onClick={handlePrintOrder} className="gap-2">
                     <Printer className="w-4 h-4" />
                     Print Order
                 </Button>
-                <Button 
-                    variant="outline" 
-                    className="flex-1 gap-2"
-                    onClick={() => window.location.href = '/'}
-                >
-                    <Mail className="w-4 h-4" />
-                    Email Receipt
-                </Button>
-                <Button 
-                    className="flex-1"
-                    onClick={() => window.location.href = '/shop'}
-                >
-                    Continue Shopping
-                </Button>
             </div>
-
-            {/* Additional Information */}
-            <div className="text-center text-sm text-muted-foreground">
-                <p>A confirmation email has been sent to your email address.</p>
-                <p>For any questions, please contact our customer support.</p>
-            </div>
-        </motion.div>
+        </div>
     );
 };
 
-export default OrderConfirmation; 
+export default OrderConfirmation;

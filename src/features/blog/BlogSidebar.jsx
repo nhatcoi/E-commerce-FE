@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "src/components/ui/card
 import { Badge } from "src/components/ui/badge";
 import { Eye, Flame, Hash } from "lucide-react";
 import blogService from "src/services/blogService.js";
-import { generateSlug } from "src/lib/utils";
+import { generateSlug } from "src/utils/utils.js";
 
 const CATEGORIES = [
     { name: "Technology", count: 25 },

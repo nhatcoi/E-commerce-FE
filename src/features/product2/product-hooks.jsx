@@ -45,11 +45,16 @@ export const useProductAttributes = (product) => {
             return product.price;
         }
 
-        // Calculate price with selected attributes
-        const basePrice = product.price;
-        const attributePrices = Object.values(selectedAttributes).map(attr => attr.price);
-        const totalAttributePrice = attributePrices.reduce((acc, price) => acc + price, 0);
-        return basePrice + totalAttributePrice;
+        // Calculate total price of selected attributes
+        const selectedAttributePrices = Object.values(selectedAttributes).map(attr => attr.price);
+        const totalAttributePrice = selectedAttributePrices.reduce((acc, price) => acc + price, 0);
+        
+        // Calculate price deduction based on number of selected attributes
+        const numSelectedAttributes = Object.keys(selectedAttributes).length;
+        const priceDeduction = product.price * (numSelectedAttributes - 1);
+        
+        // Final price = sum of selected attribute prices - (base price * (num selected attributes - 1))
+        return totalAttributePrice - priceDeduction;
     };
 
     // Group attributes by name

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "src/components/ui/button.jsx";
 import { Badge } from "src/components/ui/badge.jsx";
 import { CheckCircle2, Heart, Loader2, ShoppingBag, ShoppingCart, Star } from "lucide-react";
-import {cn, generateSlug} from "src/lib/utils.js";
+import {cn, generateSlug} from "src/utils/utils.js";
 import { clearCurrentProduct } from "src/store/slices/product/productsSlice.js";
 import { useProductAttributes, useProductActions, renderRatingStars } from "./product-hooks.jsx";
 import {useGetProductByIdQuery} from "src/features/product/services/productApi.js";

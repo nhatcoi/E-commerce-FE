@@ -38,6 +38,7 @@ export const productApi = createApi({
                 url: '/products',   
                 method: 'POST',
                 data: newProduct,
+                transformRequest: [(data) => data],
             }),
             invalidatesTags: [{ type: 'Product', id: 'LIST' }],
         }),

@@ -19,11 +19,13 @@ const axiosBaseQuery = ({
     prepareHeaders = () => ({}),
     cache: { ttl = 0, methods = ['GET'] } = {}
 } = {}) => {
-    return async ({ url, method, data, params }) => {
+    return async ({ url, method, data, params, headers = {} }) => {
         try {
             // Clean up empty params
             const cleanParams = removeEmptyParams(params);
-            const cleanData = removeEmptyParams(data);
+
+            // Don't clean FormData
+            const cleanData = data instanceof FormData ? data : removeEmptyParams(data);
 
             // Generate cache key for cacheable requests
             const shouldCache = ttl > 0 && methods.includes(method?.toUpperCase());
@@ -45,7 +47,12 @@ const axiosBaseQuery = ({
                 method,
                 data: cleanData,
                 params: cleanParams,
-                headers: prepareHeaders(),
+                headers: {
+                    ...prepareHeaders(),
+                    ...headers,
+                    // Let the browser set the Content-Type for FormData
+                    ...(data instanceof FormData ? {} : { 'Content-Type': 'application/json' })
+                },
             });
 
             // Cache the response if needed

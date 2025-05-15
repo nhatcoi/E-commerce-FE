@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { cn } from "src/lib/utils.js";
+import { cn } from "src/utils/utils.js";
 import { Button } from "./button";
 
 const Error = ({

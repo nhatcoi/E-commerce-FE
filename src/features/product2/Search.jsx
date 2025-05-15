@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {Search as SearchIcon, X} from "lucide-react";
 import {Input} from "src/components/ui/input.jsx";
 import {Button} from "src/components/ui/button.jsx";
-import {cn} from "src/lib/utils.js";
+import {cn} from "src/utils/utils.js";
 
 const Search = () => {
     const [isOpen, setIsOpen] = useState(false);

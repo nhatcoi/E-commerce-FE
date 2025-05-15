@@ -67,7 +67,7 @@ export default function UsersDashboard() {
                 </p>
             </div>
 
-            <UserStatistics users={users} />
+            {/*<UserStatistics users={users} />*/}
 
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 min-w-[200px]">

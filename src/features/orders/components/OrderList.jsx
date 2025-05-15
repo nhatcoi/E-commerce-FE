@@ -10,7 +10,7 @@ import {
     useGetOrdersQuery,
     useCancelOrderMutation,
 } from "src/store/orderApi";
-import {stringCompare} from "src/lib/utils.js";
+import {stringCompare} from "src/utils/utils.js";
 
 // Constants cho order list
 const CONSTANTS = {
@@ -69,7 +69,7 @@ const UI_TEXT = {
 };
 
 const OrderList = ({ status, searchQuery }) => {
-
+    
     // Các state UI
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -340,7 +340,7 @@ const OrderList = ({ status, searchQuery }) => {
                             </Badge>
                         </CardHeader>
                         <CardContent>
-                            {Array.isArray(order.items) ? order.items.map(renderOrderItem) : null}
+                            {order.items?.map(renderOrderItem)}
 
                             {/* Footer đơn hàng: các nút hành động và tổng tiền */}
                             <div className="flex justify-end gap-8 items-center border-t pt-4 mt-4">

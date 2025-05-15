@@ -19,6 +19,10 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
+        // If the data is FormData, let the browser set the Content-Type
+        if (config.data instanceof FormData) {
+            config.headers["Content-Type"] = "multipart/form-data";
+        }
 
         const { accessToken } = store.getState().auth2;
         if (accessToken) {

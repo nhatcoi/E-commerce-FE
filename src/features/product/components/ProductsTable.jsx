@@ -16,7 +16,7 @@ import {
 } from "src/components/ui/dropdown-menu.jsx";
 import { Button } from "src/components/ui/button.jsx";
 import { Badge } from "src/components/ui/badge.jsx";
-import { Loader2, MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { Loader2, MoreHorizontal, Trash } from "lucide-react";
 import {TABLE_COLUMNS} from "src/features/product/index.js";
 import {useNavigate} from "react-router-dom";
 
@@ -26,7 +26,6 @@ export const ProductsTable = ({
     products,
     isLoading,
     isFetching,
-    onEdit,
     onDelete
 }) => {
     if (isLoading || isFetching) {
@@ -111,10 +110,6 @@ export const ProductsTable = ({
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => onEdit(product)}>
-                                                <Pencil className="mr-2 h-4 w-4"/>
-                                                Edit
-                                            </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 className="text-destructive"
                                                 onClick={() => onDelete(product.id)}
@@ -138,7 +133,6 @@ ProductsTable.propTypes = {
     products: PropTypes.array,
     isLoading: PropTypes.bool,
     isFetching: PropTypes.bool,
-    onEdit: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired
 };
 

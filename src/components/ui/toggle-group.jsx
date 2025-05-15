@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
-import { cn } from "src/lib/utils.js"
+import { cn } from "src/utils/utils.js"
 
 const ToggleGroup = React.forwardRef(({ className, ...props }, ref) => (
   <ToggleGroupPrimitive.Root

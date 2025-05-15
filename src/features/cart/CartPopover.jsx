@@ -228,8 +228,8 @@ const CartPopover = () => {
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-sm font-medium">Subtotal</span>
                                         <span className="text-base font-semibold text-primary">
-                      ${calculateTotal().toFixed(2)}
-                    </span>
+                                            ${calculateTotal().toFixed(2)}
+                                        </span>
                                     </div>
 
                                     <div className="space-y-2">

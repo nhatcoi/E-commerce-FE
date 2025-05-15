@@ -1,4 +1,4 @@
-import { cn } from "src/lib/utils";
+import { cn } from "src/utils/utils.js";
 import { Check } from "lucide-react";
 
 export const Steps = ({ steps, currentStep, className }) => {

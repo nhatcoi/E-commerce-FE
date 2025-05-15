@@ -1,4 +1,4 @@
-import { cn } from "src/lib/utils.js";
+import { cn } from "src/utils/utils.js";
 import { Loader2 } from "lucide-react";
 
 const LoadingSpinner = ({ 

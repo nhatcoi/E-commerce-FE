@@ -8,7 +8,7 @@ import { format, parseISO } from 'date-fns';
 import { Badge } from "src/components/ui/badge";
 import { Eye, MessageSquare, Calendar, ArrowRight } from "lucide-react";
 import blogService from "src/services/blogService.js";
-import { generateSlug } from "src/lib/utils";
+import { generateSlug } from "src/utils/utils.js";
 import {
     Pagination,
     PaginationContent,
