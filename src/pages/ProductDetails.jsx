@@ -146,7 +146,7 @@ const ProductDetails = () => {
                             {attr.price !== product.price && (
                                 <span className="ml-1 text-xs">
                                     {attr.price > product.price ? '+' : ''}
-                                    ${Math.abs(attr.price + product.price).toFixed(2)}
+                                    ${Math.abs(attr.price - product.price).toFixed(2)}
                                 </span>
                             )}
                             {attr.stockQuantity <= 0 && (
