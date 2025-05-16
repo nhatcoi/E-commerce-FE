@@ -1,8 +1,8 @@
 // Inspired by react-hot-toast library
 import * as React from "react"
 
-const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 3
+const TOAST_REMOVE_DELAY = 3000 // 3 seconds before toast disappears
 
 const actionTypes = {
     ADD_TOAST: "ADD_TOAST",
@@ -127,6 +127,11 @@ function toast({
             },
         },
     })
+
+    // Automatically dismiss after TOAST_REMOVE_DELAY
+    setTimeout(() => {
+        dismiss()
+    }, TOAST_REMOVE_DELAY)
 
     return {
         id: id,
