@@ -1,18 +1,10 @@
-import React, {useEffect} from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "src/components/ui/card";
 import { Badge } from "src/components/ui/badge";
 import { Eye, Flame, Hash } from "lucide-react";
-import blogService from "src/services/blogService.js";
 import { generateSlug } from "src/utils/utils.js";
-
-const CATEGORIES = [
-    { name: "Technology", count: 25 },
-    { name: "Design", count: 18 },
-    { name: "Development", count: 32 },
-    { name: "Business", count: 15 },
-    { name: "Tutorial", count: 21 },
-];
+import { useGetBlogsQuery, useGetBlogCategoriesQuery } from "src/store/blogApi";
 
 const TAGS = [
     "React", "JavaScript", "Web Development", "UI/UX", "Design",
@@ -20,30 +12,17 @@ const TAGS = [
 ];
 
 const BlogSidebar = () => {
-    const [popularPosts, setBlogs] = React.useState([]);
-    const [countBlogs, setCountBlogs] = React.useState([]);
+    const popularPostsParams = {
+        page: 0,
+        size: 4,
+        views: "desc",
+    };
 
-    useEffect(() => {
-        const popularPostsParams = {
-            page: 0,
-            size: 4,
-            views: "desc",
-        }
+    const { data: blogsData } = useGetBlogsQuery(popularPostsParams);
+    const { data: categoriesData } = useGetBlogCategoriesQuery();
 
-        const fetchBlogs = async () => {
-            const blogs = await blogService.getBlogs(popularPostsParams);
-            setBlogs(blogs.data);
-        }
-
-        const countBlogs = async () => {
-            const response = await blogService.getTopBlogCategories();
-            setCountBlogs(response);
-        }
-
-        fetchBlogs().then(r => r);
-        countBlogs().then(r => r);
-    }, []);
-
+    const popularPosts = blogsData?.data || [];
+    const countBlogs = categoriesData?.data || [];
 
     return (
         <div className="space-y-8">

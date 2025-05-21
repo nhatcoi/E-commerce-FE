@@ -2,25 +2,27 @@ import React, {useEffect} from "react";
 import { ScrollArea, ScrollBar } from "src/components/ui/scroll-area";
 import { Button } from "src/components/ui/button";
 import { cn } from "src/utils/utils.js";
-import blogService from "src/services/blogService.js";
+import {useGetBlogCategoriesQuery} from "src/store/blogApi.js";
 
 const CATEGORIES = [
     { id: "all", name: "All post" },
 ];
 
-const BlogCategories = ({ selectedCategory, onCategoryChange, className }) => {
+const BlogCategories = ({selectedCategory, onCategoryChange, className}) => {
     const [categories, setCategories] = React.useState([]);
+
+    const { data, isLoading, error } = useGetBlogCategoriesQuery();
+
 
     useEffect(() => {
         const fetchCategories = async () => {
-            const blogCategories = await blogService.getBlogCategories();
+            const blogCategories = data?.data || [];
 
             const combinedCategories = [...CATEGORIES, ...blogCategories];
             setCategories(combinedCategories);
         };
         fetchCategories().then(r => r);
-    }, []);
-
+    }, [data]);
 
 
     return (
@@ -39,9 +41,10 @@ const BlogCategories = ({ selectedCategory, onCategoryChange, className }) => {
                         </Button>
                     ))}
                 </div>
-                <ScrollBar orientation="horizontal" className="invisible" />
+                <ScrollBar orientation="horizontal" className="invisible"/>
             </ScrollArea>
-            <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-background to-transparent" />
+            <div
+                className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-background to-transparent"/>
         </div>
     );
 };

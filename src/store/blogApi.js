@@ -21,10 +21,20 @@ export const blogApi = createApi({
             }),
             providesTags: ["Blog"],
         }),
+
+        // get blog categories
+        getBlogCategories: builder.query({
+            query: () => ({
+                url: `/blog/categories`,
+                method: "GET",
+            }),
+            providesTags: ["Blog"],
+        }),
     }),
 });
 
 export const {
     useGetBlogsQuery,
-    useGetRecentNewsQuery
+    useGetRecentNewsQuery,
+    useGetBlogCategoriesQuery
 } = blogApi;

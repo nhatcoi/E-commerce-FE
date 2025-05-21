@@ -1,5 +1,4 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import blogService from "src/services/blogService.js";
 import blogApi from "src/api/blogApi.js";
 
 export const fetchBlogs = createAsyncThunk(
